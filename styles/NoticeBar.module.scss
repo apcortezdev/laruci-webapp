@@ -1,0 +1,13 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.noticebar {
+  display: none;
+  @include media-min-width(40rem) {
+    display: inline-flex;
+    grid-area: notice;
+    background-color: map-get($map: $colors, $key: primary);
+    justify-content: center;
+    align-items: center;
+  }
+}

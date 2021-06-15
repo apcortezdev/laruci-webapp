@@ -1,0 +1,53 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.shopbar {
+  @include display-flex();
+  background-color: map-get($colors, secondary);
+  align-items: center;
+}
+
+.shopbar_inner {
+  @include display-flex();
+  width: 50%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: auto;
+}
+
+.shopbar_nav {
+  display: none;
+  @include media-min-width(40rem) {
+    display: inline-block;
+    font-family: 'Monserrat', sans-serif;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+}
+
+.shopbar_nav__item {
+  display: inline-block;
+  font-family: inherit;
+  list-style: none;
+  color: map-get($map: $colors, $key: primary);
+  padding: 0 1rem;
+}
+
+.shopbar_nav__item:hover,
+.shopbar_nav__item:active {
+  color: map-get($map: $colors, $key: detail);
+}
+
+.shopbar input[type='text'] {
+  font-family: inherit;
+  color: map-get($map: $colors, $key: accent);
+  height: 1.8rem;
+  width: 100%;
+  border: 1px solid map-get($map: $colors, $key: primary);
+  border-radius: 0.9rem;
+}
+
+.shopbar input[type='text']:focus {
+  outline: none;
+}

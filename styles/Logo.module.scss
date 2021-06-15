@@ -1,0 +1,27 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.logobox {
+  @include display-flex();
+  grid-area: logo;
+  font-family: 'Cinzel Decorative', cursive;
+  background-color: map-get($colors, white);
+  color: map-get($colors, text-strong);
+  justify-content: center;
+  align-items: center;
+  border-bottom: 2px solid map-get($map: $colors, $key: secondary);
+  @include media-min-width(40rem) {
+    border-bottom: none;
+  }
+}
+
+.logobox_img {
+  background-image: url('../public/laruci.png');
+  background-size: contain;
+  width: 16rem;
+  height: 3.6rem;
+  @include media-min-width(40rem) {
+    width: 22.965rem;
+    height: 5.14rem;
+  }
+}
