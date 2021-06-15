@@ -5,49 +5,103 @@
   @include display-flex();
   background-color: map-get($colors, secondary);
   align-items: center;
+  justify-content: center;
 }
 
 .shopbar_inner {
   @include display-flex();
-  width: 50%;
+  width: 95%;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  margin: auto;
-}
-
-.shopbar_nav {
-  display: none;
+  justify-content: center;
   @include media-min-width(40rem) {
+    margin: auto;
+    max-width: 80rem;
+  }
+
+  .mobilenav_area,
+  .webnav_area {
+    flex-grow: 0;
+  }
+
+  .webnav_area {
+    display: none;
+    @include media-min-width(40rem) {
+      display: inline-flex;
+    }
+  }
+
+  .search_area {
+    flex-grow: 1;
+    display: inline-flex;
+    justify-content: right;
+  }
+
+  .user_area {
+    flex-grow: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user_icon {
     display: inline-block;
-    font-family: 'Monserrat', sans-serif;
-    font-weight: 500;
-    vertical-align: middle;
+    margin: 0 0.7rem;
+    width: 2rem;
+    height: 1.4rem;
+    background: map-get($map: $colors, $key: secondary)
+      url(../public/user_icon.png) center/1.4rem 1.4rem no-repeat;
+  }
+
+  .bag_icon {
+    display: inline-block;
+    width: 2rem;
+    height: 1.4rem;
+    background: map-get($map: $colors, $key: secondary)
+      url(../public/bag_icon.png) center/1.4rem 1.4rem no-repeat;
+  }
+
+  .mobilenav_btn {
+    margin-right: 0.7rem;
+    background: map-get($map: $colors, $key: secondary)
+      url(../public/mobilenav_icon.png) center/1.4rem 1.4rem no-repeat;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+    @include media-min-width(40rem) {
+      display: none;
+    }
+  }
+
+  .user_icon:hover,
+  .bag_icon:hover,
+  .mobilenav_btn:hover {
+    cursor: pointer;
   }
 }
 
-.shopbar_nav__item {
-  display: inline-block;
-  font-family: inherit;
-  list-style: none;
-  color: map-get($map: $colors, $key: primary);
-  padding: 0 1rem;
+.mobilenav {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 2rem 7rem 2rem;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  background: map-get($map: $colors, $key: white);
+  width: 11rem;
+  height: 100vh;
+  transition: all 200ms ease-out;
+  @include media-min-width(40rem) {
+    display: none;
+  }
 }
 
-.shopbar_nav__item:hover,
-.shopbar_nav__item:active {
-  color: map-get($map: $colors, $key: detail);
+.open {
+  transform: translateX(0);
 }
 
-.shopbar input[type='text'] {
-  font-family: inherit;
-  color: map-get($map: $colors, $key: accent);
-  height: 1.8rem;
-  width: 100%;
-  border: 1px solid map-get($map: $colors, $key: primary);
-  border-radius: 0.9rem;
-}
-
-.shopbar input[type='text']:focus {
-  outline: none;
+.close {
+  transform: translateX(-100%);
 }

@@ -3,7 +3,7 @@ import NoticeBar from '../components/NoticeBar';
 import Head from 'next/Head';
 import ShopBar from '../components/ShopBar';
 import WebMenu from '../components/MainMenu';
-import Logo from '../components/Logo';
+import Logo from '../components/utilities/Logo';
 import '../styles/globals.scss';
 
 function MyApp({ Component, pageProps }) {
@@ -19,9 +19,12 @@ function MyApp({ Component, pageProps }) {
         <NoticeBar />
         <ShopBar />
         <Logo />
-        <WebMenu />
+        <div className="mainmenu">
+          <WebMenu />
+        </div>
         <Component {...pageProps} />
         <Footer />
+        <div id="backdrop-root" />
       </div>
     </>
   );

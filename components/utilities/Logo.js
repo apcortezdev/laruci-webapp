@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import styles from '../styles/Logo.module.scss';
+import styles from '../../styles/Logo.module.scss';
 
 const Header = () => {
   return (

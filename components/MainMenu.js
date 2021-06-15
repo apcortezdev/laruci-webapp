@@ -1,8 +1,7 @@
-import React, { PropTypes } from 'react';
 import Link from 'next/link';
 import styles from '../styles/MainMenu.module.scss';
 
-const MainMenu = (props) => {
+const MainMenu = () => {
   const links = [
     { id: 'sutias', name: 'Sutiãs' },
     { id: 'calcinhas', name: 'Calcinhas' },
@@ -13,27 +12,23 @@ const MainMenu = (props) => {
   ];
 
   return (
-    <div className={styles.webmenu}>
-      <nav>
-        <ul>
-          {links.map((link) => (
-            <li key={link.id}>
-              <Link
-                href={{
-                  pathname: '/',
-                  query: { id: link.id },
-                }}
-              >
-                {link.name.toLowerCase()}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+    <nav className={styles.webmenu}>
+      <ul className={styles.webmenu_list}>
+        {links.map((link) => (
+          <li key={link.id}>
+            <Link
+              href={{
+                pathname: '/',
+                query: { id: link.id },
+              }}
+            >
+              {link.name.toLowerCase()}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 };
-
-MainMenu.propTypes = {};
 
 export default MainMenu;

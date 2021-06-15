@@ -25,10 +25,24 @@ a {
   display: grid;
 
   grid-template-rows: [shopbar-start] 3rem [shopbar-end logo-start] 7rem [logo-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
-  grid-template-areas: 'shopbar' 'logo''maincomponent' 'footer';
+  grid-template-areas: 'shopbar' 'logo' 'maincomponent' 'footer';
 
   @include media-min-width(40rem) {
     grid-template-rows: [notice-start] 2.5rem [notice-end shopbar-start] 3rem [shopbar-end logo-start] 10rem [logo-end mainmenu-start] 3rem [mainmenu-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
     grid-template-areas: 'notice' 'shopbar' 'logo' 'mainmenu' 'maincomponent' 'footer';
   }
+}
+
+.mainmenu {
+  display: none;
+  @include media-min-width(40rem) {
+    grid-area: mainmenu;
+    display: inline-flex;
+  }
+}
+
+#backdrop-root {
+  position: fixed;
+  top: 0;
+  left: 0;
 }

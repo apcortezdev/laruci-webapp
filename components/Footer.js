@@ -11,7 +11,7 @@ const Footer = (props) => {
       >
         Powered by{' '}
         <span className={styles.footer_logo}>
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+          ME
         </span>
       </a>
     </footer>
