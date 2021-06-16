@@ -7,6 +7,11 @@ import Logo from '../components/utilities/Logo';
 import '../styles/globals.scss';
 
 function MyApp({ Component, pageProps }) {
+  const adm = false;
+  if (adm === true) {
+    return <div>ADM</div>;
+  }
+
   return (
     <>
       <Head>
@@ -18,13 +23,16 @@ function MyApp({ Component, pageProps }) {
       <div className="maingrid">
         <NoticeBar />
         <ShopBar />
-        <Logo />
-        <div className="mainmenu">
-          <WebMenu />
+        <div className="content-wrapper">
+          <Logo />
+          <div className="webmanu">
+            <WebMenu />
+          </div>
+          <div>
+            <Component {...pageProps} />
+          </div>
         </div>
-        <Component {...pageProps} />
         <Footer />
-        <div id="backdrop-root" />
       </div>
     </>
   );

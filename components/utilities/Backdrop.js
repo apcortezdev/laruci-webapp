@@ -6,14 +6,14 @@ const BackdropScreen = (props) => {
 };
 
 const Backdrop = (props) => {
-  return (
-    <>
-      {ReactDom.createPortal(
-        <BackdropScreen onDismiss={props.onDismiss} />,
-        document.getElementById('backdrop-root')
-      )}
-    </>
-  );
+  return <div className={styles.backdrop} onClick={props.onDismiss} />
+  //   <>
+  //     {ReactDom.createPortal(
+  //       <BackdropScreen onDismiss={props.onDismiss} />,
+  //       document.getElementById('backdrop-root')
+  //     )}
+  //   </>
+  // );
 };
 
 export default Backdrop;

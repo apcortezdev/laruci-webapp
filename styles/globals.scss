@@ -13,6 +13,7 @@ body {
     Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   font-weight: 400;
   font-style: normal;
+  height: 100%;
 }
 
 a {
@@ -24,25 +25,42 @@ a {
   height: 100vh;
   display: grid;
 
-  grid-template-rows: [shopbar-start] 3rem [shopbar-end logo-start] 7rem [logo-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
-  grid-template-areas: 'shopbar' 'logo' 'maincomponent' 'footer';
+  grid-template-rows: [shopbar-start] 3rem [shopbar-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
+  grid-template-areas: 'shopbar' 'maincomponent' 'footer';
 
   @include media-min-width(40rem) {
-    grid-template-rows: [notice-start] 2.5rem [notice-end shopbar-start] 3rem [shopbar-end logo-start] 10rem [logo-end mainmenu-start] 3rem [mainmenu-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
-    grid-template-areas: 'notice' 'shopbar' 'logo' 'mainmenu' 'maincomponent' 'footer';
+    grid-template-rows: [notice-start] 2.5rem [notice-end shopbar-start] 3rem [shopbar-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
+    grid-template-areas: 'notice' 'shopbar' 'maincomponent' 'footer';
   }
 }
 
-.mainmenu {
+.content-wrapper {
+  grid-area: maincomponent;
+}
+
+.webmanu {
   display: none;
   @include media-min-width(40rem) {
-    grid-area: mainmenu;
+    position: sticky;
+    top: 5.5rem;
+    z-index: 5;
     display: inline-flex;
+    width: 100%;
+    height: 3rem;
   }
 }
 
+#mobilenav-root,
 #backdrop-root {
   position: fixed;
   top: 0;
   left: 0;
+}
+
+#mobilenav-root {
+ z-index: 20;
+}
+
+#backdrop-root {
+ z-index: 10;
 }

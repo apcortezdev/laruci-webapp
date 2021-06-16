@@ -3,9 +3,16 @@
 
 .shopbar {
   @include display-flex();
+  position: fixed;
+  z-index: 5;
+  width: 100vw;
+  height: 3rem;
   background-color: map-get($colors, secondary);
   align-items: center;
   justify-content: center;
+  @include media-min-width(40rem) {
+    top: 2.5rem;
+  }
 }
 
 .shopbar_inner {
@@ -86,7 +93,7 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 2rem 2rem 7rem 2rem;
-  z-index: 10;
+  z-index: 15;
   top: 0;
   left: 0;
   background: map-get($map: $colors, $key: white);

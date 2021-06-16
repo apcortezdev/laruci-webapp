@@ -12,8 +12,8 @@ const MainMenu = () => {
   ];
 
   return (
-    <nav className={styles.webmenu}>
-      <ul className={styles.webmenu_list}>
+    <nav className={styles.mainmenu}>
+      <ul className={styles.mainmenu_list}>
         {links.map((link) => (
           <li key={link.id}>
             <Link

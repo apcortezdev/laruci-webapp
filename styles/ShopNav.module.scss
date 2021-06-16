@@ -11,13 +11,15 @@
     font-family: 'Monserrat', sans-serif;
     display: inline-block;
     vertical-align: middle;
+    border: none;
+    padding: 0;
   }
 }
 
 .webnav__item {
   list-style: none;
   color: map-get($map: $colors, $key: back-dark);
-  padding: .5rem 0;
+  padding: 0.5rem 0;
   @include media-min-width(40rem) {
     display: inline-block;
     color: map-get($map: $colors, $key: primary);
@@ -27,5 +29,8 @@
 
 .webnav__item:hover,
 .webnav__item:active {
-  color: map-get($map: $colors, $key: detail);
+  color: map-get($map: $colors, $key: text-strong);
+  @include media-min-width(40rem) {
+    color: map-get($map: $colors, $key: detail);
+  }
 }

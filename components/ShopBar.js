@@ -14,7 +14,6 @@ const ShopBar = () => {
 
   return (
     <>
-      {toggleMenu && <Backdrop onDismiss={toggleMobileMenu} />}
       <div className={styles.shopbar}>
         <div className={styles.shopbar_inner}>
           <span className={styles.mobilenav_area}>
@@ -43,6 +42,7 @@ const ShopBar = () => {
           <MainMenu />
           <ShopNav />
         </div>
+        {toggleMenu && <Backdrop onDismiss={toggleMobileMenu} />}
       </div>
     </>
   );

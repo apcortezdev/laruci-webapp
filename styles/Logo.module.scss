@@ -3,14 +3,15 @@
 
 .logobox {
   @include display-flex();
-  grid-area: logo;
-  font-family: 'Cinzel Decorative', cursive;
+  width: 100%;
+  height: 7rem;
   background-color: map-get($colors, white);
   color: map-get($colors, text-strong);
   justify-content: center;
   align-items: center;
   border-bottom: 2px solid map-get($map: $colors, $key: secondary);
   @include media-min-width(40rem) {
+    height: 10rem;
     border-bottom: none;
   }
 }

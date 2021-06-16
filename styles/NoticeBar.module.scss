@@ -4,6 +4,10 @@
 .noticebar {
   display: none;
   @include media-min-width(40rem) {
+    position: fixed;
+    z-index: 5;
+    width: 100%;
+    height: 2.5rem;
     display: inline-flex;
     grid-area: notice;
     background-color: map-get($map: $colors, $key: primary);
