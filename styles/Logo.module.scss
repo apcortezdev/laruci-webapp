@@ -11,7 +11,8 @@
   align-items: center;
   border-bottom: 2px solid map-get($map: $colors, $key: secondary);
   @include media-min-width(40rem) {
-    height: 10rem;
+    grid-area: "logo";
+    height: 8rem;
     border-bottom: none;
   }
 }

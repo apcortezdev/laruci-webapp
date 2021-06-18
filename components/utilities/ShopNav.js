@@ -17,7 +17,6 @@ const ShopNav = (props) => {
               href={{
                 pathname: `/${link.id}`,
               }}
-              passHref
             >
               <a onClick={props.onMobileClick && props.onMobileClick}>
                 {link.name.toUpperCase()}

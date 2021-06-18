@@ -36,11 +36,17 @@ a {
 
 .content-wrapper {
   grid-area: maincomponent;
+  @include media-min-width(40rem) {
+    display: grid;
+    grid-template-rows: 8rem 3rem auto;
+    grid-template-areas: "logo" "menu" "content";
+  }
 }
 
 .webmanu {
   display: none;
   @include media-min-width(40rem) {
+    grid-area: menu;
     position: sticky;
     top: 5.5rem;
     z-index: 5;
@@ -58,9 +64,16 @@ a {
 }
 
 #mobilenav-root {
- z-index: 20;
+  z-index: 20;
 }
 
 #backdrop-root {
- z-index: 10;
+  z-index: 10;
+}
+
+.content {
+  height: 100%;
+  @include media-min-width(40rem) {
+    grid-area: content;
+  }
 }

@@ -11,6 +11,7 @@ const ProductListItemCard = (props) => {
   }
 
   const prodId = props.prodId;
+  const img = prod.sets[Object.keys(prod.sets)[0]].images[0];
 
   return (
     <li className={styles.item}>
@@ -18,14 +19,13 @@ const ProductListItemCard = (props) => {
         href={{
           pathname: `${props.category}/${prodId}`,
         }}
-        passHref
       >
         <a>
           <article className={styles.card}>
             {!!prod.discount && (
               <div className={styles.promo}>-{prod.discount}%</div>
             )}
-            <img src={prod.images[0]} alt={prod.name} />
+            <img src={img} alt={prod.name} />
             <div className={styles.info}>
               <span className={styles.name}>{prod.name}</span>
               <span>

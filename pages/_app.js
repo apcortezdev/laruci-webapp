@@ -28,7 +28,7 @@ function MyApp({ Component, pageProps }) {
           <div className="webmanu">
             <WebMenu onMobileClick={false}/>
           </div>
-          <div>
+          <div className={"content"}>
             <Component {...pageProps} />
           </div>
         </div>
