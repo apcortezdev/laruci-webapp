@@ -3,7 +3,12 @@ import { useRouter } from 'next/router';
 const CategoryPage = (props) => {
   const router = useRouter();
 
-  return <div>{router.query.categoryId}</div>;
+
+
+  return (
+  <div>
+    HERE
+  </div>);
 };
 
 export default CategoryPage;

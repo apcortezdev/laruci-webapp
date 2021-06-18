@@ -23,7 +23,7 @@ const ShopBar = () => {
             />
           </span>
           <span className={styles.webnav_area}>
-            <ShopNav />
+            <ShopNav onMobileClick={false}/>
           </span>
           <span className={styles.search_area}>
             <SearchInput />
@@ -39,8 +39,8 @@ const ShopBar = () => {
             toggleMenu ? styles.open : styles.close,
           ].join(' ')}
         >
-          <MainMenu />
-          <ShopNav />
+          <MainMenu onMobileClick={toggleMobileMenu}/>
+          <ShopNav onMobileClick={toggleMobileMenu}/>
         </div>
         {toggleMenu && <Backdrop onDismiss={toggleMobileMenu} />}
       </div>

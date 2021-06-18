@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from '../styles/MainMenu.module.scss';
 
-const MainMenu = () => {
+const MainMenu = (props) => {
   const links = [
     { id: 'sutias', name: 'Sutiãs' },
     { id: 'calcinhas', name: 'Calcinhas' },
@@ -18,11 +18,12 @@ const MainMenu = () => {
           <li key={link.id}>
             <Link
               href={{
-                pathname: '/',
-                query: { id: link.id },
+                pathname: `/${link.id}`,
+                // query: { category: link.id },
               }}
+              passHref
             >
-              {link.name.toLowerCase()}
+              <a onClick={props.onMobileClick && props.onMobileClick}>{link.name.toLowerCase()}</a>
             </Link>
           </li>
         ))}

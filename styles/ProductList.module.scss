@@ -1,0 +1,15 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.list {
+  display: grid;
+  column-gap: .2rem;
+  padding: 0;
+  width: 100%;
+  grid-template-columns: repeat(2, calc(50% - .1rem));
+  justify-content: center;
+  
+  @include media-min-width(40rem) {
+    grid-template-columns: repeat(auto-fit, minmax(17rem, auto));
+  }
+}

@@ -1,0 +1,31 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.main {
+  grid-area: maincomponent;
+  width: 100%;
+
+  .content {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .aside {
+    display: none;
+  }
+
+  @include media-min-width(40rem) {
+    display: grid;
+    grid-template-columns: 15% auto 15%;
+
+    .content {
+      display: inline-block;
+    }
+    .aside {
+      display: inline-block;
+      filter: opacity(5%);
+      background: url('../public/laruci_watermark.png') center/5.7rem 6.125rem
+        repeat border-box scroll;
+    }
+  }
+}

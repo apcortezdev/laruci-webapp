@@ -1,9 +1,9 @@
 import styles from '../../styles/ShopNav.module.scss';
 import Link from 'next/link';
 
-const ShopNav = () => {
+const ShopNav = (props) => {
   const links = [
-    { id: 'home', name: 'Home' },
+    { id: '', name: 'Home' },
     { id: 'about', name: 'Sobre Nós' },
     { id: 'contact', name: 'Contato' },
   ];
@@ -15,11 +15,13 @@ const ShopNav = () => {
           <li key={link.id} className={styles.webnav__item}>
             <Link
               href={{
-                pathname: '/',
-                query: { id: link.id },
+                pathname: `/${link.id}`,
               }}
+              passHref
             >
-              {link.name.toUpperCase()}
+              <a onClick={props.onMobileClick && props.onMobileClick}>
+                {link.name.toUpperCase()}
+              </a>
             </Link>
           </li>
         ))}
