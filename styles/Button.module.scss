@@ -1,0 +1,50 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.button_container {
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  visibility: hidden;
+  top: -70%;
+  left: 80%;
+  background-color: map-get($map: $colors, $key: yellow-tip);
+  border: 1px solid map-get($map: $colors, $key: dark-yellow-tip);
+  border-radius: 5px;
+  padding: 0.5rem;
+  color: map-get($map: $colors, $key: back-dark);
+  font-size: 0.8rem;
+  width: 10rem;
+  z-index: 2;
+}
+
+.button {
+  border: 0;
+  height: 2rem;
+  width: 10rem;
+  font-family: inherit;
+  font-size: 1.1rem;
+  border-radius: 3px;
+  cursor: pointer;
+  color: map-get($map: $colors, $key: white);
+  background-color: map-get($map: $colors, $key: teal);
+  @include media-min-width(40rem) {
+    width: 15rem;
+    height: 2.5rem;
+    font-size: 1.3rem;
+  }
+
+  &:hover {
+    background-color: map-get($map: $colors, $key: dark-teal);
+
+    .tooltip {
+        visibility: visible;
+    }
+  }
+}
+
+.button_icon {
+  width: 2.5rem;
+}

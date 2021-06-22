@@ -1,12 +1,12 @@
 @import '_colors.scss';
 @import '_mixin.scss';
 
-.main {
+.maincontainer {
   grid-area: maincomponent;
   width: 100%;
   height: 100%;
 
-  .aside {
+  .asidebox {
     display: none;
   }
 
@@ -14,12 +14,12 @@
     display: grid;
     grid-template-columns: 15% auto 15%;
 
-    .content {
-      display: flex;
-      flex-direction: row;
+    .contentbox {
+      display: grid;
+      grid-template-columns: 25% 75%;
     }
-    
-    .aside {
+
+    .asidebox {
       display: inline-block;
       filter: opacity(5%);
       background: url('../public/laruci_watermark.png') center/5.7rem 6.125rem
@@ -28,42 +28,33 @@
   }
 }
 
-.slideshow {
+.imageshow__container {
   overflow: hidden;
   display: flex;
   justify-content: center;
   flex-direction: column;
   width: 100%;
-  height: 25rem;
+  height: 600px;
 
   @include media-min-width(40rem) {
-    width: 40%;
-    height: 30rem;
+    height: 35rem;
   }
 
-  .slideshow__slide {
-    position: relative;
+  .imageshow__images {
     width: 100%;
-    height: 85%;
-    flex-grow: 1;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
+    height: 90%;
   }
 
-  .slideshow__color {
+  .imageshow__colors {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    align-items: center;
     width: 100%;
-    height: 15%;
+    height: 10%;
     flex-grow: 0;
-    margin-top: 0.6rem;
-
+    padding-top: 0.3rem;
+  
     .color {
       width: 2rem;
       height: 2rem;
@@ -71,34 +62,93 @@
       margin: 0 0.3rem;
       border: 1px solid map-get($map: $colors, $key: light-grey);
     }
-
+  
     .color:hover {
       cursor: pointer;
     }
   }
-
-  .sideshowbtn {
-    position: absolute;
-    width: 2rem;
-    height: 2rem;
-    border: none;
-    opacity: 60%;
-    top: calc(50% - 1rem);
-  }
-
-  .sideshowbtn:hover {
-    cursor: pointer;
-  }
-
-  .sidebtnleft {
-    left: 0;
-  }
-
-  .sidebtnright {
-    right: 0;
-  }
 }
 
 .details {
+  margin: 0 0.5rem;
 
+  .font_hightlight {
+    display: inline-block;
+    padding: 1rem 0;
+    width: 100%;
+    font-weight: 500;
+    text-align: left;
+    font-size: 1.5rem;
+  }
+
+  .price_line {
+    display: inline-flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    @include media-min-width(40rem) {
+      align-items: baseline;
+    }
+  }
+
+  .price_side {
+    display: inline-flex;
+    flex-direction: column;
+    @include media-min-width(40rem) {
+      display: inline-block;
+    }
+  }
+
+  .font_price__price {
+    font-size: 1.8rem;
+    color: map-get($map: $colors, $key: text-strong);
+    font-weight: 500;
+  }
+
+  .font_discount {
+    font-size: 3rem;
+    color: map-get($map: $colors, $key: promo-red);
+    text-align: end;
+    @include media-min-width(40rem) {
+      font-size: 1.8rem;
+    }
+  }
+
+  @include media-min-width(40rem) {
+    margin: 0 2rem;
+  }
+}
+
+.section_details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid map-get($map: $colors, $key: light-grey);
+}
+
+.section_details__buybtn {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.details__description {
+  margin: 0.5rem;
+}
+
+.section_btnline {
+  display: inline-flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 70%;
+  max-width: 20rem;
+
+  .bag_icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 1.4rem;
+    background: url(../public/bag_icon.png) center/1.4rem 1.4rem no-repeat;
+  }
 }

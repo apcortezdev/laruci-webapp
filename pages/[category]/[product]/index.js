@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import ImageSlideShow from '../../../components/utilities/ImageSlideShow';
+import Button from '../../../components/utilities/Button';
+import ImageShow from '../../../components/utilities/ImageShow';
+import SizeTag from '../../../components/utilities/SizeTag';
 import styles from '../../../styles/ProductPage.module.scss';
 import dummy from '../../api/dummy';
 
@@ -8,14 +10,20 @@ const ProductPage = (props) => {
   const router = useRouter();
 
   const data = dummy[Object.keys(dummy)[0]];
-  const [images, setImages] = useState(
-    data.sets[Object.keys(data.sets)[0]].images
+
+  const newPrice = !!data.discount
+    ? data.price * (1 - data.discount / 100)
+    : false;
+
+  const [selectedColorSet, setSelectedColorSet] = useState(
+    Object.keys(data.sets)[0]
   );
 
-  const [slideImgSelected, setSlideImgSelected] = useState(0);
-  const [sizes, setSizes] = useState([data.sets[Object.keys(data.sets).sizes]]);
+  const [selectedColorSet_images, setSelectedColorSet_images] = useState(
+    data.sets[selectedColorSet].images
+  );
 
-  const colors = Object.keys(data.sets).map((color) => (
+  const htmlColors = Object.keys(data.sets).map((color) => (
     <div
       key={color}
       className={styles.color}
@@ -25,53 +33,79 @@ const ProductPage = (props) => {
   ));
 
   function setImagesToSlideShow(color) {
-    setImages(data.sets[color].images);
+    setSelectedColorSet(color);
+    setSelectedColorSet_images(data.sets[color].images);
   }
 
-  const nextImage = () => {
-    setSlideImgSelected((i) => {
-      if (i === (images.length - 1)) {
-        return 0;
-      }
-      return i + 1;
-    });
-    console.log(slideImgSelected);
-  };
-
-  const previousImage = () => {
-    setSlideImgSelected((i) => {
-      if (i === 0) {
-        return (images.length - 1);
-      }
-      return i - 1;
-    });
-    console.log(slideImgSelected);
-  };
-
   return (
-    <div className={styles.main}>
-      <div className={styles.aside} />
-      <div className={styles.content}>
-        <div className={styles.slideshow}>
-          <div className={styles.slideshow__slide}>
-            <button
-              className={[styles.sideshowbtn, styles.sidebtnleft].join(' ')}
-              onClick={nextImage}
-            >
-              &#10094;
-            </button>
-            <img src={images[slideImgSelected]} styles={styles.slide} />
-            <button
-              className={[styles.sideshowbtn, styles.sidebtnright].join(' ')}
-              onClick={previousImage}
-            >
-              &#10095;
-            </button>
+    <div className={styles.maincontainer}>
+      <div className={styles.asidebox} />
+      <div className={styles.contentbox}>
+        <div className={styles.imageshow__container}>
+          <div className={styles.imageshow__images}>
+            <ImageShow images={selectedColorSet_images} />
           </div>
-          <div className={styles.slideshow__color}>{colors}</div>
+          <div className={styles.imageshow__colors}>{htmlColors}</div>
         </div>
         <div className={styles.details}>
-          {data.name}
+          <span className={styles.font_hightlight}>{data.name}</span>
+          <span className={styles.price_line}>
+            <span className={styles.price_side}>
+              {!!newPrice ? (
+                <>
+                  de R$ {data.price.toFixed(2)} por{' '}
+                  <span className={styles.font_price__price}>
+                    R$ {newPrice.toFixed(2)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  por{' '}
+                  <span className={styles.font_price__price}>
+                    R$ {data.price.toFixed(2)}
+                  </span>
+                </>
+              )}
+            </span>
+            {!!newPrice && (
+              <span
+                className={[
+                  styles.font_price__price,
+                  styles.font_discount,
+                ].join(' ')}
+              >
+                -{data.discount}%
+              </span>
+            )}
+          </span>
+
+          <section className={styles.section_details}>
+            <SizeTag sizes={data.sets[selectedColorSet].sizes} />
+          </section>
+          <section
+            className={[
+              styles.section_details,
+              styles.section_details__buybtn,
+            ].join(' ')}
+          >
+            <span className={styles.section_btnline}>
+              <Button tip={'Adicionar à sacola'} icon={true}>
+                <div className={styles.bag_icon} />
+              </Button>
+              <Button tip={'Comprar'} icon={false}>
+                Comprar
+              </Button>
+            </span>
+          </section>
+          <section className={styles.section_details}>
+            <span>modo de entrega:</span>
+          </section>
+          <section className={styles.details__description}>
+            {data.shortDescription}
+          </section>
+          <section className={styles.details__description}>
+            {data.longDescription}
+          </section>
         </div>
       </div>
       <div className={styles.aside} />
