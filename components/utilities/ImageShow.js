@@ -59,34 +59,38 @@ const ImageShow = (props) => {
   };
 
   return (
-    <div
-      ref={slideshow__container}
-      className={styles.slideshow__container}
-      onMouseMove={moveAction}
-      onTouchMove={moveAction}
-      onMouseLeave={imageZoomOff}
-    >
-      {images.length > 1 && (
-        <button
-          className={[styles.sideshowbtn, styles.sidebtnleft].join(' ')}
-          onClick={nextImage}
+    <div className={styles.slideshow__wrapper}>
+      <div className={styles.slideshow__ratio}>
+        <div
+          ref={slideshow__container}
+          className={styles.slideshow__container}
+          onMouseMove={moveAction}
+          onTouchMove={moveAction}
+          onMouseLeave={imageZoomOff}
         >
-          &#10094;
-        </button>
-      )}
-      <img
-        ref={img_main}
-        className={styles.img_main}
-        src={images[slideImgNumber]}
-      />
-      {images.length > 1 && (
-        <button
-          className={[styles.sideshowbtn, styles.sidebtnright].join(' ')}
-          onClick={previousImage}
-        >
-          &#10095;
-        </button>
-      )}
+          {images.length > 1 && (
+            <button
+              className={[styles.sideshowbtn, styles.sidebtnleft].join(' ')}
+              onClick={nextImage}
+            >
+              &#10094;
+            </button>
+          )}
+          <img
+            ref={img_main}
+            className={styles.img_main}
+            src={images[slideImgNumber]}
+          />
+          {images.length > 1 && (
+            <button
+              className={[styles.sideshowbtn, styles.sidebtnright].join(' ')}
+              onClick={previousImage}
+            >
+              &#10095;
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

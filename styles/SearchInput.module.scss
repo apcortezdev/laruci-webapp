@@ -35,6 +35,10 @@
     background-color: map-get($map: $colors, $key: white);
     margin: 0 0.5rem;
     border: 0;
+
+    @include media-max-width(18rem) {
+      width: 60%;
+    }
   }
 
   input[type='text']:focus {

@@ -42,13 +42,19 @@ const ProductPage = (props) => {
       <div className={styles.asidebox} />
       <div className={styles.contentbox}>
         <div className={styles.imageshow__container}>
-          <div className={styles.imageshow__images}>
-            <ImageShow images={selectedColorSet_images} />
-          </div>
+          <ImageShow images={selectedColorSet_images} />
           <div className={styles.imageshow__colors}>{htmlColors}</div>
         </div>
         <div className={styles.details}>
           <span className={styles.font_hightlight}>{data.name}</span>
+          <section
+            className={[
+              styles.section_details,
+              styles.details__description,
+            ].join(' ')}
+          >
+            {data.shortDescription}
+          </section>
           <span className={styles.price_line}>
             <span className={styles.price_side}>
               {!!newPrice ? (
@@ -60,7 +66,7 @@ const ProductPage = (props) => {
                 </>
               ) : (
                 <>
-                  por{' '}
+                  por somente{' '}
                   <span className={styles.font_price__price}>
                     R$ {data.price.toFixed(2)}
                   </span>
@@ -89,10 +95,16 @@ const ProductPage = (props) => {
             ].join(' ')}
           >
             <span className={styles.section_btnline}>
-              <Button tip={'Adicionar à sacola'} icon={true}>
-                <div className={styles.bag_icon} />
+              <Button
+                classSize={styles.section_btnline__iconbtnsize}
+                tip={'Adicionar à sacola'}
+              >
+                <div className={styles.bag_icon_plus} />
               </Button>
-              <Button tip={'Comprar'} icon={false}>
+              <Button
+                classSize={styles.section_btnline__btnsize}
+                tip={'Adicionar e finalizar compra'}
+              >
                 Comprar
               </Button>
             </span>
@@ -101,14 +113,11 @@ const ProductPage = (props) => {
             <span>modo de entrega:</span>
           </section>
           <section className={styles.details__description}>
-            {data.shortDescription}
-          </section>
-          <section className={styles.details__description}>
             {data.longDescription}
           </section>
         </div>
       </div>
-      <div className={styles.aside} />
+      <div className={styles.asidebox} />
     </div>
   );
 };
