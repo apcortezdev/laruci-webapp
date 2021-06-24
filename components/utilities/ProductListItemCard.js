@@ -25,8 +25,12 @@ const ProductListItemCard = (props) => {
             {!!prod.discount && (
               <div className={styles.promo}>-{prod.discount}%</div>
             )}
-            <img src={img} alt={prod.name} />
-            <div className={styles.info}>
+            <div className={styles.img_container}>
+              <div className={styles.img_ratio}>
+                <img src={img} alt={prod.name} className={styles.img} />
+              </div>
+            </div>
+            <div className={styles.info_container}>
               <span className={styles.name}>{prod.name}</span>
               <span>
                 {!!prod.discount ? (

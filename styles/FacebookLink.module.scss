@@ -1,0 +1,15 @@
+@import '_colors.scss';
+
+.container {
+  .icon {
+    fill: map-get($map: $colors, $key: grey);
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    .icon {
+      fill: map-get($map: $colors, $key: facebook-color);
+      transition: all 0.3s ease;
+    }
+  }
+}

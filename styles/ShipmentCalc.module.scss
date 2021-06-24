@@ -1,0 +1,44 @@
+@import '_colors.scss';
+
+.shipmentcalc_container {
+  span {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-size: 0.8rem;
+    &:first-child {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+
+  .input_cep {
+    font-size: 1rem;
+    font-family: inherit;
+    padding: 0.8rem 0.4rem;
+
+    &:focus {
+      outline: map-get($map: $colors, $key: accent-dark) auto 3px;
+    }
+  }
+
+  .input_cep_btn {
+    height: 3rem;
+    margin: 0 .4rem;
+    padding: 0 .8rem;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.3rem 0;
+    text-align: right;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    color: map-get($map: $colors, $key: text-strong);
+    cursor: pointer;
+  }
+  .check_cep {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.1rem;
+  }
+}

@@ -3,6 +3,7 @@
 
 .webnav_list {
   font-family: 'Julius Sans One', sans-serif;
+  text-transform: uppercase;
   font-weight: 400;
   padding: 1rem 0;
   margin: auto;
@@ -31,6 +32,6 @@
 .webnav__item:active {
   color: map-get($map: $colors, $key: text-strong);
   @include media-min-width(40rem) {
-    color: map-get($map: $colors, $key: detail);
+    color: map-get($map: $colors, $key: accent-dark);
   }
 }

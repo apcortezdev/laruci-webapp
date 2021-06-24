@@ -6,6 +6,7 @@ const ShopNav = (props) => {
     { id: '', name: 'Home' },
     { id: 'about', name: 'Sobre Nós' },
     { id: 'contact', name: 'Contato' },
+    { id: 'sizes', name: 'Tamanhos' },
   ];
 
   return (

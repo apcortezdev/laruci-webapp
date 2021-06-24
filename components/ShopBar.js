@@ -4,6 +4,7 @@ import MainMenu from './MainMenu';
 import SearchInput from './utilities/SearchInput';
 import ShopNav from './utilities/ShopNav';
 import Backdrop from './utilities/Backdrop';
+import Link from 'next/link';
 
 const ShopBar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
@@ -23,14 +24,28 @@ const ShopBar = () => {
             />
           </span>
           <span className={styles.webnav_area}>
-            <ShopNav onMobileClick={false}/>
+            <ShopNav onMobileClick={false} />
           </span>
           <span className={styles.search_area}>
             <SearchInput />
           </span>
           <span className={styles.user_area}>
-            <span className={styles.user_icon} />
-            <span className={styles.bag_icon} />
+            <Link
+              href={{
+                pathname: '/user',
+                // query: { id: link.id },
+              }}
+            >
+              <span className={styles.user_icon} />
+            </Link>
+            <Link
+              href={{
+                pathname: '/bag',
+                // query: { id: link.id },
+              }}
+            >
+              <span className={styles.bag_icon} />
+            </Link>
           </span>
         </div>
         <div
@@ -39,8 +54,8 @@ const ShopBar = () => {
             toggleMenu ? styles.open : styles.close,
           ].join(' ')}
         >
-          <MainMenu onMobileClick={toggleMobileMenu}/>
-          <ShopNav onMobileClick={toggleMobileMenu}/>
+          <MainMenu onMobileClick={toggleMobileMenu} />
+          <ShopNav onMobileClick={toggleMobileMenu} />
         </div>
         {toggleMenu && <Backdrop onDismiss={toggleMobileMenu} />}
       </div>

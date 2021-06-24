@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import ProductList from '../../components/ProductList';
-import styles from '../../styles/Listing.module.scss';
+import styles from '../../styles/ListingPage.module.scss';
 
 import dummy from '../api/dummy';
 
-const CategoryPage = (props) => {
+const ListingPage = (props) => {
   const data = dummy;
 
   const router = useRouter();
@@ -22,4 +22,4 @@ const CategoryPage = (props) => {
   );
 };
 
-export default CategoryPage;
+export default ListingPage;

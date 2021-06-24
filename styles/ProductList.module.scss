@@ -3,7 +3,7 @@
 
 .list {
   display: grid;
-  column-gap: .2rem;
+  column-gap: .3rem;
   padding: 0;
   width: 100%;
   grid-template-columns: repeat(2, calc(50% - .1rem));

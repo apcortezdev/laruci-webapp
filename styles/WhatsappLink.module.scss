@@ -1,0 +1,19 @@
+@import '_colors.scss';
+
+.container {
+  .icon {
+    fill: map-get($map: $colors, $key: grey);
+    transition: all 0.3s ease;
+
+    .size {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  &:hover {
+    .icon {
+      fill: map-get($map: $colors, $key: whatsapp-color);
+      transition: all 0.3s ease;
+    }
+  }
+}

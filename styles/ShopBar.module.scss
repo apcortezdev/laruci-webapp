@@ -58,6 +58,10 @@
     height: 1.4rem;
     background: map-get($map: $colors, $key: secondary)
       url(../public/user_icon.png) center/1.4rem 1.4rem no-repeat;
+    &:hover {
+      border-left: 1px solid map-get($map: $colors, $key: secondary-light);
+      border-right: 1px solid map-get($map: $colors, $key: secondary-light);
+    }
   }
 
   .bag_icon {
@@ -66,6 +70,10 @@
     height: 1.4rem;
     background: map-get($map: $colors, $key: secondary)
       url(../public/bag_icon.png) center/1.4rem 1.4rem no-repeat;
+    &:hover {
+      border-left: 1px solid map-get($map: $colors, $key: secondary-light);
+      border-right: 1px solid map-get($map: $colors, $key: secondary-light);
+    }
   }
 
   .mobilenav_btn {
