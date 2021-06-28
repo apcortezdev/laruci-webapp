@@ -1,4 +1,4 @@
-import styles from '../../styles/SearchInput.module.scss';
+import styles from './SearchInput.module.scss';
 
 const SearchInput = () => {
   return (

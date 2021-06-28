@@ -1,4 +1,4 @@
-import styles from '../../styles/SizeTag.module.scss';
+import styles from './SizeTag.module.scss';
 import dummySizes from '../../pages/api/dummySizes';
 
 const SizeTag = (props) => {

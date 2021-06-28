@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import styles from '../styles/MainMenu.module.scss';
+import styles from './MainMenu.module.scss';
 
 const MainMenu = (props) => {
   const links = [

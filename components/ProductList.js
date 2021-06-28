@@ -1,5 +1,5 @@
 import ProductListItemCard from './utilities/ProductListItemCard';
-import styles from '../styles/ProductList.module.scss';
+import styles from './ProductList.module.scss';
 
 const ProductList = (props) => {
   let products = [];

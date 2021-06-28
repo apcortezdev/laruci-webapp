@@ -1,5 +1,5 @@
-@import '_colors.scss';
-@import '_mixin.scss';
+@import '../styles/_colors';
+@import '../styles/_mixin.scss';
 
 .shopbar {
   @include display-flex();
@@ -26,15 +26,11 @@
     max-width: 80rem;
   }
 
-  .mobilenav_area,
-  .webnav_area {
-    flex-grow: 0;
-  }
-
   .webnav_area {
     display: none;
     @include media-min-width(40rem) {
       display: inline-flex;
+      flex-grow: 0;
     }
   }
 
@@ -96,8 +92,8 @@
 }
 
 .mobilenav {
+  @include display-flex();
   position: fixed;
-  display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 2rem 2rem 7rem 2rem;

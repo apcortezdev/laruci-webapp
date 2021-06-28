@@ -1,5 +1,5 @@
-@import '_colors.scss';
-@import '_mixin.scss';
+@import '../../styles/_colors';
+@import '../../styles/_mixin.scss';
 
 .logobox {
   @include display-flex();
@@ -21,7 +21,7 @@
 }
 
 .logobox_img {
-  background-image: url('../public/laruci.png');
+  background-image: url('../../public/laruci.png');
   background-size: contain;
   width: 12.8rem;
   height: 2.88rem;

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import styles from '../styles/ShipmentCalc.module.scss';
+import styles from './ShipmentCalc.module.scss';
 import Button from './utilities/Button';
 
 const ShipmentCalc = (props) => {

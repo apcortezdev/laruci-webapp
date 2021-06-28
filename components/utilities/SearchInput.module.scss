@@ -1,5 +1,5 @@
-@import '_colors.scss';
-@import '_mixin.scss';
+@import '../../styles/_colors';
+@import '../../styles/_mixin.scss';
 
 .searchinput {
   width: 100%;
@@ -23,7 +23,7 @@
     width: 1.1rem;
     height: 1.1rem;
     background: map-get($map: $colors, $key: white)
-      url(../public/search_icon.png) center/1.1rem 1.1rem no-repeat;
+      url(../../public/search_icon.png) center/1.1rem 1.1rem no-repeat;
   }
   .search_icon:hover {
     cursor: pointer;

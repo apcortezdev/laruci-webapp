@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from '../styles/ShopBar.module.scss';
+import styles from './ShopBar.module.scss';
 import MainMenu from './MainMenu';
 import SearchInput from './utilities/SearchInput';
 import ShopNav from './utilities/ShopNav';

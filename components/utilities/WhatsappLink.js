@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import styles from '../../styles/WhatsappLink.module.scss';
+import styles from './WhatsappLink.module.scss';
 
 const WhatsappLink = (props) => {
   return (

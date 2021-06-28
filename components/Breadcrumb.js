@@ -1,4 +1,4 @@
-import styles from '../styles/Breadcrumb.module.scss';
+import styles from './Breadcrumb.module.scss';
 import Link from 'next/link';
 
 const Breadcrumb = (props) => {

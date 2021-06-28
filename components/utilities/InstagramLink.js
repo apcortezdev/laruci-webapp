@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import styles from '../../styles/InstagramLink.module.scss';
+import styles from './InstagramLink.module.scss';
 
 const InstagramLink = (props) => {
   return (

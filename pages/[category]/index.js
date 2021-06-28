@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import ListingPageFilter from '../../components/ListingPageFilter';
 import ProductList from '../../components/ProductList';
 import styles from '../../styles/ListingPage.module.scss';
 
@@ -15,6 +16,7 @@ const ListingPage = (props) => {
     <div className={styles.main}>
       <div className={styles.aside}/>
       <div className={styles.content}>
+        <ListingPageFilter />
         <ProductList category={route.category} list={data} />
       </div>
       <div className={styles.aside}/>

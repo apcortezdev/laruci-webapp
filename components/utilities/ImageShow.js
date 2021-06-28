@@ -1,9 +1,5 @@
-import styles from '../../styles/ImageShow.module.scss';
+import styles from './ImageShow.module.scss';
 import { useEffect, useRef, useState } from 'react';
-
-/*
-    Set images to 450/680 px
-*/
 
 const ImageShow = (props) => {
   const images = props.images;

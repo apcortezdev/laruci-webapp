@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import styles from '../../styles/ProductListItemCard.module.scss';
+import styles from './ProductListItemCard.module.scss';
 
 const ProductListItemCard = (props) => {
   const prod = props.product;

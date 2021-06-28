@@ -1,5 +1,5 @@
-@import '_colors.scss';
-@import '_mixin.scss';
+@import '../../styles/_colors';
+@import '../../styles/_mixin.scss';
 
 .webnav_list {
   font-family: 'Julius Sans One', sans-serif;
@@ -25,6 +25,12 @@
     display: inline-block;
     color: map-get($map: $colors, $key: primary);
     padding: 0 1rem 0 0;
+  }
+}
+
+.webnav__item_home {
+  @include media-min-width(40rem) {
+    display: none;
   }
 }
 

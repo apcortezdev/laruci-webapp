@@ -11,7 +11,7 @@
   }
 
   .product_content {
-    display: flex;
+    @include display-flex();
     flex-direction: column;
     margin: 0 0.8rem;
     justify-content: space-between;
@@ -23,7 +23,7 @@
 
   @include media-min-width(40rem) {
     .product_content {
-      display: flex;
+      @include display-flex();
       flex-direction: row;
     }
 

@@ -1,4 +1,4 @@
-import styles from '../styles/NoticeBar.module.scss';
+import styles from './NoticeBar.module.scss';
 
 const NoticeBar = props => {
 

@@ -1,4 +1,4 @@
-import styles from '../../styles/ShopNav.module.scss';
+import styles from './ShopNav.module.scss';
 import Link from 'next/link';
 
 const ShopNav = (props) => {
@@ -13,7 +13,13 @@ const ShopNav = (props) => {
     <nav className={styles.webnav}>
       <ul className={styles.webnav_list}>
         {links.map((link) => (
-          <li key={link.id} className={styles.webnav__item}>
+          <li
+            key={link.id}
+            className={[
+              styles.webnav__item,
+              !!link.id || styles.webnav__item_home,
+            ].join(' ')}
+          >
             <Link
               href={{
                 pathname: `/${link.id}`,

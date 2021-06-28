@@ -70,6 +70,9 @@
     width: 100%;
     padding: 0.8rem 0.5rem;
     margin: 0.5rem 0;
+    &:hover {
+      border-color: map-get($map: $colors, $key: back-dark);
+    }
 
     &:focus {
       outline: none;
