@@ -212,6 +212,9 @@
   @include media-min-width(40rem) {
     width: 9rem;
     height: 3rem;
+    @include media-min-width(42rem) {
+      width: 10rem;
+    }
   }
 }
 

@@ -30,7 +30,7 @@
   position: absolute;
   right: 10px;
   top: calc(50% - 2.5px);
-  z-index: 7;
+  z-index: 2;
 }
 
 .selected {
@@ -43,14 +43,15 @@
 
 .options {
   position: absolute;
-  top: 2.9rem;
+  top: 100%;
   width: 95%;
+  background-color: white;
   // text-transform: capitalize;
   border: 1px solid map-get($map: $colors, $key: light-grey);
 }
 
 .options_visible {
-  z-index: 6;
+  z-index: 3;
   display: unset;
   pointer-events: all;
   visibility: visible;
@@ -67,6 +68,7 @@
 .selector_item {
   @include display-flex();
   padding: 0.3rem 0.3rem 0.3rem 1rem;
-  background-color: white;
+  border: none;
+  // background-color: white;
   transition: background-color 0.2s ease-in-out;
 }

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 import styles from './FormComponents.module.scss';
 
 //Select w/ Color Options
@@ -27,67 +28,64 @@ export const SelectColorItem = (props) => {
 };
 
 export const SelectColor = (props) => {
-  const [classOptions, setClassOptions] = useState([
-    styles.options,
-    styles.options_invisible,
-  ]);
-
-  const selection = useRef();
-
+  const ref = useRef();
   const [selected, setSelected] = useState(props.placeholder);
-  const [htmlColors, setHtmlColors] = useState([]);
-
-  const interactOver = (visible) => {
-    if (visible) {
-      return setClassOptions([styles.options, styles.options_visible]);
-    }
-    return setClassOptions([styles.options, styles.options_invisible]);
-  };
+  const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
   const changeSelected = (name) => {
     setSelected(name);
     props.onChange(name);
-    selection.current.className = [styles.options, styles.options_invisible].join(' ');
+    setOptionsAsVisible(false);
   };
 
-  const setColorItens = useCallback((colorList) => {
-    for (const key in colorList) {
-      setHtmlColors((html) => [
-        ...html,
-        <SelectColorItem
-          key={key}
-          onSelect={changeSelected}
-          colorName={key}
-          colorCode={colorList[key]}
-        />,
-      ]);
+  const setOptionsAsVisible = (visible) => {
+    if (visible !== areOptionsVisible) {
+      setAreOptionsVisible(visible);
     }
-  });
+  }
 
-  useEffect(() => {
-    setHtmlColors([
+  const toItemArray = (obj) => {
+    let array = [
       <SelectColorItem
         key={props.placeholder}
         onSelect={() => changeSelected(props.placeholder)}
         colorName={props.placeholder}
       />,
-    ]);
+    ];
+    for (const key in obj) {
+      array.push(
+        <SelectColorItem
+          key={key}
+          onSelect={() => changeSelected(key)}
+          colorName={key}
+          colorCode={obj[key]}
+        />
+      );
+    }
+    return array;
+  };
 
-    setColorItens(props.colors);
-  }, [props.colors]);
+  useClickOutside(ref, () => setOptionsAsVisible(false));
 
   return (
     <div
+      ref={ref}
       className={[styles.select, props.className].join(' ')}
-      onClick={() => interactOver(true)}
-      onMouseLeave={() => interactOver(false)}
+      onClick={() => setOptionsAsVisible(true)}
+      onMouseLeave={() => setOptionsAsVisible(false)}
     >
       <span className={styles.selected}>{selected}</span>
-      <div ref={selection} className={classOptions.join(' ')}>{htmlColors}</div>
+      <div
+        className={[
+          styles.options,
+          areOptionsVisible ? styles.options_visible : styles.options_invisible,
+        ].join(' ')}
+      >
+        {toItemArray(props.colors)}
+      </div>
     </div>
   );
 };
-
 
 //Select w/ Text options
 export const SelectTextItem = (props) => {
@@ -115,64 +113,62 @@ export const SelectTextItem = (props) => {
 };
 
 export const SelectText = (props) => {
-  const [classOptions, setClassOptions] = useState([
-    styles.options,
-    styles.options_invisible,
-  ]);
-
-  const selection = useRef();
-
+  const ref = useRef();
   const [selected, setSelected] = useState(props.placeholder);
-  const [htmlOptions, setHtmlOptions] = useState([]);
-
-  const interactOver = (visible) => {
-    if (visible) {
-      return setClassOptions([styles.options, styles.options_visible]);
-    }
-    return setClassOptions([styles.options, styles.options_invisible]);
-  };
+  const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
   const changeSelected = (name, value) => {
-    setSelected(value);
-    props.onChange(name);
-    selection.current.className = [styles.options, styles.options_invisible].join(' ');
+    setOptionsAsVisible(false);
+    setSelected(name);
+    props.onChange(value);
   };
 
-  const setOptionItens = useCallback((optionList) => {
-    for (const key in optionList) {
-      setHtmlOptions((html) => [
-        ...html,
-        <SelectTextItem
-          key={key}
-          onSelect={changeSelected}
-          optionName={key}
-          optionValue={optionList[key]}
-        />,
-      ]);
+  const setOptionsAsVisible = (visible) => {
+    if (visible !== areOptionsVisible) {
+      setAreOptionsVisible(visible);
     }
-  });
+  }
 
-  useEffect(() => {
-    setHtmlOptions([
+  const toItemArray = (obj) => {
+    let array = [
       <SelectTextItem
         key={props.placeholder}
-        onSelect={() => changeSelected(props.placeholder, props.placeholder)}
+        onSelect={() =>
+          changeSelected(props.placeholder, props.placeholder)
+        }
         optionName={'0'}
         optionValue={props.placeholder}
       />,
-    ]);
+    ];
+    for (const key in obj) {
+      array.push(
+        <SelectTextItem
+          key={key}
+          onSelect={() => changeSelected(obj[key], key)}
+          optionName={key}
+          optionValue={obj[key]}
+        />
+      );
+    }
+    return array;
+  };
 
-    setOptionItens(props.options);
-  }, [props.options]);
+  useClickOutside(ref, () => setOptionsAsVisible(false));
 
   return (
     <div
+      ref={ref}
       className={[styles.select, props.className].join(' ')}
-      onClick={() => interactOver(true)}
-      onMouseLeave={() => interactOver(false)}
+      onClick={() => setOptionsAsVisible(true)}
+      onTouchMove={() => setOptionsAsVisible(true)}
+      onMouseLeave={() => setOptionsAsVisible(false)}
     >
       <span className={styles.selected}>{selected}</span>
-      <div ref={selection} className={classOptions.join(' ')}>{htmlOptions}</div>
+      {areOptionsVisible && (
+        <span className={[styles.options, styles.options_visible].join(' ')}>
+          {toItemArray(props.options)}
+        </span>
+      )}
     </div>
   );
 };
