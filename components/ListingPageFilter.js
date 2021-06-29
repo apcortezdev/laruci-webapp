@@ -9,6 +9,11 @@ import FilterIcon from './utilities/FilterIcon';
 const ListingPageFilter = (props) => {
   // const [colors, setColors] = useState([]);
 
+  const [toggleFilter, setToggleFilter] = useState(false);
+  const toggleMobileFilter = () => {
+    setToggleFilter((toggle) => !toggle);
+  };
+
   const orderList = {
     pop: 'Popular',
     che: 'Menor Preço',
@@ -37,65 +42,73 @@ const ListingPageFilter = (props) => {
 
   return (
     <div className={styles.container}>
-      <span className={styles.mobile_filter}>
-        <span className={styles.icon}>
-          <FilterIcon className={styles.icon_color} />
+      <div
+        className={[
+          styles.filter_box,
+          toggleFilter && styles.filter_box_open,
+        ].join(' ')}
+      >
+        <span className={styles.filter_icon_container} onClick={toggleMobileFilter}>
+          <span className={styles.icon}>
+            <FilterIcon className={styles.icon_color} />
+          </span>
+          <span>Filtrar</span>
         </span>
-          Filtrar
-      </span>
-      <span className={styles.container_text}>Buscar por:</span>
-      <form className={styles.form}>
-        <div className={styles.form_item_group}>
-          <div className={styles.form_item}>
-            <label htmlFor="color" className={styles.form_label}>
-              Cor:
-            </label>
-            <SelectColor
-              className={[
-                styles.container_capitalized,
-                styles.selector_colors,
-              ].join(' ')}
-              id="color"
-              placeholder="Todas"
-              onChange={setColor}
-              colors={colorList}
-            />
+        <form
+          className={[styles.form, toggleFilter && styles.form_open].join(' ')}
+        >
+          <div className={[styles.form_item_group, styles.form_item_group_one].join(' ')}>
+            <div className={styles.form_item}>
+              <label htmlFor="color" className={styles.form_label}>
+                Cor:
+              </label>
+              <SelectColor
+                className={[
+                  styles.container_capitalized,
+                  styles.selector_colors,
+                ].join(' ')}
+                id="color"
+                placeholder="Todas"
+                onChange={setColor}
+                colors={colorList}
+              />
+            </div>
+            <div className={styles.form_item}>
+              <label htmlFor="size" className={styles.form_label}>
+                Tamanho:
+              </label>
+              <SelectText
+                className={styles.selector_sizes}
+                id="size"
+                placeholder="Todos"
+                onChange={setSize}
+                options={sizesList}
+              />
+            </div>
           </div>
-          <div className={styles.form_item}>
-            <label htmlFor="size" className={styles.form_label}>
-              Tamanho:
-            </label>
-            <SelectText
-              className={styles.selector_sizes}
-              id="size"
-              placeholder="Todos"
-              onChange={setSize}
-              options={sizesList}
-            />
+          <div className={[styles.form_item_group, styles.form_item_group_two].join(' ')}>
+            <div className={styles.form_item}>
+              <label htmlFor="order" className={styles.form_label}>
+                Ordem:
+              </label>
+              <SelectText
+                className={styles.selector_order}
+                id="order"
+                placeholder="Irrelevante"
+                onChange={setOrder}
+                options={orderList}
+              />
+            </div>
+            <Button
+              type="submit"
+              className={styles.form__button}
+              onclick={submitSearch}
+            >
+              Buscar
+            </Button>
           </div>
-        </div>
-        <div className={styles.form_item_group}>
-          <div className={styles.form_item}>
-            <label htmlFor="order" className={styles.form_label}>
-              Ordem:
-            </label>
-            <SelectText
-              className={styles.selector_order}
-              id="order"
-              placeholder="Irrelevante"
-              onChange={setOrder}
-              options={orderList}
-            />
-          </div>
-          <Button
-            type="submit"
-            className={styles.form__button}
-            onclick={submitSearch}
-          >
-            Buscar
-          </Button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
