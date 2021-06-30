@@ -10,7 +10,11 @@ import dummy from '../../api/dummy';
 
 const ProductPage = (props) => {
   const router = useRouter();
+
   const query = router.query;
+  if (!query) {
+    return <p className='center'>Loading...</p>;
+  }
 
   const data = dummy[Object.keys(dummy)[0]];
 

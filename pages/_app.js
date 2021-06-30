@@ -5,8 +5,13 @@ import ShopBar from '../components/ShopBar';
 import WebMenu from '../components/MainMenu';
 import Logo from '../components/utilities/Logo';
 import '../styles/globals.scss';
+import { useRouter } from 'next/router';
 
 function MyApp({ Component, pageProps }) {
+
+  // const router = useRouter();
+  // console.dir(router.query);
+
   const adm = false;
   if (adm === true) {
     return <div>ADM</div>;

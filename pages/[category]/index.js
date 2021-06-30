@@ -10,14 +10,17 @@ const ListingPage = (props) => {
 
   const router = useRouter();
 
-  const route = router.query;
+  const category = router.query.category;
+  if (!category) {
+    return <p className='center'>Loading...</p>;
+  }
 
   return (
     <div className={styles.main}>
       <div className={styles.aside}/>
       <div className={styles.content}>
         <ListingPageFilter />
-        <ProductList category={route.category} list={data} />
+        <ProductList category={category} list={data} />
       </div>
       <div className={styles.aside}/>
     </div>
