@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import styles from './ShopBar.module.scss';
-import MainMenu from './MainMenu';
-import SearchInput from './utilities/SearchInput';
-import ShopNav from './utilities/ShopNav';
-import Backdrop from './utilities/Backdrop';
+import MainMenu from '../MainMenu';
+import SearchInput from '../utilities/SearchInput';
+import ShopNav from '../utilities/ShopNav';
+import Backdrop from '../utilities/Backdrop';
 import Link from 'next/link';
 
 const ShopBar = () => {

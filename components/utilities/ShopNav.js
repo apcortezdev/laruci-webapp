@@ -4,9 +4,9 @@ import Link from 'next/link';
 const ShopNav = (props) => {
   const links = [
     { id: '', name: 'Home' },
-    { id: 'about', name: 'Sobre Nós' },
-    { id: 'contact', name: 'Contato' },
-    { id: 'sizes', name: 'Tamanhos' },
+    { id: 'sobre', name: 'Sobre Nós' },
+    { id: 'contato', name: 'Contato' },
+    { id: 'tamanhos', name: 'Tamanhos' },
   ];
 
   return (

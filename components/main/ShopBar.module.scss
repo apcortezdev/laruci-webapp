@@ -1,5 +1,5 @@
-@import '../styles/_colors';
-@import '../styles/_mixin.scss';
+@import '../../styles/_colors';
+@import '../../styles/_mixin.scss';
 
 .shopbar {
   @include display-flex();
@@ -53,7 +53,7 @@
     width: 2rem;
     height: 1.4rem;
     background: map-get($map: $colors, $key: secondary)
-      url(../public/user_icon.png) center/1.4rem 1.4rem no-repeat;
+      url(../../public/user_icon.png) center/1.4rem 1.4rem no-repeat;
     &:hover {
       border-left: 1px solid map-get($map: $colors, $key: secondary-light);
       border-right: 1px solid map-get($map: $colors, $key: secondary-light);
@@ -65,7 +65,7 @@
     width: 2rem;
     height: 1.4rem;
     background: map-get($map: $colors, $key: secondary)
-      url(../public/bag_icon.png) center/1.4rem 1.4rem no-repeat;
+      url(../../public/bag_icon.png) center/1.4rem 1.4rem no-repeat;
     &:hover {
       border-left: 1px solid map-get($map: $colors, $key: secondary-light);
       border-right: 1px solid map-get($map: $colors, $key: secondary-light);
@@ -75,7 +75,7 @@
   .mobilenav_btn {
     margin-right: 0.7rem;
     background: map-get($map: $colors, $key: secondary)
-      url(../public/mobilenav_icon.png) center/1.4rem 1.4rem no-repeat;
+      url(../../public/mobilenav_icon.png) center/1.4rem 1.4rem no-repeat;
     border: none;
     width: 2rem;
     height: 2rem;

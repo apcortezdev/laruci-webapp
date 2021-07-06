@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { SelectColor, SelectText } from './utilities/FormComponents';
 import styles from './ListingPageFilter.module.scss';
-import colorList from '../pages/api/dummyColors';
-import sizesList from '../pages/api/dummySizes';
 import Button from '../components/utilities/Button';
 import FilterIcon from './utilities/FilterIcon';
 
-const ListingPageFilter = (props) => {
+const ListingPageFilter = ({colorList, sizesList}) => {
   // const [colors, setColors] = useState([]);
 
   const [toggleFilter, setToggleFilter] = useState(false);

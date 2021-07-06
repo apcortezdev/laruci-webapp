@@ -1,13 +1,17 @@
-import Footer from '../components/Footer';
-import NoticeBar from '../components/NoticeBar';
+import Footer from '../components/main/Footer';
+import NoticeBar from '../components/main/NoticeBar';
 import Head from 'next/Head';
-import ShopBar from '../components/ShopBar';
-import WebMenu from '../components/MainMenu';
-import Logo from '../components/utilities/Logo';
+import ShopBar from '../components/main/ShopBar';
 import '../styles/globals.scss';
 import { useRouter } from 'next/router';
 
-function MyApp({ Component, pageProps }) {
+function MyApp(props) {
+
+  const { Component, pageProps } = props;
+
+  const title = 'Laruci';
+  const description = 'Lingeries feitas sob medida para você!';
+  const domain = 'localhost:3000';
 
   // const router = useRouter();
   // console.dir(router.query);
@@ -20,27 +24,28 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <title>Laruci</title>
-        <meta name="description" content="Laruci Web Site" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/laruci_logo.ico" />
+        <link href={domain} rel="canonical" />
       </Head>
       <div className="maingrid">
         <NoticeBar />
         <ShopBar />
-        <div className="content-wrapper">
-          <Logo />
-          <div className="webmanu">
-            <WebMenu onMobileClick={false}/>
-          </div>
-          <div className={"content"}>
-            <Component {...pageProps} />
-          </div>
-        </div>
+        <Component {...pageProps} />
         <Footer />
       </div>
     </>
   );
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      test: 'test',
+    },
+  };
 }
 
 export default MyApp;

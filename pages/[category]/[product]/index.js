@@ -1,36 +1,30 @@
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Breadcrumb from '../../../components/Breadcrumb';
 import ShipmentCalc from '../../../components/ShipmentCalc';
 import Button from '../../../components/utilities/Button';
 import ImageShow from '../../../components/utilities/ImageShow';
-import SizeTag from '../../../components/utilities/SizeTag';
+import SizeSelector from '../../../components/utilities/SizeSelector';
 import styles from '../../../styles/ProductPage.module.scss';
-import dummy from '../../api/dummy';
+import { getSizes } from '../../../data/sizes';
+import { getCategories } from '../../../data/categories';
+import { getProductsByCategory, getProductById } from '../../../data/products';
+import Store from '../../../components/store/Store';
 
-const ProductPage = (props) => {
-  const router = useRouter();
-
-  const query = router.query;
-  if (!query) {
-    return <p className='center'>Loading...</p>;
-  }
-
-  const data = dummy[Object.keys(dummy)[0]];
-
-  const newPrice = !!data.discount
-    ? data.price * (1 - data.discount / 100)
+const ProductPage = ({ prodId, prodCategory, allSizes, data }) => {
+  const product = data;
+  const newPrice = !!product.discount
+    ? product.price * (1 - product.discount / 100)
     : false;
 
   const [selectedColorSet, setSelectedColorSet] = useState(
-    Object.keys(data.sets)[0]
+    Object.keys(product.sets)[0]
   );
 
   const [selectedColorSet_images, setSelectedColorSet_images] = useState(
-    data.sets[selectedColorSet].images
+    product.sets[selectedColorSet].images
   );
 
-  const htmlColors = Object.keys(data.sets).map((color) => (
+  const htmlColors = Object.keys(product.sets).map((color) => (
     <div
       key={color}
       className={styles.color}
@@ -41,15 +35,14 @@ const ProductPage = (props) => {
 
   function setImagesToSlideShow(color) {
     setSelectedColorSet(color);
-    setSelectedColorSet_images(data.sets[color].images);
+    setSelectedColorSet_images(product.sets[color].images);
   }
 
   return (
-    <div className={styles.maincontainer}>
-      <div className={styles.asidebox} />
+    <Store>
       <div className={styles.contentbox}>
         <div className={styles.bredcrumb_container}>
-          <Breadcrumb query={query} />
+          <Breadcrumb query={[prodCategory, prodId]} />
         </div>
         <div className={styles.product_content}>
           <div className={styles.imageshow__container}>
@@ -57,20 +50,20 @@ const ProductPage = (props) => {
             <div className={styles.imageshow__colors}>{htmlColors}</div>
           </div>
           <div className={styles.details}>
-            <span className={styles.font_hightlight}>{data.name}</span>
+            <span className={styles.font_hightlight}>{product.name}</span>
             <section
               className={[
                 styles.section_details,
                 styles.details__description,
               ].join(' ')}
             >
-              {data.shortDescription}
+              {product.shortDescription}
             </section>
             <span className={styles.price_line}>
               <span className={styles.price_side}>
                 {!!newPrice ? (
                   <>
-                    de R$ {data.price.toFixed(2)} por{' '}
+                    de R$ {product.price.toFixed(2)} por{' '}
                     <span className={styles.font_price__price}>
                       R$ {newPrice.toFixed(2)}
                     </span>
@@ -79,7 +72,7 @@ const ProductPage = (props) => {
                   <>
                     por somente{' '}
                     <span className={styles.font_price__price}>
-                      R$ {data.price.toFixed(2)}
+                      R$ {product.price.toFixed(2)}
                     </span>
                   </>
                 )}
@@ -91,13 +84,16 @@ const ProductPage = (props) => {
                     styles.font_discount,
                   ].join(' ')}
                 >
-                  -{data.discount}%
+                  -{product.discount}%
                 </span>
               )}
             </span>
 
             <section className={styles.section_details}>
-              <SizeTag sizes={data.sets[selectedColorSet].sizes} />
+              <SizeSelector
+                availableSizeList={product.sets[selectedColorSet].sizes}
+                fillSizeList={allSizes}
+              />
             </section>
             <section
               className={[
@@ -109,14 +105,14 @@ const ProductPage = (props) => {
                 <Button
                   className={styles.section_btnline__iconbtnsize}
                   tip={'Adicionar à sacola'}
-                  type='button'
+                  type="button"
                 >
                   <div className={styles.bag_icon_plus} />
                 </Button>
                 <Button
                   className={styles.section_btnline__btnsize}
                   tip={'Adicionar e finalizar compra'}
-                  type='button'
+                  type="button"
                 >
                   Comprar
                 </Button>
@@ -131,15 +127,51 @@ const ProductPage = (props) => {
                 styles.details__description,
               ].join(' ')}
             >
-              <span className={styles.section_title}>Descrição do Produto:</span>
-              {data.longDescription}
+              <span className={styles.section_title}>
+                Descrição do Produto:
+              </span>
+              {product.longDescription}
             </section>
           </div>
         </div>
       </div>
-      <div className={styles.asidebox} />
-    </div>
+    </Store>
   );
 };
+
+export async function getStaticPaths() {
+  const categories = getCategories();
+
+  let pathList = [];
+
+  for (const category of categories) {
+    const products = getProductsByCategory(category.id);
+    for (const key in products) {
+      pathList.push({ params: { category: category.id, product: key } });
+    }
+  }
+
+  return {
+    paths: pathList,
+    fallback: 'blocking',
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const category = params.category;
+  const productId = params.product;
+
+  const sizeList = getSizes();
+  const data = getProductById(productId);
+
+  return {
+    props: {
+      prodCategory: category,
+      prodId: productId,
+      allSizes: sizeList,
+      data: data,
+    },
+  };
+}
 
 export default ProductPage;

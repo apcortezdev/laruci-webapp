@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import styles from './FormComponents.module.scss';
+import PropTypes from 'prop-types';
 
 //Select w/ Color Options
 export const SelectColorItem = (props) => {
@@ -42,7 +43,7 @@ export const SelectColor = (props) => {
     if (visible !== areOptionsVisible) {
       setAreOptionsVisible(visible);
     }
-  }
+  };
 
   const toItemArray = (obj) => {
     let array = [
@@ -127,15 +128,13 @@ export const SelectText = (props) => {
     if (visible !== areOptionsVisible) {
       setAreOptionsVisible(visible);
     }
-  }
+  };
 
   const toItemArray = (obj) => {
     let array = [
       <SelectTextItem
         key={props.placeholder}
-        onSelect={() =>
-          changeSelected(props.placeholder, props.placeholder)
-        }
+        onSelect={() => changeSelected(props.placeholder, props.placeholder)}
         optionName={'0'}
         optionValue={props.placeholder}
       />,
@@ -171,4 +170,100 @@ export const SelectText = (props) => {
       )}
     </div>
   );
+};
+
+export const Input = (props) => {
+  const [isValid, setIsValid] = useState(true);
+  const setValidation = () => {
+    if (props.required && !props.refs.current.value.trim()) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+    }
+  };
+
+  return (
+    <span className={styles.inputLine}>
+      <input
+        ref={props.refs}
+        className={[
+          styles.inputText,
+          props.className || '',
+          !isValid && styles.inputText_invalid,
+        ].join(' ')}
+        id={props.id || ''}
+        type="text"
+        placeholder={props.placeholder || ''}
+        onBlur={setValidation}
+      />
+      <span className={styles.validationMessage}>
+        {!isValid
+          ? props.validationMessage
+            ? props.validationMessage
+            : props.type === 'email'
+            ? 'Digite um e-mail válido'
+            : 'Digite um valor válido'
+          : ' '}
+      </span>
+    </span>
+  );
+};
+
+Input.propTypes = {
+  refs: PropTypes.object,
+  className: PropTypes.string,
+  id: PropTypes.string,
+  type: PropTypes.string,
+  placeholder: PropTypes.string,
+  required: PropTypes.bool,
+  validationMessage: PropTypes.string,
+};
+
+export const Textarea = (props) => {
+  const [isValid, setIsValid] = useState(true);
+  const setValidation = () => {
+    if (props.required && !props.refs.current.value.trim()) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+    }
+  };
+  return (
+    <span className={styles.inputLine}>
+      <textarea
+        ref={props.refs}
+        className={[
+          styles.inputText,
+          props.className || '',
+          !isValid && styles.inputText_invalid,
+        ].join(' ')}
+        id={props.id || ''}
+        rows={props.rows || ''}
+        cols={props.cols || ''}
+        placeholder={props.placeholder || ''}
+        required={props.required || false}
+        onBlur={setValidation}
+      />
+      <span className={styles.validationMessage}>
+        {!isValid
+          ? props.validationMessage
+            ? props.validationMessage
+            : props.type === 'email'
+            ? 'Digite um e-mail válido'
+            : 'Digite um valor válido'
+          : ' '}
+      </span>
+    </span>
+  );
+};
+
+Textarea.propTypes = {
+  refs: PropTypes.object,
+  className: PropTypes.string,
+  id: PropTypes.string,
+  placeholder: PropTypes.string,
+  rows: PropTypes.string,
+  cols: PropTypes.string,
+  required: PropTypes.bool,
+  validationMessage: PropTypes.string,
 };

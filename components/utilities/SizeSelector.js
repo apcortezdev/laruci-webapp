@@ -1,12 +1,12 @@
-import styles from './SizeTag.module.scss';
-import dummySizes from '../../pages/api/dummySizes';
+import PropTypes from 'prop-types';
+import styles from './SizeSelector.module.scss';
 
-const SizeTag = (props) => {
-  const sizes = dummySizes;
+const SizeSelector = (props) => {
+  const sizes = props.fillSizeList;
   let tags = [];
 
   for (const key in sizes) {
-    if (Object.hasOwnProperty.call(props.sizes, key)) {
+    if (Object.hasOwnProperty.call(props.availableSizeList, key)) {
       tags.push(
         <div key={sizes[key]} className={[styles.abled].join(' ')}>
           {sizes[key]}
@@ -33,4 +33,9 @@ const SizeTag = (props) => {
   );
 };
 
-export default SizeTag;
+SizeSelector.propTypes = {
+  fillSizeList: PropTypes.object,
+  availableSizeList:  PropTypes.object,
+};
+
+export default SizeSelector;

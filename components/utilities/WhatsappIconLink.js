@@ -1,14 +1,11 @@
 import Link from 'next/link';
-import styles from './WhatsappLink.module.scss';
+import styles from './WhatsappIconLink.module.scss';
+import PropTypes from 'prop-types';
 
-const WhatsappLink = (props) => {
+const WhatsappIconLink = ({ link }) => {
   return (
     <div className={styles.container}>
-      <Link
-        href={
-          'https://wa.me/5514997157687?text=Bom%20dia%2C%20estou%20entrando%20em%20contato%20depois%20de%20ter%20visitado%20seu%20site!%20Poderia%20me%20ajudar%3F'
-        }
-      >
+      <Link href={link || ''}>
         <a className={styles.size} rel="noreferrer noopener" target={'_blank'}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -31,4 +28,8 @@ const WhatsappLink = (props) => {
   );
 };
 
-export default WhatsappLink;
+WhatsappIconLink.propTypes = {
+  link: PropTypes.string.isRequired,
+};
+
+export default WhatsappIconLink;

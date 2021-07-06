@@ -1,6 +1,7 @@
 const dummy = {
   abcde: {
     name: 'Produto 01',
+    category: 'calcinhas',
     price: 19.9901,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -23,6 +24,7 @@ const dummy = {
   },
   efgij: {
     name: 'Produto 02',
+    category: 'calcinhas',
     price: 99.99,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -47,6 +49,7 @@ const dummy = {
   },
   asdf56: {
     name: 'Produto 02',
+    category: 'calcinhas',
     price: 99.99,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -71,6 +74,7 @@ const dummy = {
   },
   vffdsa459: {
     name: 'Produto 02',
+    category: 'calcinhas',
     price: 99.99,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -95,6 +99,7 @@ const dummy = {
   },
   v1s5d9: {
     name: 'Produto 02',
+    category: 'calcinhas',
     price: 99.99,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -119,6 +124,7 @@ const dummy = {
   },
   v96sd: {
     name: 'Produto 02',
+    category: 'calcinhas',
     price: 99.99,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -143,6 +149,7 @@ const dummy = {
   },
   v89e5: {
     name: 'Produto 02',
+    category: 'calcinhas',
     price: 99.99,
     discount: 10,
     shortDescription: 'Lindo sutiã com bojo meia taça',

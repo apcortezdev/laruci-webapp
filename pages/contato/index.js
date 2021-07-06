@@ -1,19 +1,36 @@
 import Button from '../../components/utilities/Button';
-import FacebookLink from '../../components/utilities/FacebookLink';
-import InstagramLink from '../../components/utilities/InstagramLink';
-import WhatsappLink from '../../components/utilities/WhatsappLink';
+import FacebookIconLink from '../../components/utilities/FacebookIconLink';
+import InstagramIconLink from '../../components/utilities/InstagramIconLink';
+import WhatsappIconLink from '../../components/utilities/WhatsappIconLink';
 import styles from '../../styles/ContactPage.module.scss';
+import { getFullContact } from '../../data/contact';
+import { useRef } from 'react';
+import { Input, Textarea } from '../../components/utilities/FormComponents';
+import Store from '../../components/store/Store';
 
-const ContactPage = (props) => {
+const ContactPage = ({
+  contactEmail,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
+  phoneSac,
+}) => {
+  if (!phoneSac) {
+    return <p>Loading</p>;
+  }
+
+  const email = useRef();
+  const subject = useRef();
+  const message = useRef();
 
   const sendEmail = (event) => {
     event.preventDefault();
-  }
-  
+    email.current.focus();
+  };
+
   return (
-    <div className={styles.main}>
-      <div className={styles.aside} />
-      <div className={styles.flex_center}>
+    <Store>
+      <div className={[styles.page, styles.flex_center].join(' ')}>
         <section className={[styles.section, styles.flex_center].join(' ')}>
           <span className={styles.contact_text}>
             Clique em uma de nossas redes sociais:
@@ -22,17 +39,17 @@ const ContactPage = (props) => {
             <span
               className={[styles.social_icon, styles.social_face].join(' ')}
             >
-              <FacebookLink />
+              <FacebookIconLink link={facebookLink} />
             </span>
             <span
               className={[styles.social_icon, styles.social_inst].join(' ')}
             >
-              <InstagramLink />
+              <InstagramIconLink link={instagramLink} />
             </span>
             <span
               className={[styles.social_icon, styles.social_what].join(' ')}
             >
-              <WhatsappLink />
+              <WhatsappIconLink link={whatsappLink} />
             </span>
           </div>
         </section>
@@ -51,35 +68,47 @@ const ContactPage = (props) => {
               <label className={styles.contact_label} htmlFor="email">
                 Seu email:
               </label>
-              <input
-                className={styles.contact_inputtxt}
+              <Input
+                refs={email}
                 id="email"
-                type="text"
+                type="email"
+                placeholder="Digite seu e-mail aqui"
+                required
               />
             </span>
             <span className={styles.contact_inputline}>
               <label className={styles.contact_label} htmlFor="subject">
                 Assunto:
               </label>
-              <input
-                className={styles.contact_inputtxt}
+              <Input
+                refs={subject}
                 id="subject"
                 type="text"
+                placeholder="Digite o assunto da mensagem"
+                validationMessage="Coloque um assunto na mensagem!"
+                required
               />
             </span>
             <span className={styles.contact_inputline}>
               <label className={styles.contact_label} htmlFor="message">
                 Mensagem:
               </label>
-              <textarea
-                className={styles.contact_inputtxt}
+              <Textarea
+                refs={message}
                 id="message"
                 rows="10"
                 cols="20"
+                placeholder="Digite sua mensagem"
+                validationMessage="Seu contato precisa de uma mensagem!"
+                required
               />
             </span>
             <span className={styles.contact_inputline}>
-              <Button className={styles.button} type="submit" onClick={sendEmail}>
+              <Button
+                className={styles.button}
+                type="submit"
+                onClick={sendEmail}
+              >
                 Enviar
               </Button>
             </span>
@@ -95,14 +124,24 @@ const ContactPage = (props) => {
           <span className={styles.contact_text}>
             Ou entre em contato pelo telefone:
           </span>
-          <span className={styles.contact_text}>
-            {'SAC: +55 (14)  3218-2634'}
-          </span>
+          <span className={styles.contact_text}>{`SAC: ${phoneSac}`}</span>
         </section>
       </div>
-      <div className={styles.aside} />
-    </div>
+    </Store>
   );
 };
+
+export async function getStaticProps() {
+  const contact = getFullContact();
+  return {
+    props: {
+      contactEmail: contact.email,
+      facebookLink: contact.facebook,
+      instagramLink: contact.instagram,
+      whatsappLink: contact.whatsapp,
+      phoneSac: contact.phoneSac,
+    },
+  };
+}
 
 export default ContactPage;

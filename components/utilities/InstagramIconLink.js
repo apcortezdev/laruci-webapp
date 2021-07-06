@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import styles from './InstagramLink.module.scss';
+import styles from './InstagramIconLink.module.scss';
+import PropTypes from 'prop-types';
 
-const InstagramLink = (props) => {
+const InstagramIconLink = ({ link }) => {
   return (
     <div className={styles.container}>
-      <Link href={'https://www.instagram.com/larucilingerie/'}>
+      <Link href={link || ''}>
         <a rel="noreferrer noopener" target={'_blank'}>
           <div className={styles.color_icon}>
             <svg
@@ -76,4 +77,8 @@ const InstagramLink = (props) => {
   );
 };
 
-export default InstagramLink;
+InstagramIconLink.propTypes = {
+  link: PropTypes.string.isRequired,
+};
+
+export default InstagramIconLink;

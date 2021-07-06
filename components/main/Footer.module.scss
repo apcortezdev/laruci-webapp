@@ -1,5 +1,5 @@
-@import '../styles/_colors';
-@import '../styles/_mixin.scss';
+@import '../../styles/_colors';
+@import '../../styles/_mixin.scss';
 
 .footer {
   @include display-flex();

@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import styles from './FacebookLink.module.scss';
+import styles from './FacebookIconLink.module.scss';
+import PropTypes from 'prop-types';
 
-const FacebookLink = (props) => {
+const FacebookIconLink = ({ link }) => {
   return (
     <div className={styles.container}>
-      <Link href={'https://www.facebook.com/LaruciStoreBauru'}>
+      <Link href={link || ''}>
         <a rel="noreferrer noopener" target={'_blank'}>
           <svg
             width="100%"
@@ -26,4 +27,8 @@ const FacebookLink = (props) => {
   );
 };
 
-export default FacebookLink;
+FacebookIconLink.propTypes = {
+  link: PropTypes.string.isRequired,
+};
+
+export default FacebookIconLink;
