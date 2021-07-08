@@ -1,0 +1,40 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.wrapper {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & > h1,
+  & > h3 {
+    margin: 1rem 0 0 0;
+    font-weight: inherit;
+  }
+}
+
+.form {
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 30rem;
+
+  .form_line:last-child {
+    display: inline-flex;
+    justify-content: flex-end;
+  }
+
+  .form_line > label {
+    display: inline-block;
+    margin: 1rem 0;
+  }
+
+  .formButton {
+    width: 9rem;
+    margin: 1rem;
+  }
+
+  & p {
+    font-size: 0.9rem;
+  }
+}

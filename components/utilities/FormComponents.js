@@ -172,98 +172,114 @@ export const SelectText = (props) => {
   );
 };
 
-export const Input = (props) => {
-  const [isValid, setIsValid] = useState(true);
-  const setValidation = () => {
-    if (props.required && !props.refs.current.value.trim()) {
-      setIsValid(false);
-    } else {
-      setIsValid(true);
+const setMask = (m, t) => {
+  /* Rules:
+      * - any character
+      A - only text
+      9 - only numbers
+  */
+  const mask = new String(m.trim());
+  const text = t.trim();
+  let finalText = '';
+  let i_text = 0;
+
+  for (let i = 0; i < [...mask].length; i++) {
+    let char;
+    switch (mask[i].toLowerCase()) {
+      case '*':
+        if (!!text[i_text]) {
+          char = text[i_text];
+          i_text++;
+          break;
+        }
+        char = ' ';
+        break;
+      case 'a':
+        if (!!text[i_text] && /[a-zA-Z]/.test[i_text]) {
+          char = text[i_text];
+          i_text++;
+          break;
+        }
+        char = ' ';
+        break;
+      case '9':
+        if (!!text[i_text] && /[0-9]/.test[i_text]) {
+          char = text[i_text];
+          i_text++;
+          break;
+        }
+        char = ' ';
+        break;
+      default:
+        char = mask[i];
+        break;
     }
-  };
+    finalText = finalText.concat(char);
+  }
+
+  return finalText;
+};
+
+export const Input = ({ className, valid, validationMessage, mask, value, onChange, ...rest }) => {
+  const validate = valid != null ? valid : true;
+
+  let onChangeValue;
+
+  if (!!onChange && !!mask) {
+    onChangeValue = (event) => {
+      event.target.value = setMask(mask, event.target.value);
+      onChange(event);
+    }
+  } else {
+    onChangeValue = onChange;
+  }
 
   return (
     <span className={styles.inputLine}>
       <input
-        ref={props.refs}
         className={[
           styles.inputText,
-          props.className || '',
-          !isValid && styles.inputText_invalid,
+          className || '',
+          !validate && styles.inputText_invalid,
         ].join(' ')}
-        id={props.id || ''}
-        type="text"
-        placeholder={props.placeholder || ''}
-        onBlur={setValidation}
+        onChange={onChangeValue}
+        {...rest}
+        value={value}
       />
       <span className={styles.validationMessage}>
-        {!isValid
-          ? props.validationMessage
-            ? props.validationMessage
-            : props.type === 'email'
-            ? 'Digite um e-mail válido'
-            : 'Digite um valor válido'
-          : ' '}
+        {validate || (validationMessage ? validationMessage : 'Campo inválido')}
       </span>
     </span>
   );
 };
 
 Input.propTypes = {
-  refs: PropTypes.object,
   className: PropTypes.string,
-  id: PropTypes.string,
-  type: PropTypes.string,
-  placeholder: PropTypes.string,
-  required: PropTypes.bool,
+  valid: PropTypes.bool,
   validationMessage: PropTypes.string,
 };
 
-export const Textarea = (props) => {
-  const [isValid, setIsValid] = useState(true);
-  const setValidation = () => {
-    if (props.required && !props.refs.current.value.trim()) {
-      setIsValid(false);
-    } else {
-      setIsValid(true);
-    }
-  };
+export const Textarea = ({ className, valid, validationMessage, ...rest }) => {
+  const validate = valid != null ? valid : true;
   return (
     <span className={styles.inputLine}>
       <textarea
-        ref={props.refs}
         className={[
           styles.inputText,
-          props.className || '',
-          !isValid && styles.inputText_invalid,
+          className || '',
+          !validate && styles.inputText_invalid,
         ].join(' ')}
-        id={props.id || ''}
-        rows={props.rows || ''}
-        cols={props.cols || ''}
-        placeholder={props.placeholder || ''}
-        required={props.required || false}
-        onBlur={setValidation}
+        {...rest}
       />
       <span className={styles.validationMessage}>
-        {!isValid
-          ? props.validationMessage
-            ? props.validationMessage
-            : props.type === 'email'
-            ? 'Digite um e-mail válido'
-            : 'Digite um valor válido'
-          : ' '}
+        {validate || (validationMessage ? validationMessage : 'Campo inválido')}
       </span>
     </span>
   );
 };
 
 Textarea.propTypes = {
-  refs: PropTypes.object,
   className: PropTypes.string,
-  id: PropTypes.string,
-  placeholder: PropTypes.string,
-  rows: PropTypes.string,
-  cols: PropTypes.string,
-  required: PropTypes.bool,
+  valid: PropTypes.bool,
   validationMessage: PropTypes.string,
 };

@@ -3,7 +3,7 @@ import FacebookIconLink from '../../components/utilities/FacebookIconLink';
 import InstagramIconLink from '../../components/utilities/InstagramIconLink';
 import WhatsappIconLink from '../../components/utilities/WhatsappIconLink';
 import styles from '../../styles/ContactPage.module.scss';
-import { getFullContact } from '../../data/contact';
+import { getFullContactInfo } from '../../data/contact';
 import { useRef } from 'react';
 import { Input, Textarea } from '../../components/utilities/FormComponents';
 import Store from '../../components/store/Store';
@@ -132,15 +132,16 @@ const ContactPage = ({
 };
 
 export async function getStaticProps() {
-  const contact = getFullContact();
+  const contact = getFullContactInfo();
   return {
     props: {
       contactEmail: contact.email,
-      facebookLink: contact.facebook,
-      instagramLink: contact.instagram,
-      whatsappLink: contact.whatsapp,
+      facebookLink: contact.facebookLink,
+      instagramLink: contact.instagramLink,
+      whatsappLink: `https://wa.me/${contact.whatsappNum}?text=${encodeURIComponent(contact.whatsappTemplateMessage)}`,
       phoneSac: contact.phoneSac,
     },
+    revalidate: 86400
   };
 }
 

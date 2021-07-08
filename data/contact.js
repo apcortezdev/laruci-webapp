@@ -1,5 +1,5 @@
 import contact from './dummyContactInfo';
 
-export function getFullContact() {
+export function getFullContactInfo() {
     return contact;
 }
