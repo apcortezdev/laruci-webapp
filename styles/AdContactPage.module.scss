@@ -7,10 +7,16 @@
   flex-direction: column;
   align-items: center;
 
-  & > h1,
-  & > h3 {
-    margin: 1rem 0 0 0;
+  & > h1 {
+    margin: 2rem auto;
     font-weight: inherit;
+  }
+
+  & > div {
+    max-width: 40rem;
+    text-align: justify;
+    line-height: 1.5rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -19,14 +25,15 @@
   flex-direction: column;
   max-width: 30rem;
 
-  .form_line:last-child {
-    display: inline-flex;
-    justify-content: flex-end;
-  }
-
-  .form_line > label {
-    display: inline-block;
-    margin: 1rem 0;
+  .form_line {
+    &:last-child {
+      display: inline-flex;
+      justify-content: flex-end;
+    }
+    & > label {
+      display: inline-block;
+      margin: 1rem 0;
+    }
   }
 
   .formButton {
@@ -34,7 +41,35 @@
     margin: 1rem;
   }
 
-  & p {
-    font-size: 0.9rem;
+  .form_inputAndButtons{
+    display: inline-flex;
+    width: 100%;
+    align-items: flex-start;
+    margin: .3rem 0;
+    justify-content: space-between;
+  }
+
+  .form_input {
+    display: inline-block;
+    width:90%;
+  }
+
+  .plusButton {
+    display: inline-block;
+    width: 2.7rem;
+    height: 2.7rem;
+    font-weight: 500;
+  }
+
+  .minusButton {
+    display: inline-block;
+    background-color: map-get($map: $colors, $key: promo-red);
+    width: 2.7rem;
+    height: 2.7rem;
+    font-weight: 500;
+
+    &:hover {
+      background-color: map-get($map: $colors, $key: dark-red);
+    }
   }
 }
