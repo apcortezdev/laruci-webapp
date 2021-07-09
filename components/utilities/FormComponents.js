@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useReducer, useRef, useState } from 'react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import styles from './FormComponents.module.scss';
 import PropTypes from 'prop-types';
 
 //Select w/ Color Options
-export const SelectColorItem = (props) => {
+const SelectColorItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
   const onOver = () => {
@@ -89,7 +89,7 @@ export const SelectColor = (props) => {
 };
 
 //Select w/ Text options
-export const SelectTextItem = (props) => {
+const SelectTextItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
   const onOver = () => {
@@ -172,67 +172,133 @@ export const SelectText = (props) => {
   );
 };
 
-const setMask = (m, t) => {
+//Input type text
+const masker = (text, mask) => {
   /* Rules:
-      * - any character
+      S - text and numbers
       A - only text
       9 - only numbers
   */
-  const mask = new String(m.trim());
-  const text = t.trim();
+  const arrayText = new String(text);
+  const arrayMask = new String(mask.toLowerCase());
   let finalText = '';
-  let i_text = 0;
+  let i_mask = 0;
 
-  for (let i = 0; i < [...mask].length; i++) {
-    let char;
-    switch (mask[i].toLowerCase()) {
-      case '*':
-        if (!!text[i_text]) {
-          char = text[i_text];
-          i_text++;
+  if (arrayText.length > 0) {
+    if (arrayMask.length > 0) {
+      for (let i_text = 0; i_text < [...arrayText].length; i_text++) {
+        if (arrayMask.length === i_mask) {
           break;
         }
-        char = ' ';
-        break;
-      case 'a':
-        if (!!text[i_text] && /[a-zA-Z]/.test[i_text]) {
-          char = text[i_text];
-          i_text++;
-          break;
+        while (
+          arrayMask[i_mask] !== 's' &&
+          arrayMask[i_mask] !== 'a' &&
+          arrayMask[i_mask] !== '9'
+        ) {
+          finalText = finalText.concat(arrayMask[i_mask]);
+          i_mask++;
         }
-        char = ' ';
-        break;
-      case '9':
-        if (!!text[i_text] && /[0-9]/.test[i_text]) {
-          char = text[i_text];
-          i_text++;
-          break;
+
+        switch (arrayMask[i_mask]) {
+          case 's':
+            if (/[a-z0-9]/i.test(arrayText[i_text])) {
+              finalText = finalText.concat(arrayText[i_text]);
+              break;
+            }
+            return finalText;
+          case 'a':
+            if (/[a-zA-Z]/.test(arrayText[i_text])) {
+              finalText = finalText.concat(arrayText[i_text]);
+              break;
+            }
+            return finalText;
+          case '9':
+            if (/[0-9]/.test(arrayText[i_text])) {
+              finalText = finalText.concat(arrayText[i_text]);
+              break;
+            }
+            return finalText;
+          default:
+            return finalText;
         }
-        char = ' ';
-        break;
-      default:
-        char = mask[i];
-        break;
+        i_mask++;
+      }
+    } else {
+      return text;
     }
-    finalText = finalText.concat(char);
   }
 
   return finalText;
 };
 
-export const Input = ({ className, valid, validationMessage, mask, value, onChange, ...rest }) => {
+const unmasker = (text) => {
+  return text.replace(/[^a-z0-9]/gi, '');
+};
+
+const maskReducer = (state, action) => {
+  const newActiveMask = !!state.masks
+    ? state.masks.find((m) => action.value.length <= unmasker(m).length)
+    : false;
+  return {
+    masks: state.masks,
+    activeMask: newActiveMask,
+    maskedValue: !!newActiveMask
+      ? masker(action.value, newActiveMask)
+      : action.value,
+  };
+};
+
+export const Input = ({
+  className,
+  valid,
+  validationMessage,
+  mask,
+  value,
+  onChange,
+  ...rest
+}) => {
   const validate = valid != null ? valid : true;
 
-  let onChangeValue;
+  const [maskState, dispatchMask] = useReducer(maskReducer, {
+    masks: !!mask
+      ? mask.sort((a, b) => unmasker(a).length - unmasker(b).length)
+      : false,
+    activeMask: !!mask
+      ? value
+        ? mask.find((m) => value.length <= unmasker(m).length)
+        : mask[0]
+      : false,
+    maskedValue: value
+      ? !!mask
+        ? masker(
+            value,
+            !!mask
+              ? value
+                ? mask.find((m) => value.length <= unmasker(m).length)
+                : mask[0]
+              : false
+          )
+        : value
+      : '',
+  });
 
-  if (!!onChange && !!mask) {
-    onChangeValue = (event) => {
-      event.target.value = setMask(mask, event.target.value);
-      onChange(event);
+  const onChangeValue = (event) => {
+    dispatchMask({ value: event.target.value });
+    if (!!onChange) {
+      if (maskState.activeMask) {
+        const e = {
+          ...event,
+          target: {
+            ...event.target,
+            value: unmasker(event.target.value),
+          },
+        };
+        onChange(e);
+      } else {
+        onChange(event);
+      }
     }
-  } else {
-    onChangeValue = onChange;
-  }
+  };
 
   return (
     <span className={styles.inputLine}>
@@ -244,7 +310,8 @@ export const Input = ({ className, valid, validationMessage, mask, value, onChan
         ].join(' ')}
         onChange={onChangeValue}
         {...rest}
-        value={value}
+        maxLength={maskState.activeMask ? maskState.activeMask.length : ''}
+        value={maskState.maskedValue}
       />
       <span className={styles.validationMessage}>
         {validate || (validationMessage ? validationMessage : 'Campo inválido')}
@@ -259,6 +326,7 @@ Input.propTypes = {
   validationMessage: PropTypes.string,
 };
 
+//Textarea
 export const Textarea = ({ className, valid, validationMessage, ...rest }) => {
   const validate = valid != null ? valid : true;
   return (
