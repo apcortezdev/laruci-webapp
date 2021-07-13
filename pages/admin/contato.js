@@ -65,11 +65,11 @@ const ContactPage = ({
   };
 
   function setPhoneSacValue(i, event) {
-    // setPhoneSac((oldPhones) => {
-    //   let phones = [...oldPhones];
-    //   phones[i] = event.target.value;
-    //   return phones;
-    // });
+    setPhoneSac((oldPhones) => {
+      let phones = [...oldPhones];
+      phones[i] = event.target.value;
+      return phones;
+    });
   }
 
   const saveContactData = (event) => {
@@ -194,18 +194,18 @@ const ContactPage = ({
             {phoneSac.length > 0 &&
               phoneSac.map((num, i) => (
                 <span
-                  key={`${num}phoneSac_${i}`}
+                  key={`span_${num.trim().replace(/ /g,'')}_phoneSac_${i}`}
                   className={styles.form_inputAndButtons}
                 >
                   <span className={styles.form_input}>
                     <Input
-                      id={`${num}phoneSac_${i}`}
+                      id={`inp_${num.trim().replace(/ /g,'')}_phoneSac_${i}`}
                       type="text"
                       placeholder="Adicionar número"
                       value={num}
                       mask={["+99 (99) 9999-9999", "9999 999-9999", "9999-9999"]}
                       valid={phoneSacValid[i]}
-                      onChange={setPhoneSacValue.bind(this, i)}
+                      onBlur={setPhoneSacValue.bind(this, i)}
                     />
                   </span>
                   <Button
@@ -261,15 +261,16 @@ const ContactPage = ({
               placeholder="Adicionar número"
               value={whatsapp}
               onChange={setWhatsappValue}
-              mask={["+99 (99) 9 9999-9999", "9999 999-9999", "9999-9999"]}
+              mask={["AAA 9999"]}
+              // mask={["+99 (99) 9 9999-9999", "9999 999-9999", "9999-9999", "AA 9999"]}
               valid={whatsappValid}
               validationMessage={'Bicha'}
             />
           </span>
           <span className={styles.form_line}>
-            <label htmlFor="whatsapp">Mensagem padrão de WhatsApp:</label>
+            <label htmlFor="whatsapp_message">Mensagem padrão de WhatsApp:</label>
             <Textarea
-              id="whatsapp"
+              id="whatsapp_message"
               placeholder="Mensagem modelo de Whatsapp"
               rows={5}
               cols={15}
