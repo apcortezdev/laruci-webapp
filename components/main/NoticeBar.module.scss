@@ -8,7 +8,7 @@
     display: inline-flex;
     grid-area: notice;
     width: 100%;
-    background-color: map-get($map: $colors, $key: primary);
+    background-color: map-get($map: $colors, $key: notice-bar);
     color: map-get($map: $colors, $key: black);
     justify-content: center;
     align-items: center;

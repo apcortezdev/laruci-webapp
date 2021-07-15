@@ -1,12 +1,9 @@
 import WebMenu from '../MainMenu';
-
-import Logo from '../utilities/Logo';
 import styles from './Store.module.scss';
 
 function Store(props) {
   return (
     <div className={styles.content_wrapper}>
-      <Logo />
       <div className={styles.webmanu}>
         <WebMenu onMobileClick={false} />
       </div>

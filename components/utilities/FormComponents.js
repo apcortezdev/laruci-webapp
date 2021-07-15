@@ -71,7 +71,7 @@ export const SelectColor = (props) => {
   return (
     <div
       ref={ref}
-      className={[styles.select, props.className].join(' ')}
+      className={[styles.select, props.className].join(' ').trim()}
       onClick={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
@@ -80,7 +80,7 @@ export const SelectColor = (props) => {
         className={[
           styles.options,
           areOptionsVisible ? styles.options_visible : styles.options_invisible,
-        ].join(' ')}
+        ].join(' ').trim()}
       >
         {toItemArray(props.colors)}
       </div>
@@ -164,14 +164,14 @@ export const SelectText = (props) => {
   return (
     <div
       ref={ref}
-      className={[styles.select, props.className].join(' ')}
+      className={[styles.select, props.className].join(' ').trim()}
       onClick={() => setOptionsAsVisible(true)}
       onTouchMove={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
       <span className={styles.selected}>{selected}</span>
       {areOptionsVisible && (
-        <span className={[styles.options, styles.options_visible].join(' ')}>
+        <span className={[styles.options, styles.options_visible].join(' ').trim()}>
           {toItemArray(props.options)}
         </span>
       )}
@@ -374,7 +374,7 @@ export const Input = ({
           styles.inputText,
           className || '',
           !isValid && styles.inputText_invalid,
-        ].join(' ')}
+        ].join(' ').trim()}
         onChange={onChangeValue}
         id={id}
         {...rest}
@@ -410,7 +410,7 @@ export const Textarea = ({ className, valid, validationMessage, ...rest }) => {
           styles.inputText,
           className || '',
           !isValid && styles.inputText_invalid,
-        ].join(' ')}
+        ].join(' ').trim()}
         {...rest}
       />
       <span className={styles.validationMessage}>

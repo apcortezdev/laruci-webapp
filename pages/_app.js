@@ -1,4 +1,5 @@
 import Head from 'next/Head';
+import { useEffect, useState } from 'react';
 import '../styles/globals.scss';
 
 function MyApp(props) {

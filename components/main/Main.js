@@ -4,23 +4,32 @@ import NoticeBar from './NoticeBar';
 import ShopBar from './shopbar/ShopBar';
 import styles from './Main.module.scss';
 
-const Main = ({ notice, children, background }) => {
+const Main = ({ notice, children, isTransparent, transparency }) => {
   return (
     <>
-      <header
-        className={[styles.navbar, !background ? styles.absolute : ''].join(' ')}
-      >
+      <header className={styles.navbar}>
         {!!notice && <NoticeBar notice={notice} />}
-        <div>
-          <ShopBar background={background} />
+        <div
+          className={isTransparent ? styles.transparent : styles.visible}
+          style={
+            isTransparent
+              ? {
+                  backgroundImage:
+                    `linear-gradient(to bottom, rgb(32, 34, 36, ${(1 - transparency) * 0.2}) 70%, transparent )`,
+                }
+              : {}
+          }
+        >
+          <ShopBar isTransparent={isTransparent} />
         </div>
       </header>
       <main
         className={[
           styles.maincontent,
-          background && styles.margin_top,
-          !!notice && styles.maincontent__notice,
-        ].join(' ')}
+          !!notice ? styles.maincontent__notice : '',
+        ]
+          .join(' ')
+          .trim()}
       >
         <div>{children}</div>
         <Footer className={styles.footer} />
@@ -30,8 +39,9 @@ const Main = ({ notice, children, background }) => {
 };
 
 Main.propTypes = {
-  background: PropTypes.bool,
+  isTransparent: PropTypes.bool,
   notice: PropTypes.string,
+  transparency: PropTypes.number,
 };
 
 export default Main;

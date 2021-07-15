@@ -60,7 +60,7 @@
       }
 
       &:hover {
-        color: map-get($map: $colors, $key: text-strong);
+        color: map-get($map: $colors, $key: primary);
 
         &::before {
             width: 90%;
@@ -76,7 +76,7 @@
   }
 
   &:hover > span {
-    color: map-get($map: $colors, $key: text-strong);
+    color: map-get($map: $colors, $key: primary);
   }
 
   &:hover .dropdown_content {

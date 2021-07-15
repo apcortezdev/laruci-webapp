@@ -12,7 +12,7 @@ const MainMenu = (props) => {
   ];
 
   return (
-    <div className={[styles.mainmenu, !props.background ? styles.transparent : ''].join(' ')}>
+    <div className={styles.mainmenu}>
       <ul className={styles.mainmenu_list}>
         {links.map((link) => (
           <li key={link.id}>

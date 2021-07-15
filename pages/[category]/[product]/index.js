@@ -55,7 +55,7 @@ const ProductPage = ({ prodId, prodCategory, allSizes, data }) => {
               className={[
                 styles.section_details,
                 styles.details__description,
-              ].join(' ')}
+              ].join(' ').trim()}
             >
               {product.shortDescription}
             </section>
@@ -82,7 +82,7 @@ const ProductPage = ({ prodId, prodCategory, allSizes, data }) => {
                   className={[
                     styles.font_price__price,
                     styles.font_discount,
-                  ].join(' ')}
+                  ].join(' ').trim()}
                 >
                   -{product.discount}%
                 </span>
@@ -99,7 +99,7 @@ const ProductPage = ({ prodId, prodCategory, allSizes, data }) => {
               className={[
                 styles.section_details,
                 styles.section_details__buybtn,
-              ].join(' ')}
+              ].join(' ').trim()}
             >
               <span className={styles.section_btnline}>
                 <Button
@@ -125,7 +125,7 @@ const ProductPage = ({ prodId, prodCategory, allSizes, data }) => {
               className={[
                 styles.section_details,
                 styles.details__description,
-              ].join(' ')}
+              ].join(' ').trim()}
             >
               <span className={styles.section_title}>
                 Descrição do Produto:

@@ -8,7 +8,7 @@ const SizeSelector = (props) => {
   for (const key in sizes) {
     if (Object.hasOwnProperty.call(props.availableSizeList, key)) {
       tags.push(
-        <div key={sizes[key]} className={[styles.abled].join(' ')}>
+        <div key={sizes[key]} className={[styles.abled].join(' ').trim()}>
           {sizes[key]}
         </div>
       );
@@ -16,7 +16,7 @@ const SizeSelector = (props) => {
       tags.push(
         <div
           key={sizes[key]}
-          className={[styles.tag, styles.disabled].join(' ')}
+          className={[styles.tag, styles.disabled].join(' ').trim()}
         >
           {sizes[key]}
         </div>

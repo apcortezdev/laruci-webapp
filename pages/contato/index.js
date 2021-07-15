@@ -32,24 +32,24 @@ const ContactPage = ({
   return (
     <Main>
       <Store>
-        <div className={[styles.page, styles.flex_center].join(' ')}>
-          <section className={[styles.section, styles.flex_center].join(' ')}>
+        <div className={[styles.page, styles.flex_center].join(' ').trim()}>
+          <section className={[styles.section, styles.flex_center].join(' ').trim()}>
             <span className={styles.contact_text}>
               Clique em uma de nossas redes sociais:
             </span>
             <div className={styles.social_container}>
               <span
-                className={[styles.social_icon, styles.social_face].join(' ')}
+                className={[styles.social_icon, styles.social_face].join(' ').trim()}
               >
                 <FacebookIconLink link={facebookLink} />
               </span>
               <span
-                className={[styles.social_icon, styles.social_inst].join(' ')}
+                className={[styles.social_icon, styles.social_inst].join(' ').trim()}
               >
                 <InstagramIconLink link={instagramLink} />
               </span>
               <span
-                className={[styles.social_icon, styles.social_what].join(' ')}
+                className={[styles.social_icon, styles.social_what].join(' ').trim()}
               >
                 <WhatsappIconLink link={whatsappLink} />
               </span>
@@ -60,7 +60,7 @@ const ContactPage = ({
               styles.flex_center,
               styles.section,
               styles.section_separator,
-            ].join(' ')}
+            ].join(' ').trim()}
           >
             <span className={styles.contact_text}>
               Entre em contato por email:
@@ -121,7 +121,7 @@ const ContactPage = ({
               styles.flex_center,
               styles.section,
               styles.section_separator,
-            ].join(' ')}
+            ].join(' ').trim()}
           >
             <span className={styles.contact_text}>
               Ou entre em contato pelo telefone:

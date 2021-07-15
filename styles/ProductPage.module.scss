@@ -101,7 +101,7 @@
 
   .font_price__price {
     font-size: 1.8rem;
-    color: map-get($map: $colors, $key: text-strong);
+    color: map-get($map: $colors, $key: primary);
     font-weight: 500;
 
     @include media-max-width(18rem) {

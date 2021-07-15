@@ -10,6 +10,15 @@
   }
 }
 
+.overbanner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  background-color: map-get($map: $colors, $key: primary);
+  z-index: 2;
+}
+
 .banner_one_web {
   display: none;
   @include media-min-width(40rem) {
@@ -17,6 +26,7 @@
     margin: 0;
     width: 100%;
     height: 100%;
+    z-index: -1;
   }
 }
 
@@ -36,7 +46,8 @@
   font-weight: 800;
   font-size: 2rem;
   width: 10rem;
-  color: map-get($map: $colors, $key: text-strong);
+  color: map-get($map: $colors, $key: primary);
+  z-index: 5;
   @include media-min-width(40rem) {
     left: 20%;
     font-size: 4rem;
@@ -47,36 +58,24 @@
 .mainmenu {
   display: none;
   @include media-min-width(40rem) {
-    @include display-flex();
-    flex-direction: column;
+    display: inline-block;
     width: 100%;
-    position: absolute;
-    bottom: 0;
-  }
-  &::before {
-    content: '';
-    height: 1rem;
-    width: 100%;
-    background-image: linear-gradient(
-      transparent,
-      map-get($map: $colors, $key: black-transparent)
-    );
   }
 }
 
-.frontpage_banner_title {
-  position: absolute;
-  bottom: 0.1rem;
-  right: 1rem;
-  font-family: 'Mrs Saint Delafield';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 2rem;
+.fixed {
   @include media-min-width(40rem) {
-    display: none;
+    position: fixed;
+    top: 4rem;
+    z-index: 5;
+
+    @supports (position: sticky) {
+      position: sticky;
+    }
   }
 }
 
 .home_listng {
-  height: 20rem;
+  position: relative;
+  height: 60rem;
 }

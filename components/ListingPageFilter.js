@@ -44,7 +44,7 @@ const ListingPageFilter = ({colorList, sizesList}) => {
         className={[
           styles.filter_box,
           toggleFilter && styles.filter_box_open,
-        ].join(' ')}
+        ].join(' ').trim()}
       >
         <span className={styles.filter_icon_container} onClick={toggleMobileFilter}>
           <span className={styles.icon}>
@@ -53,9 +53,9 @@ const ListingPageFilter = ({colorList, sizesList}) => {
           <span>Filtrar</span>
         </span>
         <form
-          className={[styles.form, toggleFilter && styles.form_open].join(' ')}
+          className={[styles.form, toggleFilter && styles.form_open].join(' ').trim()}
         >
-          <div className={[styles.form_item_group, styles.form_item_group_one].join(' ')}>
+          <div className={[styles.form_item_group, styles.form_item_group_one].join(' ').trim()}>
             <div className={styles.form_item}>
               <label htmlFor="color" className={styles.form_label}>
                 Cor:
@@ -64,7 +64,7 @@ const ListingPageFilter = ({colorList, sizesList}) => {
                 className={[
                   styles.container_capitalized,
                   styles.selector_colors,
-                ].join(' ')}
+                ].join(' ').trim()}
                 id="color"
                 placeholder="Todas"
                 onChange={setColor}
@@ -84,7 +84,7 @@ const ListingPageFilter = ({colorList, sizesList}) => {
               />
             </div>
           </div>
-          <div className={[styles.form_item_group, styles.form_item_group_two].join(' ')}>
+          <div className={[styles.form_item_group, styles.form_item_group_two].join(' ').trim()}>
             <div className={styles.form_item}>
               <label htmlFor="order" className={styles.form_label}>
                 Ordem:

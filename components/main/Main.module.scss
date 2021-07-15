@@ -2,24 +2,23 @@
 @import '../../styles/_mixin.scss';
 
 .navbar {
-  @include display-flex();
   position: fixed;
-  flex-direction: column;
   top: 0;
   width: 100%;
-  z-index: 5;
+  z-index: 10;
 }
 
-.absolute {
-  position: absolute;
+.visible {
+  @include display-flex();
+}
+
+.transparent {
+  @include display-flex();
+  flex-direction: column;
   &::after {
     content: '';
     width: 100%;
     height: 1rem;
-    background-image: linear-gradient(
-      map-get($map: $colors, $key: black-transparent),
-      transparent
-    );
   }
 }
 
@@ -30,10 +29,6 @@
   width: 100%;
   min-height: 100vh;
   top: 0rem;
-}
-
-.margin_top {
-  margin-top: 4rem;
 }
 
 .maincontent__notice {

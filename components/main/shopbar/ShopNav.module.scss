@@ -24,8 +24,8 @@
   }
   &:hover {
     @include media-min-width(46.5rem) {
-      color: map-get($map: $colors, $key: primary);
-      text-shadow: 2px 2px 5px map-get($map: $colors, $key: secondary);
+      color: map-get($map: $colors, $key: black);
+      text-shadow: 2px 2px 5px map-get($map: $colors, $key: black);
     }
   }
 }
@@ -55,7 +55,7 @@
   transition: all 0.1s ease;
   @include media-min-width(46.5rem) {
     display: inline-block;
-    color: map-get($map: $colors, $key: primary);
+    color: map-get($map: $colors, $key: white);
     padding: 0 1rem 0 0;
   }
 }

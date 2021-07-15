@@ -6,7 +6,7 @@ import ShopNav from './ShopNav';
 import Backdrop from '../../utilities/Backdrop';
 import Link from 'next/link';
 
-const ShopBar = ({ background }) => {
+const ShopBar = ({ isTransparent }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -16,9 +16,9 @@ const ShopBar = ({ background }) => {
   return (
     <>
       <div
-        className={[styles.container, !background ? styles.transparent : ''].join(
+        className={[styles.container, isTransparent ? styles.transparent : ''].join(
           ' '
-        )}
+        ).trim()}
       >
         <div className={styles.shopbar_inner}>
           <span className={styles.mobilenav_area}>
@@ -99,7 +99,7 @@ const ShopBar = ({ background }) => {
           className={[
             styles.mobilenav,
             toggleMenu ? styles.open : styles.close,
-          ].join(' ')}
+          ].join(' ').trim()}
         >
           <ShopNav onMobileClick={toggleMobileMenu} />
           <MainMenu onMobileClick={toggleMobileMenu} />
@@ -111,7 +111,7 @@ const ShopBar = ({ background }) => {
 };
 
 ShopBar.propTypes = {
-  background: PropTypes.bool,
+  isTransparent: PropTypes.bool,
 };
 
 export default ShopBar;

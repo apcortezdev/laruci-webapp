@@ -66,7 +66,7 @@ const ImageShow = (props) => {
         >
           {images.length > 1 && (
             <button
-              className={[styles.sideshowbtn, styles.sidebtnleft].join(' ')}
+              className={[styles.sideshowbtn, styles.sidebtnleft].join(' ').trim()}
               onClick={nextImage}
             >
               &#10094;
@@ -79,7 +79,7 @@ const ImageShow = (props) => {
           />
           {images.length > 1 && (
             <button
-              className={[styles.sideshowbtn, styles.sidebtnright].join(' ')}
+              className={[styles.sideshowbtn, styles.sidebtnright].join(' ').trim()}
               onClick={previousImage}
             >
               &#10095;

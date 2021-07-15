@@ -4,7 +4,7 @@ import styles from './Button.module.scss';
 const Button = ({className, children, tip, ...rest}) => {
   return (
     <button
-      className={[className, styles.button].join(' ')}
+      className={[className, styles.button].join(' ').trim()}
       {...rest}
     >
       {children}
