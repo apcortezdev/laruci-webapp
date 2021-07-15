@@ -44,6 +44,26 @@
   }
 }
 
+.mainmenu {
+  display: none;
+  @include media-min-width(40rem) {
+    @include display-flex();
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+  }
+  &::before {
+    content: '';
+    height: 1rem;
+    width: 100%;
+    background-image: linear-gradient(
+      transparent,
+      map-get($map: $colors, $key: black-transparent)
+    );
+  }
+}
+
 .frontpage_banner_title {
   position: absolute;
   bottom: 0.1rem;

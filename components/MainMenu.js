@@ -12,7 +12,7 @@ const MainMenu = (props) => {
   ];
 
   return (
-    <nav className={styles.mainmenu}>
+    <div className={[styles.mainmenu, !props.background ? styles.transparent : ''].join(' ')}>
       <ul className={styles.mainmenu_list}>
         {links.map((link) => (
           <li key={link.id}>
@@ -28,7 +28,7 @@ const MainMenu = (props) => {
           </li>
         ))}
       </ul>
-    </nav>
+    </div>
   );
 };
 

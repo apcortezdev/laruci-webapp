@@ -16,7 +16,7 @@ const ShopBar = ({ background }) => {
   return (
     <>
       <div
-        className={[styles.container, background && styles.backgroundColor].join(
+        className={[styles.container, !background ? styles.transparent : ''].join(
           ' '
         )}
       >
@@ -106,7 +106,6 @@ const ShopBar = ({ background }) => {
         </div>
         {toggleMenu && <Backdrop onDismiss={toggleMobileMenu} />}
       </div>
-      {background || <div className={styles.border}/>}
     </>
   );
 };

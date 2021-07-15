@@ -12,6 +12,12 @@
   }
 }
 
+.transparent {
+  @include media-min-width(40rem) {
+    background-color: map-get($map: $colors, $key: black-transparent);
+  }
+}
+
 .mainmenu_list {
   display: block;
   font-family: 'Julius Sans One', sans-serif;
@@ -21,8 +27,9 @@
   li {
     display: inline-block;
     list-style: none;
-    padding: .5rem 0;
+    padding: 0.5rem 0;
     @include media-min-width(40rem) {
+      color: map-get($map: $colors, $key: primary);
       padding: 5px 12px;
     }
 

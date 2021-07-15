@@ -8,10 +8,12 @@ const Main = ({ notice, children, background }) => {
   return (
     <>
       <header
-        className={[styles.navbar, background || styles.absolute].join(' ')}
+        className={[styles.navbar, !background ? styles.absolute : ''].join(' ')}
       >
         {!!notice && <NoticeBar notice={notice} />}
-        <ShopBar background={background} />
+        <div>
+          <ShopBar background={background} />
+        </div>
       </header>
       <main
         className={[

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Main from '../components/main/Main';
+import MainMenu from '../components/MainMenu';
 import { getMainPageNotice } from '../data/notice';
 import { getPageInfo } from '../data/pageInfo';
 import styles from '../styles/Home.module.scss';
@@ -33,8 +34,9 @@ export default function Home({ notice, info }) {
         <div className={styles.frontpage_banner_slogan}>
           {info.frontpage_banner_slogan}
         </div>
-        <div className={styles.frontpage_banner_title}>
-          {info.title}
+        <div className={styles.frontpage_banner_title}>{info.title}</div>
+        <div className={styles.mainmenu}>
+          <MainMenu background={false}/>
         </div>
       </section>
       <section className={styles.home_listng}>LOLOLOLOLO</section>
