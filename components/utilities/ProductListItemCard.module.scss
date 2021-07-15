@@ -49,7 +49,7 @@
   }
 
   .info_container {
-    display: flex;
+    @include display-flex();
     flex-direction: column;
     font-family: 'Montserrat', sans-serif;
     align-items: center;

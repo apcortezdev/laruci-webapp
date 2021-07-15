@@ -1,0 +1,36 @@
+@import '../../styles/_mixin.scss';
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 5;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.maincontent {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 10rem;
+  width: 100%;
+  min-height: 100vh;
+  top: 0rem;
+}
+
+.margin_top {
+  margin-top: 4rem;
+}
+
+.maincontent__notice {
+  @include media-min-width(40rem) {
+    top: 2.5rem;
+  }
+}
+
+.footer {
+  width: 100%;
+  height: 10rem;
+}

@@ -1,14 +1,10 @@
 import styles from './NoticeBar.module.scss';
 
-const NoticeBar = props => {
+const NoticeBar = ({ className, notice }) => {
 
-    const notice = "Notice";
-
-    return (
-        <div className={styles.noticebar}>
-            {notice}
-        </div>
-    );
+  return (
+    <div className={[styles.noticebar, className].join(' ')}>{notice}</div>
+  );
 };
 
 export default NoticeBar;

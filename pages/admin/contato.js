@@ -6,7 +6,8 @@ import { Input, Textarea } from '../../components/utilities/FormComponents';
 import styles from '../../styles/AdContactPage.module.scss';
 import Button from '../../components/utilities/Button';
 
-const ContactPage = ({
+const AdContactPage = ({
+  user,
   contactEmail,
   facebookLink,
   instagramLink,
@@ -25,6 +26,11 @@ const ContactPage = ({
       </Admin>
     );
   }
+
+  if (user !== 'admin') {
+    return <p>Esta página no ecxiste!</p>;
+  }
+
   const [email, setEmail] = useState(contactEmail || '');
   const [emailValid, setEmailValid] = useState(true);
   const [phoneSac, setPhoneSac] = useState(phone || ['']);
@@ -187,6 +193,7 @@ const ContactPage = ({
               value={email}
               valid={emailValid}
               onChange={setEmailValue}
+              validationMessage={'Tem algo errado neste campo'}
             />
           </span>
           <span className={styles.form_line}>
@@ -194,18 +201,23 @@ const ContactPage = ({
             {phoneSac.length > 0 &&
               phoneSac.map((num, i) => (
                 <span
-                  key={`span_${num.trim().replace(/ /g,'')}_phoneSac_${i}`}
+                  key={`span_${num.trim().replace(/ /g, '')}_phoneSac_${i}`}
                   className={styles.form_inputAndButtons}
                 >
                   <span className={styles.form_input}>
                     <Input
-                      id={`inp_${num.trim().replace(/ /g,'')}_phoneSac_${i}`}
+                      id={`inp_${num.trim().replace(/ /g, '')}_phoneSac_${i}`}
                       type="text"
                       placeholder="Adicionar número"
                       value={num}
-                      mask={["+99 (99) 9999-9999", "9999 999-9999", "9999-9999"]}
+                      mask={[
+                        '+99 (99) 9999-9999',
+                        '9999 999-9999',
+                        '9999-9999',
+                      ]}
                       valid={phoneSacValid[i]}
                       onBlur={setPhoneSacValue.bind(this, i)}
+                      validationMessage={'Tem algo errado neste campo'}
                     />
                   </span>
                   <Button
@@ -224,6 +236,7 @@ const ContactPage = ({
                   placeholder="Adicionar número"
                   valid={phoneSacEmpty}
                   disabled
+                  validationMessage={'Tem algo errado neste campo'}
                 />
               </span>
               <Button className={styles.plusButton} onClick={addPhoneSac}>
@@ -240,6 +253,7 @@ const ContactPage = ({
               value={facebook}
               valid={facebookValid}
               onChange={setFacebookValue}
+              validationMessage={'Tem algo errado neste campo'}
             />
           </span>
           <span className={styles.form_line}>
@@ -251,6 +265,7 @@ const ContactPage = ({
               value={instagram}
               valid={instagramValid}
               onChange={setInstagramValue}
+              validationMessage={'Tem algo errado neste campo'}
             />
           </span>
           <span className={styles.form_line}>
@@ -261,14 +276,15 @@ const ContactPage = ({
               placeholder="Adicionar número"
               value={whatsapp}
               onChange={setWhatsappValue}
-              mask={["AAA 9999"]}
-              // mask={["+99 (99) 9 9999-9999", "9999 999-9999", "9999-9999", "AA 9999"]}
+              mask={['+99 (99) 9 9999-9999']}
               valid={whatsappValid}
-              validationMessage={'Bicha'}
+              validationMessage={'Tem algo errado neste campo'}
             />
           </span>
           <span className={styles.form_line}>
-            <label htmlFor="whatsapp_message">Mensagem padrão de WhatsApp:</label>
+            <label htmlFor="whatsapp_message">
+              Mensagem padrão de WhatsApp:
+            </label>
             <Textarea
               id="whatsapp_message"
               placeholder="Mensagem modelo de Whatsapp"
@@ -277,6 +293,7 @@ const ContactPage = ({
               valid={whatsappTemplateMessageValid}
               value={whatsappTemplateMessage}
               onChange={setWhatsappTemplateValue}
+              validationMessage={'Tem algo errado neste campo'}
             />
           </span>
           <span className={styles.form_line}>
@@ -297,6 +314,7 @@ export async function getServerSideProps() {
   const contact = getFullContactInfo();
   return {
     props: {
+      user: 'admin',
       contactEmail: contact.email,
       facebookLink: contact.facebookLink,
       instagramLink: contact.instagramLink,
@@ -307,4 +325,4 @@ export async function getServerSideProps() {
   };
 }
 
-export default ContactPage;
+export default AdContactPage;

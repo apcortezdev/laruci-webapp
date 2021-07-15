@@ -1,6 +1,6 @@
 import Admin from '../../components/admin/Admin';
 
-const BannersPage = (props) => {
+const AdBannersPage = (props) => {
   return (
     <Admin>
       <div>Banners</div>
@@ -9,4 +9,4 @@ const BannersPage = (props) => {
 };
 
 
-export default BannersPage;
+export default AdBannersPage;

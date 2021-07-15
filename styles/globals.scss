@@ -21,18 +21,7 @@ a {
   text-decoration: none;
 }
 
-.maingrid {
-  height: 100vh;
-  display: grid;
 
-  grid-template-rows: [shopbar-start] 3rem [shopbar-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
-  grid-template-areas: 'shopbar' 'maincomponent' 'footer';
-
-  @include media-min-width(40rem) {
-    grid-template-rows: [notice-start] 2.5rem [notice-end shopbar-start] 3rem [shopbar-end maincomponent-start] auto [maincomponent-end footer-start] 15rem [footer-end];
-    grid-template-areas: 'notice' 'shopbar' 'maincomponent' 'footer';
-  }
-}
 
 #mobilenav-root,
 #backdrop-root {

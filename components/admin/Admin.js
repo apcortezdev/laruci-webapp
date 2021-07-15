@@ -16,7 +16,7 @@ const Admin = (props) => {
                 <Link href={{ pathname: '/admin/banners/' }} passHref>
                   <a>Banners</a>
                 </Link>
-                <Link href={{ pathname: '/admin/banners/' }} passHref>
+                <Link href={{ pathname: '/admin/aviso/' }} passHref>
                   <a>Aviso</a>
                 </Link>
                 <Link href={{ pathname: '/admin/contato/' }} passHref>
@@ -38,7 +38,7 @@ const Admin = (props) => {
                 <Link href={{ pathname: '/admin/banners/' }} passHref>
                   <a>Cores</a>
                 </Link>
-                <Link href={{ pathname: '/admin/banners/' }} passHref>
+                <Link href={{ pathname: '/admin/tamanhos/' }} passHref>
                   <a>Tamanhos</a>
                 </Link>
                 <Link href={{ pathname: '/admin/banners/' }} passHref>

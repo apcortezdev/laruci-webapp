@@ -1,25 +1,12 @@
-import Footer from '../components/main/Footer';
-import NoticeBar from '../components/main/NoticeBar';
 import Head from 'next/Head';
-import ShopBar from '../components/main/ShopBar';
 import '../styles/globals.scss';
-import { useRouter } from 'next/router';
 
 function MyApp(props) {
-
   const { Component, pageProps } = props;
 
   const title = 'Laruci';
   const description = 'Lingeries feitas sob medida para você!';
   const domain = 'localhost:3000';
-
-  // const router = useRouter();
-  // console.dir(router.query);
-
-  const adm = false;
-  if (adm === true) {
-    return <div>ADM</div>;
-  }
 
   return (
     <>
@@ -30,22 +17,9 @@ function MyApp(props) {
         <link rel="icon" href="/laruci_logo.ico" />
         <link href={domain} rel="canonical" />
       </Head>
-      <div className="maingrid">
-        <NoticeBar />
-        <ShopBar />
-        <Component {...pageProps} />
-        <Footer />
-      </div>
+      <Component {...pageProps} />
     </>
   );
-}
-
-export async function getStaticProps() {
-  return {
-    props: {
-      test: 'test',
-    },
-  };
 }
 
 export default MyApp;

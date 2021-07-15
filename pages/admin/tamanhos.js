@@ -2,10 +2,10 @@ import Admin from '../../components/admin/Admin';
 import { Input } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import styles from '../../styles/AdNoticePage.module.scss';
-import { getMainPageNotice } from '../../data/notice';
+import { getSizes } from '../../data/sizes';
 import { useEffect, useState } from 'react';
 
-const AdNoticePage = (props) => {
+const AdSizesPage = (props) => {
   if (props.user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
@@ -135,13 +135,13 @@ const AdNoticePage = (props) => {
 };
 
 export async function getServerSideProps() {
-  const notice = getMainPageNotice();
+  const sizes = getSizes();
   return {
     props: {
       user: 'admin',
-      notice: notice,
+      sizes: sizes,
     },
   };
 }
 
-export default AdNoticePage;
+export default AdSizesPage;

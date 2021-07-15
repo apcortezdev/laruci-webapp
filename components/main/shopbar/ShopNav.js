@@ -3,23 +3,23 @@ import Link from 'next/link';
 
 const ShopNav = (props) => {
   const links = [
-    { id: '', name: 'Home' },
     { id: 'sobre', name: 'Sobre Nós' },
     { id: 'contato', name: 'Contato' },
-    { id: 'tamanhos', name: 'Tamanhos' },
+    { id: 'medidas', name: 'Medidas' },
   ];
 
   return (
-    <nav className={styles.webnav}>
+    <nav className={styles.container}>
+      <Link
+        href={{
+          pathname: '/',
+        }}
+      >
+        <a className={styles.webnav_logo}>Laruci</a>
+      </Link>
       <ul className={styles.webnav_list}>
         {links.map((link) => (
-          <li
-            key={link.id}
-            className={[
-              styles.webnav__item,
-              !!link.id || styles.webnav__item_home,
-            ].join(' ')}
-          >
+          <li key={link.id} className={styles.webnav__item}>
             <Link
               href={{
                 pathname: `/${link.id}`,

@@ -30,7 +30,7 @@
 
 .imageshow__container {
   overflow: hidden;
-  display: flex;
+  @include display-flex();
   justify-content: center;
   flex-direction: column;
   width: 100%;
@@ -40,7 +40,7 @@
   }
 
   .imageshow__colors {
-    display: flex;
+    @include display-flex();
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -152,7 +152,7 @@
   }
 
   .bag_icon_plus {
-    display: flex;
+    @include display-flex();
     align-items: center;
     justify-content: center;
     width: 2rem;

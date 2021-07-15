@@ -1,12 +1,9 @@
 import styles from './Footer.module.scss';
 
-const Footer = (props) => {
+const Footer = ({ className }) => {
   return (
-    <footer className={styles.footer}>
-        Powered by{' '}
-        <span className={styles.footer_logo}>
-          ME
-        </span>
+    <footer className={[styles.footer, className].join(' ')}>
+      Powered by <span className={styles.footer_logo}>ME</span>
     </footer>
   );
 };
