@@ -187,7 +187,7 @@ SelectText.propTypes = {
 };
 
 //Input type text w/ MASK
-const unmasker = (text) => {
+export const unmasker = (text) => {
   // Remove mask from text
   return text.replace(/[^a-z0-9]/gi, '');
 };
@@ -198,7 +198,7 @@ const asUnmasked = (text) => {
   return text.replace(/[a-z]/gi, 'A').replace(/[0-9]/gi, '9');
 };
 
-const masker = (text, mask) => {
+export const masker = (text, mask) => {
   // Mask the text acording to the mask parameter
   /* Rules:
       S - text and numbers

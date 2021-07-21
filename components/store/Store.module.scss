@@ -2,34 +2,30 @@
 @import '../../styles/_mixin.scss';
 
 .content_wrapper {
-  grid-area: maincomponent;
+  position: relative;
   height: 100%;
   width: 100%;
-  @include media-min-width(40rem) {
-    display: grid;
-    grid-template-rows: 8rem 3rem auto;
-    grid-template-areas: 'logo' 'menu' 'content';
-  }
 }
 
-.webmanu {
+.webmenu {
   display: none;
   @include media-min-width(40rem) {
     grid-area: menu;
-    position: sticky;
-    top: 5.5rem;
+    position: fixed;
+    top: 4rem;
     z-index: 5;
     display: inline-flex;
     width: 100%;
-    height: 3rem;
   }
 }
 
 .content {
   height: 100%;
+  margin-top: 4rem;
   @include media-min-width(40rem) {
-    grid-area: content;
+  margin-top: 8rem;
   }
+
   .flex_center {
     @include display-flex();
     flex-direction: column;
@@ -46,7 +42,7 @@
 
     .aside {
       display: inline-block;
-      filter: opacity(5%);
+      filter: opacity(3%);
       background: url('../../public/laruci_watermark.png') center/5.7rem 6.125rem
         repeat border-box scroll;
     }

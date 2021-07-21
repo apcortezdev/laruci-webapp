@@ -5,53 +5,121 @@
   width: 100%;
 }
 
-.flex_center {
-  @include display-flex();
-  flex-direction: column;
-  align-items: center;
+.mosaic {
+  width: 100%;
+  min-width: 240px;
+  display: inline-flex;
 }
 
-.section {
-  width: 90%;
-  margin: 1rem;
-
-  @include media-min-width(40rem) {
-    margin: 2rem;
+.mosaic_item_mobile {
+  @include display-flex();
+  flex-shrink: 1;
+  height: 10rem;
+  min-width: 1rem;
+  @include media-min-width(46.5rem) {
+    height: 20rem;
   }
 }
 
-.section_separator {
+.mosaic_item_web {
+  display: none;
+  @include media-min-width(46.5rem) {
+    @include display-flex();
+    min-width: 3rem;
+    height: 20rem;
+  }
+}
+
+.socials {
+  margin: 2rem 0;
+}
+
+.contact {
+  width: 100%;
+  padding: 2rem 1rem;
   border-top: 1px solid map-get($map: $colors, $key: light-grey);
+
+  @include media-min-width(40rem) {
+    @include display-flex();
+    flex-direction: row;
+    justify-content: center;
+    padding: 3rem 2rem;
+  }
+
+  .info {
+    @include display-flex();
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 1.5rem;
+    width: 100%;
+    font-size: 0.8rem;
+
+    @include media-min-width(40rem) {
+      width: 30%;
+      font-size: 1rem;
+    }
+
+    table {
+      td:last-child {
+        @include display-flex();
+        margin-left: 0.3rem;
+      }
+
+      td {
+        vertical-align: middle;
+        padding-right: 0.5rem;
+        text-align: right;
+        margin: 0.25rem 0;
+      }
+
+      p {
+        margin: 0.3rem 0;
+      }
+    }
+  }
+
+  .icon {
+    fill: map-get($map: $colors, $key: dark-grey);
+  }
+
+  .messenger {
+    width: 100%;
+    font-size: 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid map-get($map: $colors, $key: light-grey);
+    @include media-min-width(40rem) {
+      margin-top: 0;
+      border-top: none;
+      padding-top: 0;
+      font-size: 1rem;
+      width: 50%;
+    }
+  }
 }
 
 .contact_text {
   display: inline-flex;
   justify-content: center;
-  margin: 1rem 2rem;
+  width: 100%;
+  padding: 1rem 2rem;
   font-family: inherit;
   text-align: center;
 }
 
 .contact_form {
-  width: 80%;
-
-  @include media-min-width(40rem) {
-    width: 60%;
-  }
-}
-
-.contact_label {
-  display: block;
+  @include display-flex();
+  flex-direction: column;
+  align-items: flex-end;
   width: 100%;
-  text-align: left;
 }
 
 .contact_inputline {
   display: block;
   width: 100%;
-  margin: 1rem 0;
+  margin-bottom: 1rem;
   font-family: inherit;
-  text-align: center;
+  text-align: right;
 }
 
 .social_container {
@@ -64,24 +132,18 @@
   display: inline-block;
   width: 4rem;
   height: 4rem;
-  margin: 0 1rem;
-
-  @include media-min-width(80rem) {
-    width: 5rem;
-    height: 5rem;
-  }
 }
 
 .social_face {
-  padding: 1.1%;
+  padding: 0.5rem;
 }
 
 .social_inst {
-  padding: 1.5%;
+  padding: 0.6rem;
 }
 
 .social_what {
-  padding: 0;
+  padding: 0.4rem;
 }
 
 .button {

@@ -4,7 +4,7 @@ import styles from './Store.module.scss';
 function Store(props) {
   return (
     <div className={styles.content_wrapper}>
-      <div className={styles.webmanu}>
+      <div className={styles.webmenu}>
         <WebMenu onMobileClick={false} />
       </div>
       <div className={styles.content}>
