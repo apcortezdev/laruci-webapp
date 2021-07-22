@@ -12,3 +12,7 @@
     color: map-get($map: $colors, $key: accent-dark);
   }
 }
+
+.breadcrumb_current {
+  text-transform: lowercase;
+}

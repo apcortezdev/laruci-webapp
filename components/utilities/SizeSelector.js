@@ -1,41 +1,40 @@
 import PropTypes from 'prop-types';
 import styles from './SizeSelector.module.scss';
 
-const SizeSelector = (props) => {
-  const sizes = props.fillSizeList;
+const SizeSelector = ({ fullSizeList, availableSizeList, ...rest }) => {
+  const sizes = fullSizeList;
   let tags = [];
 
   for (const key in sizes) {
-    if (Object.hasOwnProperty.call(props.availableSizeList, key)) {
+    if (Object.hasOwnProperty.call(availableSizeList, key)) {
       tags.push(
-        <div key={sizes[key]} className={[styles.abled].join(' ').trim()}>
-          {sizes[key]}
+        <div key={sizes[key].name} className={[styles.abled].join(' ').trim()}>
+          {sizes[key].name}
         </div>
       );
     } else {
       tags.push(
         <div
-          key={sizes[key]}
+          key={sizes[key].name}
           className={[styles.tag, styles.disabled].join(' ').trim()}
         >
-          {sizes[key]}
+          {sizes[key].name}
         </div>
       );
     }
   }
   return (
     <>
-      <div className={styles.tagsContainer}>{tags}</div>
-      <div className={styles.guideContainer}>
-        <span className={styles.font_inline}>Guia de tamanhos aqui!</span>
+      <div className={styles.tagsContainer} {...rest}>
+        {tags}
       </div>
     </>
   );
 };
 
 SizeSelector.propTypes = {
-  fillSizeList: PropTypes.object,
-  availableSizeList:  PropTypes.object,
+  fullSizeList: PropTypes.object,
+  availableSizeList: PropTypes.object,
 };
 
 export default SizeSelector;

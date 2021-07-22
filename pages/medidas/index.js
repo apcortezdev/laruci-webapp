@@ -1,16 +1,23 @@
-import Store from '../../components/store/Store';
+import { getAboutInfo } from '../../data/about';
 import styles from '../../styles/SizesPage.module.scss';
+import Main from '../../components/main/Main';
+import Store from '../../components/store/Store';
 
 const SizesPage = (props) => {
   return (
-    <Store>
-      <div className={styles.main}>
-        <div className={styles.aside} />
-        <div className={styles.flex_center}>Tamanhos</div>
-        <div className={styles.aside} />
-      </div>
-    </Store>
+    <Main>
+      <Store>
+        <div className={styles.container}>Medidas</div>
+      </Store>
+    </Main>
   );
 };
+
+export async function getStaticProps() {
+  return {
+    props: {},
+    revalidate: 86400,
+  };
+}
 
 export default SizesPage;

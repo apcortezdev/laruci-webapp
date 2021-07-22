@@ -147,13 +147,3 @@
   width: 100%;
   text-align: end;
 }
-
-.font_inline {
-  display: inline-block;
-  padding: 0.3rem 0;
-  text-align: right;
-  font-size: 0.8rem;
-  text-decoration: underline;
-  color: map-get($map: $colors, $key: primary);
-  cursor: pointer;
-}

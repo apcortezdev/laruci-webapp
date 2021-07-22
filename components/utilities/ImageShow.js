@@ -66,7 +66,9 @@ const ImageShow = (props) => {
         >
           {images.length > 1 && (
             <button
-              className={[styles.sideshowbtn, styles.sidebtnleft].join(' ').trim()}
+              className={[styles.sideshowbtn, styles.sidebtnleft]
+                .join(' ')
+                .trim()}
               onClick={nextImage}
             >
               &#10094;
@@ -77,9 +79,19 @@ const ImageShow = (props) => {
             className={styles.img_main}
             src={images[slideImgNumber]}
           />
+          {/* <Image
+            ref={img_main}
+            width={400}
+            height={400}
+            loading="lazy"
+            objectFit="cover"
+            src={images[slideImgNumber]}
+          /> */}
           {images.length > 1 && (
             <button
-              className={[styles.sideshowbtn, styles.sidebtnright].join(' ').trim()}
+              className={[styles.sideshowbtn, styles.sidebtnright]
+                .join(' ')
+                .trim()}
               onClick={previousImage}
             >
               &#10095;

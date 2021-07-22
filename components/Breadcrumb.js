@@ -1,8 +1,9 @@
 import styles from './Breadcrumb.module.scss';
 import Link from 'next/link';
+import PropTypes from 'prop-types';
 
-const Breadcrumb = (props) => {
-  const query = props.query;
+const Breadcrumb = ({ query, current }) => {
+  const queryPage = query;
 
   let html_list = [
     <span key={'/'} className={styles.breadcrumb_item}>
@@ -10,17 +11,25 @@ const Breadcrumb = (props) => {
     </span>,
   ];
 
-  for (const key in query) {
+  queryPage.slice(0, -1).forEach((page) => {
     html_list.push(
-      <span key={`/${query[key]}`} className={styles.breadcrumb_item}>
+      <span key={`/${page}`} className={styles.breadcrumb_item}>
         {' > '}
-        <Link href={`/${query[key]}`}>{query[key]}</Link>
+        <Link href={`/${page}`}>{page}</Link>
       </span>
     );
-  }
+  });
 
-  html_list.pop();
+  html_list.push(
+    <span key={current} className={styles.breadcrumb_current}>{' > ' + current}</span>
+  );
+
   return <span className={styles.breadcrumb}>{html_list}</span>;
+};
+
+Breadcrumb.propTypes = {
+  query: PropTypes.array,
+  current: PropTypes.string,
 };
 
 export default Breadcrumb;

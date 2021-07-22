@@ -1,15 +1,26 @@
+import { getAboutInfo } from '../../data/about';
 import styles from '../../styles/AboutPage.module.scss';
+import Main from '../../components/main/Main';
+import Store from '../../components/store/Store';
 
-const AboutPage = props => {
-    return (
-        <div className={styles.main}>
-        <div className={styles.aside} />
-        <div className={styles.flex_center}>
-            Sobre Nós
+const AboutPage = (props) => {
+  return (
+    <Main>
+      <Store>
+        <div className={styles.container}>
+            SOBRE NÓS
         </div>
-        <div className={styles.aside} />
-      </div>
-    );
+      </Store>
+    </Main>
+  );
 };
+
+export async function getStaticProps() {
+  const about = getAboutInfo();
+  return {
+    props: {},
+    revalidate: 86400,
+  };
+}
 
 export default AboutPage;

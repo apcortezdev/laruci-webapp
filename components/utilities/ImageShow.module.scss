@@ -16,6 +16,7 @@
 }
 
 .slideshow__container {
+  @include display-flex();
   position: relative;
   width: 100%;
   height: 100%;

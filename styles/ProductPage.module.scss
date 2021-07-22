@@ -7,8 +7,9 @@
   .product_content {
     @include display-flex();
     flex-direction: column;
-    margin: 0 0.8rem;
     justify-content: space-between;
+    align-items: flex-start;
+    margin: 0 0.8rem;
   }
 
   .bredcrumb_container {
@@ -38,13 +39,18 @@
   @include media-min-width(40rem) {
     width: 48%;
   }
+}
+
+.section_colors {
+  @include display-flex();
+  align-items: center;
+  justify-content: space-between;
 
   .imageshow__colors {
-    @include display-flex();
+    display: inline-flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    width: 100%;
     padding-top: 0.3rem;
 
     .color {
@@ -73,7 +79,7 @@
 
   .font_hightlight {
     display: inline-block;
-    padding: 1rem 0;
+    margin-bottom: 1rem;
     width: 100%;
     font-weight: 500;
     text-align: left;
@@ -135,8 +141,46 @@
   width: 100%;
 }
 
+.section_sizes {
+  p {
+    @include display-flex();
+    align-items: center;
+    justify-content: space-between;
+
+    margin: 0;
+    span {
+      display: inline-block;
+      padding: 0.3rem 0;
+      font-size: 0.8rem;
+      text-decoration: underline;
+      color: map-get($map: $colors, $key: primary);
+      cursor: pointer;
+    }
+  }
+
+  & > div {
+    @include display-flex();
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border: 1px solid map-get($map: $colors, $key: accent);
+    margin: 1rem 0;
+    padding: 1rem;
+    
+    @include media-min-width(40rem) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    & > span {
+    }
+  }
+}
+
 .details__description {
-  margin: 0.5rem 0;
+  margin: 1rem 0;
 }
 
 .section_btnline {
@@ -157,7 +201,7 @@
     justify-content: center;
     width: 2rem;
     height: 1.4rem;
-    background: url(../public/bag_icon_plus.png) center/1.4rem 1.4rem no-repeat;
+    // background: url(../public/bag_icon_plus.png) center/1.4rem 1.4rem no-repeat;
   }
 }
 

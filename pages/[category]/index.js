@@ -6,6 +6,7 @@ import { getSizes } from '../../data/sizes';
 import { getCategories } from '../../data/categories';
 import { getProductsByCategory } from '../../data/products';
 import Store from '../../components/store/Store';
+import Main from '../../components/main/Main';
 
 const ListingPage = ({ category, data, colorList, sizesList }) => {
   if (!data || !category || !colorList || !sizesList) {
@@ -13,10 +14,12 @@ const ListingPage = ({ category, data, colorList, sizesList }) => {
   }
 
   return (
-    <Store>
-      <ListingPageFilter colorList={colorList} sizesList={sizesList} />
-      <ProductList category={category} list={data} />
-    </Store>
+    <Main>
+      <Store>
+        <ListingPageFilter colorList={colorList} sizesList={sizesList} />
+        <ProductList category={category} list={data} />
+      </Store>
+    </Main>
   );
 };
 
