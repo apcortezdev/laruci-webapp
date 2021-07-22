@@ -10,8 +10,11 @@ import SizeSelector from '../../../components/utilities/SizeSelector';
 import styles from '../../../styles/ProductPage.module.scss';
 import { getSizes } from '../../../data/sizes';
 import { getCategories } from '../../../data/categories';
-import { getProductsByCategory, getProductById } from '../../../data/products';
-
+import {
+  getListProductsByCategory,
+  getProductById,
+} from '../../../data/products';
+import { Input } from '../../../components/utilities/FormComponents';
 const ProductPage = ({
   title,
   canonical,
@@ -48,6 +51,12 @@ const ProductPage = ({
     setSelectedColorSet(color);
     setSelectedColorSet_images(product.sets[color].images);
   }
+
+  const [sizeType, setSizeType] = useState();
+  const onChangeSizeType = (event) => {
+    setSizeType(event.target.value);
+    console.log(event.target.value);
+  };
 
   return (
     <>
@@ -135,12 +144,27 @@ const ProductPage = ({
                     <span onClick={openSizesGuide}>Guia de medidas aqui!</span>
                   </p>
                   {!!product.sets[selectedColorSet].uniqueSizes && (
-                    <div>
-                      <span>Única:</span>
+                    <div
+                      className={
+                        sizeType === 'UNIQUE' ? styles.selectedSizeSet : ''
+                      }
+                    >
+                      <label htmlFor="unique_size" onChange={onChangeSizeType}>
+                        <Input
+                          id="unique_size"
+                          type="radio"
+                          name="size_type"
+                          value="UNIQUE"
+                        />
+                        <span>Única:</span>
+                      </label>
                       <span>
                         <SizeSelector
+                          keyName="uniqueSizes"
                           availableSizeList={
-                            product.sets[selectedColorSet].uniqueSizes
+                            sizeType === 'UNIQUE'
+                              ? product.sets[selectedColorSet].uniqueSizes
+                              : {}
                           }
                           fullSizeList={allSizes}
                         />
@@ -148,21 +172,38 @@ const ProductPage = ({
                     </div>
                   )}
                   {!!product.sets[selectedColorSet].specialSizes && (
-                    <div>
-                      <span>Especial:</span>
-                      <span>
+                    <div
+                      className={
+                        sizeType === 'SPECIAL' ? styles.selectedSizeSet : ''
+                      }
+                    >
+                      <label htmlFor="special_size" onChange={onChangeSizeType}>
+                        <Input
+                          id="special_size"
+                          type="radio"
+                          name="size_type"
+                          value="SPECIAL"
+                        />
+                        <span>Especial:</span>
+                      </label>
+                      <div>
                         {product.sets[selectedColorSet].specialSizes.map(
                           (op) => (
-                            <span>
-                              {op.name}
-                              <SizeSelector
-                                availableSizeList={op.sizes}
-                                fullSizeList={allSizes}
-                              />
-                            </span>
+                            <div key={op.name} className={styles.specialSizes}>
+                              <span>{op.name}:</span>
+                              <span>
+                                <SizeSelector
+                                  keyName={op.name}
+                                  availableSizeList={
+                                    sizeType === 'SPECIAL' ? op.sizes : {}
+                                  }
+                                  fullSizeList={allSizes}
+                                />
+                              </span>
+                            </div>
                           )
                         )}
-                      </span>
+                      </div>
                     </div>
                   )}
                 </section>
@@ -180,7 +221,18 @@ const ProductPage = ({
                       tip={'Adicionar à sacola'}
                       type="button"
                     >
-                      <div className={styles.bag_icon_plus} />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        className={styles.bag_icon_plus}
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10.5 3.5a2.5 2.5 0 0 0-5 0V4h5v-.5zm1 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0zM8.5 8a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V12a.5.5 0 0 0 1 0v-1.5H10a.5.5 0 0 0 0-1H8.5V8z"
+                        />
+                      </svg>
                     </Button>
                     <Button
                       className={styles.section_btnline__btnsize}
@@ -222,7 +274,7 @@ export async function getStaticPaths() {
   let pathList = [];
 
   for (const category of categories) {
-    const products = getProductsByCategory(category.id);
+    const products = getListProductsByCategory(category.id);
     for (const key in products) {
       pathList.push({ params: { category: category.id, product: key } });
     }

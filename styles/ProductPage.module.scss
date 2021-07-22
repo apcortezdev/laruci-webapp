@@ -13,18 +13,14 @@
   }
 
   .bredcrumb_container {
-    display: none;
+    display: inline-block;
+    margin: 0.8rem;
   }
 
   @include media-min-width(40rem) {
     .product_content {
       @include display-flex();
       flex-direction: row;
-    }
-
-    .bredcrumb_container {
-      display: inline-block;
-      margin: 0.8rem;
     }
   }
 }
@@ -59,6 +55,10 @@
       padding: 0;
       margin: 0 0.3rem;
       border: 1px solid map-get($map: $colors, $key: light-grey);
+
+      &:hover {
+        border: 1px solid map-get($map: $colors, $key: primary);
+      }
 
       @include media-max-width(18rem) {
         width: 1.4rem;
@@ -162,20 +162,72 @@
     @include display-flex();
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
     width: 100%;
-    border: 1px solid map-get($map: $colors, $key: accent);
+    border: 2px solid map-get($map: $colors, $key: light-grey);
     margin: 1rem 0;
     padding: 1rem;
-    
-    @include media-min-width(40rem) {
+
+    @include media-max-width(18rem) {
+      & > span {
+        width: 100%;
+      }
+    }
+
+    @include media-min-width(53.5rem) {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
     }
 
-    & > span {
+    label {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      height: 2.5rem;
+
+      @include media-min-width(62rem) {
+        margin-bottom: 0;
+      }
+
+      & > span {
+        margin-left: 0.5rem;
+      }
     }
+
+    & > div {
+      @include media-max-width(18rem) {
+        width: 100%;
+      }
+    }
+
+    .specialSizes {
+      @include display-flex();
+      flex-direction: column;
+      align-items: flex-start;
+
+      @include media-min-width(62rem) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      & > span {
+        display: inline-block;
+        text-transform: capitalize;
+        width: 100%;
+        margin: .2rem 0;
+        @include media-min-width(62rem) {
+          margin: 0;
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+  .selectedSizeSet {
+    border: 2px solid map-get($map: $colors, $key: accent);
   }
 }
 
@@ -196,12 +248,7 @@
   }
 
   .bag_icon_plus {
-    @include display-flex();
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 1.4rem;
-    // background: url(../public/bag_icon_plus.png) center/1.4rem 1.4rem no-repeat;
+    fill: map-get($map: $colors, $key: white);
   }
 }
 

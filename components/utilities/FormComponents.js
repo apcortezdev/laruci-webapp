@@ -80,7 +80,9 @@ export const SelectColor = (props) => {
         className={[
           styles.options,
           areOptionsVisible ? styles.options_visible : styles.options_invisible,
-        ].join(' ').trim()}
+        ]
+          .join(' ')
+          .trim()}
       >
         {toItemArray(props.colors)}
       </div>
@@ -171,7 +173,9 @@ export const SelectText = (props) => {
     >
       <span className={styles.selected}>{selected}</span>
       {areOptionsVisible && (
-        <span className={[styles.options, styles.options_visible].join(' ').trim()}>
+        <span
+          className={[styles.options, styles.options_visible].join(' ').trim()}
+        >
           {toItemArray(props.options)}
         </span>
       )}
@@ -322,6 +326,7 @@ export const Input = ({
   onChange,
   id,
   onBlur,
+  type,
   ...rest
 }) => {
   const isValid = valid != null ? valid : true;
@@ -367,6 +372,25 @@ export const Input = ({
     }
   };
 
+  if (type === 'radio') {
+    return (
+      <div className={styles.radio_container}>
+        <input
+          id={id}
+          onBlur={onBlur}
+          className={[styles.radio_input, !!className ? className : '']
+            .join(' ')
+            .trim()}
+          onChange={onChange}
+          value={value}
+          type="radio"
+          {...rest}
+        />
+        <span className={styles.radio_checkmark} />
+      </div>
+    );
+  }
+
   return (
     <span id={`STP_${id}`} className={styles.inputLine}>
       <input
@@ -374,13 +398,16 @@ export const Input = ({
           styles.inputText,
           className || '',
           !isValid && styles.inputText_invalid,
-        ].join(' ').trim()}
+        ]
+          .join(' ')
+          .trim()}
         onChange={onChangeValue}
         id={id}
         {...rest}
         maxLength={maskState.length}
         onBlur={onBlurValue}
         value={maskState.maskedValue}
+        type={type}
       />
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
@@ -398,6 +425,7 @@ Input.propTypes = {
   onChange: PropTypes.func,
   id: PropTypes.string,
   onBlur: PropTypes.func,
+  type: PropTypes.string,
 };
 
 //Textarea
@@ -410,7 +438,9 @@ export const Textarea = ({ className, valid, validationMessage, ...rest }) => {
           styles.inputText,
           className || '',
           !isValid && styles.inputText_invalid,
-        ].join(' ').trim()}
+        ]
+          .join(' ')
+          .trim()}
         {...rest}
       />
       <span className={styles.validationMessage}>

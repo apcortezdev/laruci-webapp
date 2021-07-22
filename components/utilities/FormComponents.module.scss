@@ -36,7 +36,7 @@
 .selected {
   position: absolute;
   height: 1rem;
-  top: calc(50% - .5rem);
+  top: calc(50% - 0.5rem);
   left: 1rem;
   // text-transform: capitalize;
 }
@@ -89,7 +89,7 @@
   width: 100%;
   padding: 0.8rem 0.5rem;
   margin: 0;
-  &:hover:enabled{
+  &:hover:enabled {
     border-color: map-get($map: $colors, $key: back-dark);
   }
 
@@ -106,5 +106,56 @@
   margin-left: 1rem;
   color: map-get($map: $colors, $key: promo-red);
   font-family: inherit;
-  font-size: .7rem;
+  font-size: 0.7rem;
+}
+
+//radio
+.radio_container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.radio_input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+
+  &:checked ~ .radio_checkmark {
+    border: 3px solid map-get($map: $colors, $key: primary);
+
+    &::after {
+      display: block;
+    }
+  }
+}
+.radio_checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  border: 3px solid map-get($map: $colors, $key: grey);
+  border-radius: 50%;
+
+  &:hover {
+    border: 3px solid map-get($map: $colors, $key: primary);
+  }
+
+  &::after {
+    position: absolute;
+    display: none;
+    content: '';
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: map-get($map: $colors, $key: primary);
+  }
 }

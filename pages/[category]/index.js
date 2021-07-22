@@ -4,7 +4,7 @@ import styles from '../../styles/ListingPage.module.scss';
 import { getColors } from '../../data/colors';
 import { getSizes } from '../../data/sizes';
 import { getCategories } from '../../data/categories';
-import { getProductsByCategory } from '../../data/products';
+import { getListProductsByCategory } from '../../data/products';
 import Store from '../../components/store/Store';
 import Main from '../../components/main/Main';
 
@@ -38,7 +38,7 @@ export async function getStaticProps({ params }) {
   const colors = getColors();
   const sizes = getSizes();
 
-  const data = getProductsByCategory(category);
+  const data = getListProductsByCategory(category);
 
   return {
     props: {

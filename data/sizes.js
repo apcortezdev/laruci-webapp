@@ -1,27 +1,27 @@
 const dummySizes = {
     xp: {
       name: 'XP',
-      sizeCm: '5cm',
+      sizeCm: '5',
     },
     p: {
       name: 'P',
-      sizeCm: '5cm',
+      sizeCm: '5',
     },
     m: {
       name: 'M',
-      sizeCm: '5cm',
+      sizeCm: '5',
     },
     g: {
       name: 'G',
-      sizeCm: '5cm',
+      sizeCm: '5',
     },
     gg: {
       name: 'GG',
-      sizeCm: '5cm',
+      sizeCm: '5',
     },
     xg: {
       name: 'XG',
-      sizeCm: '5cm',
+      sizeCm: '5',
     },
   };
 

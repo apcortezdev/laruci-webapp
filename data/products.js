@@ -1,9 +1,11 @@
 const dummy = {
   abcde: {
     name: 'Produto 01',
+    inStock: true,
     category: 'conjuntos',
     price: 19.9901,
     discount: 10,
+    weight: 0.500,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
       'Lindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha. Llindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha. Llindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha.',
@@ -13,19 +15,19 @@ const dummy = {
         specialSizes: [
           {
             name: 'alças',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
           },
           {
             name: 'bojo',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
           },
           {
             name: 'base',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
           },
           {
             name: 'cintura',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
           },
         ],
         images: [
@@ -87,7 +89,7 @@ const dummy = {
   },
 };
 
-export function getProductsByCategory(category) {
+export function getListProductsByCategory(category) {
   return dummy;
 }
 
