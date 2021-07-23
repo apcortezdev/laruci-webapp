@@ -17,11 +17,18 @@ export default function Home({ notice, info }) {
 
   useEffect(() => {
     const scrollBanner = () => {
-      setOpacityBanner((window.pageYOffset / bannerSection.current.clientHeight) * 1.1);
-      if (((window.pageYOffset + 64) / bannerSection.current.clientHeight) >= 1) {
-        setIsTransparent(false);
-      } else {
-        setIsTransparent(true);
+      if (bannerSection.current) {
+        setOpacityBanner(
+          (window.pageYOffset / bannerSection.current.clientHeight) * 1.1
+        );
+        if (
+          (window.pageYOffset + 64) / bannerSection.current.clientHeight >=
+          1
+        ) {
+          setIsTransparent(false);
+        } else {
+          setIsTransparent(true);
+        }
       }
     };
     window.addEventListener('scroll', scrollBanner);
@@ -29,7 +36,11 @@ export default function Home({ notice, info }) {
   }, []);
 
   return (
-    <Main notice={notice} isTransparent={isTransparent} transparency={opacityBanner}>
+    <Main
+      notice={notice}
+      isTransparent={isTransparent}
+      transparency={opacityBanner}
+    >
       <section className={styles.banner_one}>
         <div className={styles.frontpage_banner_slogan}>
           {info.frontpage_banner_slogan}
@@ -58,7 +69,11 @@ export default function Home({ notice, info }) {
           />
         </div>
       </section>
-      <div className={[styles.mainmenu, !isTransparent ? styles.fixed : ''].join(' ').trim()}>
+      <div
+        className={[styles.mainmenu, !isTransparent ? styles.fixed : '']
+          .join(' ')
+          .trim()}
+      >
         <MainMenu />
       </div>
       <section className={styles.home_listng}></section>

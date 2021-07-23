@@ -8,34 +8,33 @@ const SizeSelector = ({
   availableSizeList,
   ...rest
 }) => {
-  const sizes = fullSizeList;
-  let tags = [];
 
+  let tags = [];
   const [selectedTag, setSelectedTag] = useState('');
 
   function onSelect(tag) {
     setSelectedTag(tag);
   }
 
-  for (const i in sizes) {
+  fullSizeList.forEach(element => {
     let key;
-    if (!!keyName) key = keyName + '_' + sizes[i].name;
-    else key = sizes[i].name;
+    if (!!keyName) key = keyName + '_' + element.name;
+    else key = element.name;
 
-    if (Object.hasOwnProperty.call(availableSizeList, i)) {
+    if (availableSizeList.some((size) => size.value === element.value)) {
       tags.push(
         <div
           key={key}
           className={[
             styles.tag,
             styles.abled,
-            sizes[i].name === selectedTag && styles.selected,
+            element.name === selectedTag && styles.selected,
           ]
             .join(' ')
             .trim()}
-            onClick={onSelect.bind(this, sizes[i].name)}
+            onClick={onSelect.bind(this, element.value)}
         >
-          {sizes[i].name}
+          {element.name}
         </div>
       );
     } else {
@@ -44,11 +43,12 @@ const SizeSelector = ({
           key={key}
           className={[styles.tag, styles.disabled].join(' ').trim()}
         >
-          {sizes[i].name}
+          {element.name}
         </div>
       );
     }
-  }
+  });
+
   return (
     <>
       <div className={styles.tagsContainer} {...rest}>
@@ -59,8 +59,8 @@ const SizeSelector = ({
 };
 
 SizeSelector.propTypes = {
-  fullSizeList: PropTypes.object,
-  availableSizeList: PropTypes.object,
+  fullSizeList: PropTypes.array,
+  availableSizeList: PropTypes.array,
 };
 
 export default SizeSelector;

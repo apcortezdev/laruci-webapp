@@ -7,6 +7,7 @@ import ShipmentCalc from '../../../components/ShipmentCalc';
 import Button from '../../../components/utilities/Button';
 import ImageShow from '../../../components/utilities/ImageShow';
 import SizeSelector from '../../../components/utilities/SizeSelector';
+import CarouselGallery from '../../../components/utilities/CarouselGallery';
 import styles from '../../../styles/ProductPage.module.scss';
 import { getSizes } from '../../../data/sizes';
 import { getCategories } from '../../../data/categories';
@@ -15,6 +16,7 @@ import {
   getProductById,
 } from '../../../data/products';
 import { Input } from '../../../components/utilities/FormComponents';
+
 const ProductPage = ({
   title,
   canonical,
@@ -39,7 +41,12 @@ const ProductPage = ({
   const htmlColors = Object.keys(product.sets).map((color) => (
     <div
       key={color}
-      className={styles.color}
+      className={[
+        styles.color,
+        color === selectedColorSet ? styles.colorSelected : '',
+      ]
+        .join(' ')
+        .trim()}
       style={{ backgroundColor: color }}
       onClick={setImagesToSlideShow.bind(this, color)}
     />
@@ -52,7 +59,7 @@ const ProductPage = ({
     setSelectedColorSet_images(product.sets[color].images);
   }
 
-  const [sizeType, setSizeType] = useState();
+  const [sizeType, setSizeType] = useState('UNIQUE');
   const onChangeSizeType = (event) => {
     setSizeType(event.target.value);
     console.log(event.target.value);
@@ -164,7 +171,7 @@ const ProductPage = ({
                           availableSizeList={
                             sizeType === 'UNIQUE'
                               ? product.sets[selectedColorSet].uniqueSizes
-                              : {}
+                              : []
                           }
                           fullSizeList={allSizes}
                         />
@@ -195,7 +202,7 @@ const ProductPage = ({
                                 <SizeSelector
                                   keyName={op.name}
                                   availableSizeList={
-                                    sizeType === 'SPECIAL' ? op.sizes : {}
+                                    sizeType === 'SPECIAL' ? op.sizes : []
                                   }
                                   fullSizeList={allSizes}
                                 />
@@ -223,20 +230,19 @@ const ProductPage = ({
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
+                        width="20"
+                        height="20"
                         className={styles.bag_icon_plus}
                         viewBox="0 0 16 16"
                       >
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M10.5 3.5a2.5 2.5 0 0 0-5 0V4h5v-.5zm1 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0zM8.5 8a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V12a.5.5 0 0 0 1 0v-1.5H10a.5.5 0 0 0 0-1H8.5V8z"
                         />
                       </svg>
                     </Button>
                     <Button
                       className={styles.section_btnline__btnsize}
-                      tip={'Adicionar e finalizar compra'}
                       type="button"
                     >
                       Comprar
@@ -246,21 +252,26 @@ const ProductPage = ({
                 <section className={styles.section_details}>
                   <ShipmentCalc />
                 </section>
-                <section
-                  className={[
-                    styles.section_details,
-                    styles.details__description,
-                  ]
-                    .join(' ')
-                    .trim()}
-                >
-                  <span className={styles.section_title}>
-                    Descrição do Produto:
-                  </span>
-                  {product.longDescription}
-                </section>
               </div>
             </div>
+            <section
+              className={[styles.section_details, styles.details__description]
+                .join(' ')
+                .trim()}
+            >
+              <span className={styles.section_title}>
+                Descrição do Produto:
+              </span>
+              {product.longDescription}
+            </section>
+            <section
+              className={[styles.section_details, styles.details__description]
+                .join(' ')
+                .trim()}
+            >
+              <span className={styles.section_title}>Ofertas Similares:</span>
+              <CarouselGallery category={prodCategory} />
+            </section>
           </div>
         </Store>
       </Main>

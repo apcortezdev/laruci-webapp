@@ -69,6 +69,10 @@
     .color:hover {
       cursor: pointer;
     }
+
+    .colorSelected {
+      border: 1px solid map-get($map: $colors, $key: primary);
+    }
   }
 }
 
@@ -214,13 +218,10 @@
       }
 
       & > span {
-        display: inline-block;
         text-transform: capitalize;
-        width: 100%;
         margin: .2rem 0;
         @include media-min-width(62rem) {
           margin: 0;
-          display: inline-block;
         }
       }
     }

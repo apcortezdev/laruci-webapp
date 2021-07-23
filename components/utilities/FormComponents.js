@@ -4,6 +4,7 @@ import styles from './FormComponents.module.scss';
 import PropTypes from 'prop-types';
 
 //Select w/ Color Options
+// expect array 'colors' in pattern: [ {name, value}, ...]
 const SelectColorItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
@@ -33,9 +34,9 @@ export const SelectColor = (props) => {
   const [selected, setSelected] = useState(props.placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
-  const changeSelected = (name) => {
+  const changeSelected = (name, value) => {
     setSelected(name);
-    props.onChange(name);
+    props.onChange(value);
     setOptionsAsVisible(false);
   };
 
@@ -45,24 +46,24 @@ export const SelectColor = (props) => {
     }
   };
 
-  const toItemArray = (obj) => {
+  const toItemArray = (colors) => {
     let array = [
       <SelectColorItem
         key={props.placeholder}
-        onSelect={() => changeSelected(props.placeholder)}
+        onSelect={() => changeSelected(props.placeholder, props.placeholder)}
         colorName={props.placeholder}
       />,
     ];
-    for (const key in obj) {
+    colors.forEach(color => {
       array.push(
         <SelectColorItem
-          key={key}
-          onSelect={() => changeSelected(key)}
-          colorName={key}
-          colorCode={obj[key]}
+          key={color.name}
+          onSelect={() => changeSelected(color.name, color.value)}
+          colorName={color.name}
+          colorCode={color.value}
         />
       );
-    }
+    });
     return array;
   };
 
@@ -98,6 +99,7 @@ SelectColor.propTypes = {
 };
 
 //Select w/ Text options
+// expect array 'options' in pattern: [ {name, value}, ...]
 const SelectTextItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
@@ -117,7 +119,7 @@ const SelectTextItem = (props) => {
       onMouseLeave={onLeave}
       onClick={() => props.onSelect(props.optionName, props.optionValue)}
     >
-      {props.optionValue}
+      {props.optionName}
     </span>
   );
 };
@@ -139,25 +141,26 @@ export const SelectText = (props) => {
     }
   };
 
-  const toItemArray = (obj) => {
+  const toItemArray = (options) => {
     let array = [
       <SelectTextItem
         key={props.placeholder}
         onSelect={() => changeSelected(props.placeholder, props.placeholder)}
-        optionName={'0'}
+        optionName={props.placeholder}
         optionValue={props.placeholder}
       />,
     ];
-    for (const key in obj) {
+
+    options.forEach(opt => {
       array.push(
         <SelectTextItem
-          key={key}
-          onSelect={() => changeSelected(obj[key], key)}
-          optionName={key}
-          optionValue={obj[key]}
+          key={opt.name}
+          onSelect={() => changeSelected(opt.name, opt.value)}
+          optionName={opt.name}
+          optionValue={opt.value}
         />
       );
-    }
+    });
     return array;
   };
 

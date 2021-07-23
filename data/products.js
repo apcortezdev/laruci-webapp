@@ -5,29 +5,49 @@ const dummy = {
     category: 'conjuntos',
     price: 19.9901,
     discount: 10,
-    weight: 0.500,
+    weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
       'Lindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha. Llindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha. Llindo sutiã com bojo meia taça com ou sem bolha lindo sutiã com bojo meia taça com ou sem bolha.',
     sets: {
       '#F1F4C4': {
-        uniqueSizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+        uniqueSizes: [
+          { name: 'M', value: 'M', sizeCm: '5' },
+          { name: 'G', value: 'G', sizeCm: '5' },
+          { name: 'XG', value: 'XG', sizeCm: '5' },
+        ],
         specialSizes: [
           {
             name: 'alças',
-            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
           {
             name: 'bojo',
-            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
           {
             name: 'base',
-            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
           {
             name: 'cintura',
-            sizes: { xp: 'sp', p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
         ],
         images: [
@@ -48,23 +68,42 @@ const dummy = {
         },
       },
       '#ea4335': {
-        uniqueSizes: { p: 'P', m: 'M' },
+        uniqueSizes: [
+          { name: 'M', value: 'M', sizeCm: '5' },
+          { name: 'XG', value: 'XG', sizeCm: '5' },
+        ],
         specialSizes: [
           {
             name: 'alças',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
           {
             name: 'bojo',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
           {
             name: 'base',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
           {
             name: 'cintura',
-            sizes: { p: 'P', m: 'M', g: 'G', gg: 'GG', xg: 'XG' },
+            sizes: [
+              { name: 'M', value: 'M', sizeCm: '5' },
+              { name: 'G', value: 'G', sizeCm: '5' },
+              { name: 'XG', value: 'XG', sizeCm: '5' },
+            ],
           },
         ],
         images: [
