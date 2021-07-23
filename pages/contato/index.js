@@ -258,7 +258,7 @@ const ContactPage = ({
 };
 
 export async function getStaticProps() {
-  const contact = getFullContactInfo();
+  const contact = await getFullContactInfo();
   return {
     props: {
       contactEmail: contact.email,

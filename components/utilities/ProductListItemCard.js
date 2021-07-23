@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types';
 import Link from 'next/link';
 import styles from './ProductListItemCard.module.scss';
 
-const ProductListItemCard = (props) => {
-  const prod = props.product;
+const ProductListItemCard = ({ product, prodId, category}) => {
+  const prod = product;
 
   let discountPrice = 0;
 
@@ -10,14 +11,13 @@ const ProductListItemCard = (props) => {
     discountPrice = prod.price * (1 - prod.discount / 100);
   }
 
-  const prodId = props.prodId;
-  const img = prod.sets[Object.keys(prod.sets)[0]].images[0];
+  const img = prod.images[0].image;
 
   return (
-    <li className={styles.item}>
+    <li className={styles.item} key={prodId}>
       <Link
         href={{
-          pathname: `/${props.category}/${prodId}`,
+          pathname: `/${category}/${prodId}`,
         }}
       >
         <a>
@@ -57,6 +57,12 @@ const ProductListItemCard = (props) => {
       </Link>
     </li>
   );
+};
+
+ProductListItemCard.propTypes = {
+  product: PropTypes.object,
+  prodId: PropTypes.string,
+  category: PropTypes.string,
 };
 
 export default ProductListItemCard;

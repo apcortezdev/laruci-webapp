@@ -82,8 +82,8 @@ export default function Home({ notice, info }) {
 }
 
 export async function getStaticProps() {
-  const notice = getMainPageNotice();
-  const info = getPageInfo();
+  const notice = await getMainPageNotice();
+  const info = await getPageInfo();
   return {
     props: {
       notice: '',

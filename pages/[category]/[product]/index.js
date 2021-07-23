@@ -7,13 +7,15 @@ import ShipmentCalc from '../../../components/ShipmentCalc';
 import Button from '../../../components/utilities/Button';
 import ImageShow from '../../../components/utilities/ImageShow';
 import SizeSelector from '../../../components/utilities/SizeSelector';
-import CarouselGallery from '../../../components/utilities/CarouselGallery';
+import ProductList from '../../../components/ProductList';
+import ProductListItemCard from '../../../components/utilities/ProductListItemCard';
 import styles from '../../../styles/ProductPage.module.scss';
 import { getSizes } from '../../../data/sizes';
 import { getCategories } from '../../../data/categories';
 import {
-  getListProductsByCategory,
-  getProductById,
+  getBareProductListByCategory,
+  getCompleteProductById,
+  getBareProductListById,
 } from '../../../data/products';
 import { Input } from '../../../components/utilities/FormComponents';
 
@@ -24,6 +26,7 @@ const ProductPage = ({
   prodCategory,
   allSizes,
   data,
+  relatedProducts,
 }) => {
   const product = data;
   const newPrice = !!product.discount
@@ -51,6 +54,24 @@ const ProductPage = ({
       onClick={setImagesToSlideShow.bind(this, color)}
     />
   ));
+
+  const prepareRelatedListHtml = (list) => {
+    let html = [];
+    for (const key in list) {
+      if (Object.hasOwnProperty.call(list, key)) {
+        const element = list[key];
+        html.push(
+          <ProductListItemCard
+            category={prodCategory}
+            key={'related_' + key}
+            prodId={key}
+            product={element}
+          />
+        );
+      }
+    }
+    return html;
+  };
 
   function openSizesGuide() {}
 
@@ -270,7 +291,11 @@ const ProductPage = ({
                 .trim()}
             >
               <span className={styles.section_title}>Ofertas Similares:</span>
-              <CarouselGallery category={prodCategory} />
+              <ProductList
+                category={prodCategory}
+                list={relatedProducts}
+                type="carousel"
+              />
             </section>
           </div>
         </Store>
@@ -280,12 +305,12 @@ const ProductPage = ({
 };
 
 export async function getStaticPaths() {
-  const categories = getCategories();
+  const categories = await getCategories();
 
   let pathList = [];
 
   for (const category of categories) {
-    const products = getListProductsByCategory(category.id);
+    const products = await getBareProductListByCategory(category.id);
     for (const key in products) {
       pathList.push({ params: { category: category.id, product: key } });
     }
@@ -300,9 +325,9 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const category = params.category;
   const productId = params.product;
-
-  const sizeList = getSizes();
-  const data = getProductById(productId);
+  const sizeList = await getSizes();
+  const data = await getCompleteProductById(productId);
+  const relatedProducts = await getBareProductListById(data.relatedProducts);
 
   return {
     props: {
@@ -312,6 +337,7 @@ export async function getStaticProps({ params }) {
       prodId: productId,
       allSizes: sizeList,
       data: data,
+      relatedProducts: relatedProducts,
     },
   };
 }

@@ -5,6 +5,6 @@ const dummyNotice = {
 };
 
 
-export function getMainPageNotice() {
+export async function getMainPageNotice() {
     return dummyNotice;
 }

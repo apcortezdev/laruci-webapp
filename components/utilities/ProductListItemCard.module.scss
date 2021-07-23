@@ -11,6 +11,8 @@
   display: inline-block;
   overflow: hidden;
   background-color: map-get($map: $colors, $key: white);
+  border: 1px solid transparent;
+  transition: all .3s ease;
 
   .promo {
     position: absolute;
@@ -82,4 +84,5 @@
 
 .card:hover {
   cursor: pointer;
+  border: 1px solid map-get($map: $colors, $key: black);
 }

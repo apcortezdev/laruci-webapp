@@ -5,6 +5,6 @@ const dummyColors = [
   { name: 'azul', value: '#1877f2' },
 ];
 
-export function getColors() {
+export async function getColors() {
   return dummyColors;
 }

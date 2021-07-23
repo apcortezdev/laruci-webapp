@@ -43,6 +43,6 @@ const dummyContactInfo = {
   ],
 };
 
-export function getFullContactInfo() {
+export async function getFullContactInfo() {
   return dummyContactInfo;
 }

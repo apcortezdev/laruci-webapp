@@ -7,6 +7,6 @@ const dummySizes = [
   { name: 'XG', value: 'XG', sizeCm: '5' },
 ];
 
-export function getSizes() {
+export async function getSizes() {
   return dummySizes;
 }

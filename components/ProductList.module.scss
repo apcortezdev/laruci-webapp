@@ -13,3 +13,33 @@
     grid-template-columns: repeat(auto-fit, minmax(17rem, auto));
   }
 }
+
+.carousel {
+  grid-auto-flow: column;
+}
+
+//Carousel only:
+.container {
+  position: relative;
+  padding: 0 1rem;
+  overflow: hidden;
+
+  & > span {
+    position: absolute;
+    top: calc(50% - 16px);
+    z-index: 5;
+    cursor: pointer;
+  }
+
+  span:first-of-type {
+    left: 0;
+  }
+
+  span:last-of-type {
+    right: 0;
+  }
+}
+
+.icon {
+  fill: map-get($map: $colors, $key: black-transparent-opaque)
+}
