@@ -105,7 +105,7 @@ const ProductPage = ({
                 current={product.name}
               />
             </div>
-            <div className={styles.product_content}>
+            <div className={styles.product_content_side}>
               <div className={styles.imageshow__container}>
                 <ImageShow images={selectedColorSet_images} />
               </div>
@@ -270,33 +270,35 @@ const ProductPage = ({
                     </Button>
                   </span>
                 </section>
-                <section className={styles.section_details}>
-                  <ShipmentCalc />
-                </section>
               </div>
             </div>
-            <section
-              className={[styles.section_details, styles.details__description]
-                .join(' ')
-                .trim()}
-            >
-              <span className={styles.section_title}>
-                Descrição do Produto:
-              </span>
-              {product.longDescription}
-            </section>
-            <section
-              className={[styles.section_details, styles.details__description]
-                .join(' ')
-                .trim()}
-            >
-              <span className={styles.section_title}>Ofertas Similares:</span>
-              <ProductList
-                category={prodCategory}
-                list={relatedProducts}
-                type="carousel"
-              />
-            </section>
+            <div className={styles.product_content_bottom}>
+              <section className={styles.section_details}>
+                <ShipmentCalc />
+              </section>
+              <section
+                className={[styles.section_details, styles.details__description]
+                  .join(' ')
+                  .trim()}
+              >
+                <span className={styles.section_title}>
+                  Descrição do Produto:
+                </span>
+                {product.longDescription}
+              </section>
+              <section
+                className={[styles.section_details, styles.details__description]
+                  .join(' ')
+                  .trim()}
+              >
+                <span className={styles.section_title}>Ofertas Similares:</span>
+                <ProductList
+                  category={prodCategory}
+                  list={relatedProducts}
+                  type="carousel"
+                />
+              </section>
+            </div>
           </div>
         </Store>
       </Main>

@@ -4,7 +4,7 @@
 .contentbox {
   width: 100%;
 
-  .product_content {
+  .product_content_side {
     @include display-flex();
     flex-direction: column;
     justify-content: space-between;
@@ -18,10 +18,14 @@
   }
 
   @include media-min-width(40rem) {
-    .product_content {
+    .product_content_side {
       @include display-flex();
       flex-direction: row;
     }
+  }
+
+  .product_content_bottom {
+    margin: 0 0.8rem;
   }
 }
 
@@ -77,6 +81,7 @@
 }
 
 .details {
+  width: 100%;
   @include media-min-width(40rem) {
     width: 48%;
   }
@@ -137,6 +142,7 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid map-get($map: $colors, $key: light-grey);
+  width: 100%;
 }
 
 .section_details__buybtn {
