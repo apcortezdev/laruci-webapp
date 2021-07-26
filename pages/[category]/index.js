@@ -1,23 +1,31 @@
+import styles from '../../styles/ListingPage.module.scss';
 import ListingPageFilter from '../../components/ListingPageFilter';
 import ProductList from '../../components/ProductList';
-import styles from '../../styles/ListingPage.module.scss';
+import Store from '../../components/store/Store';
+import Main from '../../components/main/Main';
 import { getColors } from '../../data/colors';
 import { getSizes } from '../../data/sizes';
 import { getCategories } from '../../data/categories';
 import { getBareProductListByCategory } from '../../data/products';
-import Store from '../../components/store/Store';
-import Main from '../../components/main/Main';
+import Button from '../../components/utilities/Button';
 
 const ListingPage = ({ category, data, colorList, sizesList }) => {
   if (!data || !category || !colorList || !sizesList) {
     return <p className="center">Loading...</p>;
   }
 
+  const loadNextPage = () => {};
+
   return (
     <Main>
       <Store>
         <ListingPageFilter colorList={colorList} sizesList={sizesList} />
-        <ProductList category={category} list={data} type='page'/>
+        <ProductList category={category} list={data} type="page" />
+        <section>
+          <Button className={styles.loadbutton} onClick={loadNextPage}>
+            Carregar Mais
+          </Button>
+        </section>
       </Store>
     </Main>
   );

@@ -1,4 +1,12 @@
 @import '_colors.scss';
 @import '_mixin.scss';
 
+.loadbutton {
+    padding: .5rem 1rem;
+    margin: 1rem 0;
+    height: auto;
 
+    @include media-min-width(40rem) {
+        width: 20rem;
+    }
+}

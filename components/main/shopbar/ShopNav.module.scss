@@ -4,6 +4,7 @@
 .container {
   @include display-flex();
   flex-direction: column;
+  width: 100%;
   @include media-min-width(46.5rem) {
     flex-direction: row;
   }
@@ -35,9 +36,10 @@
   text-transform: uppercase;
   font-weight: 400;
   padding: 1rem 0;
-  margin: auto;
+  margin: 0;
   border-bottom: 1px solid rgba($color: #000000, $alpha: 0.1);
   @include media-min-width(46.5rem) {
+    margin: auto;
     font-family: 'Monserrat', sans-serif;
     display: inline-block;
     vertical-align: middle;
@@ -50,10 +52,10 @@
 .webnav__item {
   list-style: none;
   color: map-get($map: $colors, $key: black);
-  letter-spacing: 0.15em;
   padding: 0.5rem 0;
   transition: all 0.1s ease;
   @include media-min-width(46.5rem) {
+    letter-spacing: 0.15em;
     display: inline-block;
     color: map-get($map: $colors, $key: white);
     padding: 0 1rem 0 0;

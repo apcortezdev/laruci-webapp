@@ -22,7 +22,7 @@ const ItemsList = ({ items, category, startIn }) => {
     );
     start++;
   }
-  return <ul className={styles.carousel}>{products}</ul>;
+  return <ol className={styles.carousel}>{products}</ol>;
 };
 
 const ProductList = ({ list, category, type }) => {
@@ -81,7 +81,7 @@ const ProductList = ({ list, category, type }) => {
       );
     }
 
-    return <ul className={styles.list}>{products}</ul>;
+    return <ol className={styles.list}>{products}</ol>;
   }
 };
 

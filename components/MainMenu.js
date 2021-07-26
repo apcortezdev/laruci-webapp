@@ -19,11 +19,13 @@ const MainMenu = (props) => {
             <Link
               href={{
                 pathname: `/${link.id}`,
-                // query: { category: link.id },
+                query: { page: 1, color: 'all', size: 'all', order: 'popular' },
               }}
               passHref
             >
-              <a onClick={props.onMobileClick && props.onMobileClick}>{link.name.toLowerCase()}</a>
+              <a onClick={props.onMobileClick && props.onMobileClick}>
+                {link.name.toLowerCase()}
+              </a>
             </Link>
           </li>
         ))}
