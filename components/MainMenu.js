@@ -18,7 +18,7 @@ const MainMenu = (props) => {
           <li key={link.id}>
             <Link
               href={{
-                pathname: `/${link.id}`,
+                pathname: `/loja/${link.id}`,
                 query: { page: 1, color: 'all', size: 'all', order: 'popular' },
               }}
               passHref

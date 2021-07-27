@@ -22,7 +22,7 @@ const ShopNav = (props) => {
           <li key={link.id} className={styles.webnav__item}>
             <Link
               href={{
-                pathname: `/${link.id}`,
+                pathname: `/loja/${link.id}`,
               }}
             >
               <a onClick={props.onMobileClick && props.onMobileClick}>

@@ -7,15 +7,15 @@ const Breadcrumb = ({ query, current }) => {
 
   let html_list = [
     <span key={'/'} className={styles.breadcrumb_item}>
-      <Link href={'/'}>página inicial</Link>
+      <Link href={'/'}>início</Link>
     </span>,
   ];
 
   queryPage.slice(0, -1).forEach((page) => {
     html_list.push(
-      <span key={`/${page}`} className={styles.breadcrumb_item}>
+      <span key={`/loja/${page}`} className={styles.breadcrumb_item}>
         {' > '}
-        <Link href={`/${page}`}>{page}</Link>
+        <Link href={`/loja/${page}`}>{page}</Link>
       </span>
     );
   });

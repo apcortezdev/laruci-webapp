@@ -70,7 +70,9 @@ export default function Home({ notice, info }) {
         </div>
       </section>
       <div
-        className={[styles.mainmenu, !isTransparent ? styles.fixed : '']
+        className={[styles.mainmenu, !isTransparent 
+          ? !!notice ? styles.fixed_with_notice : styles.fixed
+          : '']
           .join(' ')
           .trim()}
       >
@@ -86,7 +88,7 @@ export async function getStaticProps() {
   const info = await getPageInfo();
   return {
     props: {
-      notice: '',
+      notice: notice.notice,
       info: info,
     },
     revalidate: 86400,

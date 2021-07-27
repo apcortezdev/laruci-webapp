@@ -3,6 +3,10 @@
 
 .contentbox {
   width: 100%;
+  font-size: 0.8rem;
+  @include media-min-width(18rem) {
+    font-size: 1rem;
+  }
 
   .product_content_side {
     @include display-flex();
@@ -225,7 +229,7 @@
 
       & > span {
         text-transform: capitalize;
-        margin: .2rem 0;
+        margin: 0.2rem 0;
         @include media-min-width(62rem) {
           margin: 0;
         }
@@ -235,6 +239,55 @@
 
   .selectedSizeSet {
     border: 2px solid map-get($map: $colors, $key: accent);
+  }
+}
+
+.section_extras {
+  p {
+    padding: 0.3rem 0;
+    margin: 0;
+  }
+
+  & > div {
+    @include display-flex();
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+    margin-left: 1rem;
+
+    @include media-min-width(25.625rem) {
+      flex-direction: row;
+    }
+
+    & > span {
+      @include display-flex();
+      align-items: flex-start;
+
+      flex-direction: column;
+      margin: 0.5rem 0;
+
+      text-transform: capitalize;
+
+      @include media-min-width(25.625rem) {
+        flex-direction: row;
+        margin: 0;
+      }
+
+      & p {
+        min-width: 5rem;
+      }
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      min-width: 7rem;
+      margin: 0.2rem 0;
+
+      & > span {
+        margin-left: 0.5rem;
+      }
+    }
   }
 }
 

@@ -75,6 +75,18 @@
   }
 }
 
+.fixed_with_notice {
+  @include media-min-width(40rem) {
+    position: fixed;
+    top: 6.5rem;
+    z-index: 5;
+
+    @supports (position: sticky) {
+      position: sticky;
+    }
+  }
+}
+
 .home_listng {
   position: relative;
   height: 60rem;

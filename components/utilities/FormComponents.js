@@ -54,7 +54,7 @@ export const SelectColor = (props) => {
         colorName={props.placeholder}
       />,
     ];
-    colors.forEach(color => {
+    colors.forEach((color) => {
       array.push(
         <SelectColorItem
           key={color.name}
@@ -151,7 +151,7 @@ export const SelectText = (props) => {
       />,
     ];
 
-    options.forEach(opt => {
+    options.forEach((opt) => {
       array.push(
         <SelectTextItem
           key={opt.name}
@@ -320,18 +320,19 @@ const maskReducer = (state, action) => {
   }
 };
 
-export const Input = ({
-  className,
-  valid,
-  validationMessage,
-  mask,
-  value,
-  onChange,
-  id,
-  onBlur,
-  type,
-  ...rest
-}) => {
+export const Input = React.forwardRef((props, ref) => {
+  const {
+    className,
+    valid,
+    validationMessage,
+    mask,
+    value,
+    onChange,
+    id,
+    onBlur,
+    type,
+    ...rest
+  } = props;
   const isValid = valid != null ? valid : true;
 
   const [maskState, dispatchMask] = useReducer(maskReducer, {
@@ -387,6 +388,7 @@ export const Input = ({
           onChange={onChange}
           value={value}
           type="radio"
+          ref={ref}
           {...rest}
         />
         <span className={styles.radio_checkmark} />
@@ -411,13 +413,14 @@ export const Input = ({
         onBlur={onBlurValue}
         value={maskState.maskedValue}
         type={type}
+        ref={ref}
       />
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
       </span>
     </span>
   );
-};
+});
 
 Input.propTypes = {
   className: PropTypes.string,
@@ -429,6 +432,7 @@ Input.propTypes = {
   id: PropTypes.string,
   onBlur: PropTypes.func,
   type: PropTypes.string,
+  ref: PropTypes.object,
 };
 
 //Textarea

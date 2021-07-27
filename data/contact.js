@@ -46,3 +46,7 @@ const dummyContactInfo = {
 export async function getFullContactInfo() {
   return dummyContactInfo;
 }
+
+export async function sendEmail() {
+  // SINATIZE INPUTS!!! FOR XSS ATTACKS
+}

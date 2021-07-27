@@ -1,13 +1,17 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import styles from './ShopBar.module.scss';
 import MainMenu from '../../MainMenu';
 import ShopNav from './ShopNav';
 import Backdrop from '../../utilities/Backdrop';
 import Link from 'next/link';
+import BagContext from '../../../store/bag-context';
 
 const ShopBar = ({ isTransparent }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
+  const bagContext = useContext(BagContext);
+  let qtyInBag;
+  if (!!bagContext) qtyInBag = bagContext.qtyItemsInBag;
 
   const toggleMobileMenu = () => {
     setToggleMenu((toggle) => !toggle);
@@ -57,7 +61,7 @@ const ShopBar = ({ isTransparent }) => {
           <span className={styles.user_area}>
             <Link
               href={{
-                pathname: '/user',
+                pathname: '/loja/user',
               }}
             >
               <a>
@@ -78,7 +82,7 @@ const ShopBar = ({ isTransparent }) => {
             </Link>
             <Link
               href={{
-                pathname: '/bag',
+                pathname: '/loja/sacola',
               }}
             >
               <a>
@@ -91,6 +95,7 @@ const ShopBar = ({ isTransparent }) => {
                 >
                   <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5z" />
                 </svg>
+                <span>{qtyInBag !== 0 ? qtyInBag : ''}</span>                
               </a>
             </Link>
           </span>

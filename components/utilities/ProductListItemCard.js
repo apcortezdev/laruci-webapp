@@ -18,7 +18,7 @@ const ProductListItemCard = ({ product, prodId, category }) => {
     <li className={styles.item} key={prodId}>
       <Link
         href={{
-          pathname: `/${category}/${prodId}`,
+          pathname: `/loja/${category}/${prodId}`,
         }}
       >
         <a>

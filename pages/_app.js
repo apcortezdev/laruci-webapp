@@ -1,13 +1,46 @@
 import Head from 'next/Head';
+import Main from '../components/main/Main';
+import Store from '../components/store/Store';
+import { BagContextProvider } from '../store/bag-context';
+import { useRouter } from 'next/router';
+import { getMainPageNotice } from '../data/notice';
 import { useEffect, useState } from 'react';
 import '../styles/globals.scss';
 
 function MyApp(props) {
   const { Component, pageProps } = props;
 
+  const router = useRouter();
+
   const title = 'Laruci';
   const description = 'Lingeries feitas sob medida para você!';
   const domain = 'localhost:3000';
+
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const dataNotice = await getMainPageNotice();
+      if (dataNotice) {
+        setNotice(dataNotice.notice);
+      }
+    })();
+  }, []);
+
+  let page;
+  if (router.pathname.startsWith('/loja/')) {
+    page = (
+      <BagContextProvider>
+        <Main notice={notice}>
+          <Store notice={!!notice}>
+            <Component {...pageProps} />
+          </Store>
+        </Main>
+      </BagContextProvider>
+    );
+  } else {
+    page = <Component {...pageProps} />;
+  }
 
   return (
     <>
@@ -18,7 +51,7 @@ function MyApp(props) {
         <link rel="icon" href="/laruci_logo.ico" />
         <link href={domain} rel="canonical" />
       </Head>
-      <Component {...pageProps} />
+      {page}
     </>
   );
 }

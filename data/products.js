@@ -54,19 +54,34 @@ const dummy = {
         images: [
           'https://images.unsplash.com/photo-1590474176361-3360c446dd02?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=771&q=80',
         ],
-        extraOption: {
-          name: 'bojo',
-          options: [
-            {
-              name: 'bolha',
-              available: true,
-            },
-            {
-              name: 'liso',
-              available: true,
-            },
-          ],
-        },
+        extraOptions: [
+          {
+            name: 'bojo',
+            options: [
+              {
+                name: 'bolha',
+                available: true,
+              },
+              {
+                name: 'liso',
+                available: true,
+              },
+            ],
+          },
+          {
+            name: 'cheiro',
+            options: [
+              {
+                name: 'rosas',
+                available: true,
+              },
+              {
+                name: 'peido',
+                available: true,
+              },
+            ],
+          },
+        ],
       },
       '#ea4335': {
         uniqueSizes: [
@@ -111,19 +126,21 @@ const dummy = {
           'https://images.unsplash.com/photo-1583900985737-6d0495555783?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=700&q=80',
           'https://images.unsplash.com/photo-1590474272631-0d50f6b8bf9d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
         ],
-        extraOption: {
-          name: 'bojo',
-          options: [
-            {
-              name: 'bolha',
-              available: true,
-            },
-            {
-              name: 'liso',
-              available: true,
-            },
-          ],
-        },
+        extraOptions: [
+          {
+            name: 'bojo',
+            options: [
+              {
+                name: 'bolha',
+                available: true,
+              },
+              {
+                name: 'liso',
+                available: true,
+              },
+            ],
+          },
+        ],
       },
     },
   },
@@ -131,7 +148,7 @@ const dummy = {
     name: 'Produto 02',
     inStock: true,
     category: 'conjuntos',
-    price: 89.90,
+    price: 89.9,
     discount: 0,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -181,21 +198,23 @@ const dummy = {
         ],
         images: [
           'https://images.unsplash.com/photo-1574539602047-548bf9557352?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=401&q=80',
-          'https://images.unsplash.com/photo-1575186083127-03641b958f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=401&q=80'
+          'https://images.unsplash.com/photo-1575186083127-03641b958f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=401&q=80',
         ],
-        extraOption: {
-          name: 'bojo',
-          options: [
-            {
-              name: 'bolha',
-              available: true,
-            },
-            {
-              name: 'liso',
-              available: true,
-            },
-          ],
-        },
+        extraOptions: [
+          {
+            name: 'bojo',
+            options: [
+              {
+                name: 'bolha',
+                available: true,
+              },
+              {
+                name: 'liso',
+                available: true,
+              },
+            ],
+          },
+        ],
       },
     },
   },
@@ -250,21 +269,23 @@ const dummy = {
         ],
         images: [
           'https://images.unsplash.com/photo-1623039497026-00af61471107?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80',
-          'https://images.unsplash.com/photo-1623039497055-e79fcaebd4ce?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80'
+          'https://images.unsplash.com/photo-1623039497055-e79fcaebd4ce?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80',
         ],
-        extraOption: {
-          name: 'bojo',
-          options: [
-            {
-              name: 'bolha',
-              available: true,
-            },
-            {
-              name: 'liso',
-              available: true,
-            },
-          ],
-        },
+        extraOptions: [
+          {
+            name: 'bojo',
+            options: [
+              {
+                name: 'bolha',
+                available: true,
+              },
+              {
+                name: 'liso',
+                available: true,
+              },
+            ],
+          },
+        ],
       },
     },
   },
@@ -323,19 +344,21 @@ const dummy = {
         images: [
           'https://images.unsplash.com/photo-1589672554645-662258bdc332?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80',
         ],
-        extraOption: {
-          name: 'bojo',
-          options: [
-            {
-              name: 'bolha',
-              available: true,
-            },
-            {
-              name: 'liso',
-              available: true,
-            },
-          ],
-        },
+        extraOptions: [
+          {
+            name: 'bojo',
+            options: [
+              {
+                name: 'bolha',
+                available: true,
+              },
+              {
+                name: 'liso',
+                available: true,
+              },
+            ],
+          },
+        ],
       },
     },
   },
@@ -394,19 +417,21 @@ const dummy = {
         images: [
           'https://images.unsplash.com/photo-1571348635303-dabc89cff3be?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1558&q=80',
         ],
-        extraOption: {
-          name: 'bojo',
-          options: [
-            {
-              name: 'bolha',
-              available: true,
-            },
-            {
-              name: 'liso',
-              available: true,
-            },
-          ],
-        },
+        extraOptions: [
+          {
+            name: 'bojo',
+            options: [
+              {
+                name: 'bolha',
+                available: true,
+              },
+              {
+                name: 'liso',
+                available: true,
+              },
+            ],
+          },
+        ],
       },
     },
   },

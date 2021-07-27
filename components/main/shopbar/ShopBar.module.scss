@@ -22,12 +22,6 @@
   fill: map-get($map: $colors, $key: white);
   color: map-get($map: $colors, $key: white);
   transition: all 0.2s ease;
-  &:hover {
-    @include media-min-width(46.5rem) {
-      color: map-get($map: $colors, $key: black);
-      fill: map-get($map: $colors, $key: black);
-    }
-  }
 }
 
 .icon_search {
@@ -97,13 +91,28 @@
     justify-content: space-between;
 
     & a {
+      position: relative;
       display: inline-flex;
       align-items: center;
-      color: map-get($map: $colors, $key: white);
+      color: map-get($map: $colors, $key: primary);
       border-left: 1px solid map-get($map: $colors, $key: white);
       padding: 0 0.5rem;
-      &:hover {
-        color: map-get($map: $colors, $key: secondary);
+
+      & span {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.8rem;
+      }
+
+      &:hover .icon {
+        color: map-get($map: $colors, $key: black);
+        fill: map-get($map: $colors, $key: black);
       }
     }
   }

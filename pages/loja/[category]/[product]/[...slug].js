@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import ImageShow from '../../../components/utilities/ImageShow';
+import ImageShow from '../../../../components/utilities/ImageShow';
 import dummy from '../../../data/dummy';
 
 const ProductSlug = (props) => {

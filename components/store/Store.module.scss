@@ -19,11 +19,17 @@
   }
 }
 
+.webmenu_notice {
+  @include media-min-width(46.5rem) {
+    top: 6.5rem;
+  }
+}
+
 .content {
   height: 100%;
   margin-top: 4rem;
   @include media-min-width(46.5rem) {
-  margin-top: 8rem;
+    margin-top: 8rem;
   }
 
   .flex_center {
@@ -43,8 +49,8 @@
     .aside {
       display: inline-block;
       filter: opacity(3%);
-      background: url('../../public/laruci_watermark.png') center/5.7rem 6.125rem
-        repeat border-box scroll;
+      background: url('../../public/laruci_watermark.png') center/5.7rem
+        6.125rem repeat border-box scroll;
     }
   }
 }
