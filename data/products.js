@@ -1,5 +1,6 @@
 const dummy = {
   abcde: {
+    id: 'abcde',
     name: 'Produto 01',
     inStock: true,
     category: 'conjuntos',
@@ -13,46 +14,52 @@ const dummy = {
     sets: {
       '#F1F4C4': {
         uniqueSizes: [
-          { name: 'M', value: 'M', sizeCm: '5' },
-          { name: 'G', value: 'G', sizeCm: '5' },
-          { name: 'XG', value: 'XG', sizeCm: '5' },
+          { id: 'M', value: 'M', sizeCm: '5' },
+          { id: 'G', value: 'G', sizeCm: '5' },
+          { id: 'XG', value: 'XG', sizeCm: '5' },
         ],
         specialSizes: [
           {
+            id: 'alcas',
             name: 'alças',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
           {
+            id: 'bojo',
             name: 'bojo',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
           {
+            id: 'base',
             name: 'base',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
           {
+            id: 'cintura',
             name: 'cintura',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
         ],
         images: [
           'https://images.unsplash.com/photo-1590474176361-3360c446dd02?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=771&q=80',
+          'https://images.unsplash.com/photo-1592318291025-35d8b8e42ed1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1954&q=80',
+          'https://images.unsplash.com/photo-1575186083127-03641b958f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2002&q=80'
         ],
         extraOptions: [
           {
@@ -77,7 +84,7 @@ const dummy = {
               },
               {
                 name: 'peido',
-                available: true,
+                available: false,
               },
             ],
           },
@@ -458,6 +465,7 @@ async function getProductsForListing(products) {
       const element = products[key];
       productsForListing[key] = {
         name: element.name,
+        category: element.category,
         discount: element.discount,
         price: element.price,
         shortDescription: element.shortDescription,

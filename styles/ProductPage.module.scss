@@ -3,10 +3,6 @@
 
 .contentbox {
   width: 100%;
-  font-size: 0.8rem;
-  @include media-min-width(18rem) {
-    font-size: 1rem;
-  }
 
   .product_content_side {
     @include display-flex();
@@ -99,7 +95,7 @@
     font-size: 1.5rem;
   }
 
-  .price_line {
+  .center_spaced_line {
     display: inline-flex;
     width: 100%;
     flex-direction: row;
@@ -119,12 +115,12 @@
   }
 
   .font_price__price {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
     color: map-get($map: $colors, $key: primary);
     font-weight: 500;
 
-    @include media-max-width(18rem) {
-      font-size: 1.2rem;
+    @include media-min-width(18rem) {
+      font-size: 1.8rem;
     }
   }
 

@@ -7,7 +7,7 @@ import { getSizes } from '../../../data/sizes';
 import { getCategories } from '../../../data/categories';
 import { getBareProductListByCategory } from '../../../data/products';
 
-const ListingPage = ({ notice, category, data, colorList, sizesList }) => {
+const ListingPage = ({ category, data, colorList, sizesList }) => {
   if (!data || !category || !colorList || !sizesList) {
     return <p className="center">Loading...</p>;
   }
@@ -17,7 +17,7 @@ const ListingPage = ({ notice, category, data, colorList, sizesList }) => {
   return (
     <>
       <ListingPageFilter colorList={colorList} sizesList={sizesList} />
-      <ProductList category={category} list={data} type="page" />
+      <ProductList list={data} type="page" />
       <section>
         <Button className={styles.loadbutton} onClick={loadNextPage}>
           Carregar Mais

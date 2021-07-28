@@ -129,9 +129,9 @@ export const SelectText = (props) => {
   const [selected, setSelected] = useState(props.placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
-  const changeSelected = (name, value) => {
+  const changeSelected = (id, value) => {
     setOptionsAsVisible(false);
-    setSelected(name);
+    setSelected(id);
     props.onChange(value);
   };
 
@@ -154,10 +154,10 @@ export const SelectText = (props) => {
     options.forEach((opt) => {
       array.push(
         <SelectTextItem
-          key={opt.name}
-          onSelect={() => changeSelected(opt.name, opt.value)}
-          optionName={opt.name}
-          optionValue={opt.value}
+          key={opt.id}
+          onSelect={() => changeSelected(opt.id, opt.value)}
+          optionName={opt.value}
+          optionValue={opt.id}
         />
       );
     });
@@ -331,6 +331,7 @@ export const Input = React.forwardRef((props, ref) => {
     id,
     onBlur,
     type,
+    tip,
     ...rest
   } = props;
   const isValid = valid != null ? valid : true;
@@ -392,6 +393,7 @@ export const Input = React.forwardRef((props, ref) => {
           {...rest}
         />
         <span className={styles.radio_checkmark} />
+        {!!tip && <span className={styles.tooltip}>{tip}</span>}
       </div>
     );
   }
@@ -418,6 +420,7 @@ export const Input = React.forwardRef((props, ref) => {
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
       </span>
+      {!!tip && <span className={styles.tooltip}>{tip}</span>}
     </span>
   );
 });
@@ -433,6 +436,109 @@ Input.propTypes = {
   onBlur: PropTypes.func,
   type: PropTypes.string,
   ref: PropTypes.object,
+  tip: PropTypes.string,
+};
+
+export const InputNumber = React.forwardRef((props, ref) => {
+  const {
+    className,
+    valid,
+    validationMessage,
+    value,
+    onChange,
+    id,
+    type,
+    minValue,
+    maxValue,
+    ...rest
+  } = props;
+  const isValid = valid != null ? valid : true;
+
+  const [valueInput, setValueInput] = useState(minValue || 0);
+
+  const onChangeValue = (event) => {
+    const value = event.target.value.replace(/[^0-9]/gi, '');
+    setValueInput(value);
+    if (!!onChange) onChange({ ...event, target: {...event.target, value: value}});
+  };
+
+  const onAdd = (event, sum) => {
+    setValueInput((v) => {
+      let newValue = v + sum;
+      if (!!minValue && newValue < minValue) {newValue = minValue};
+      if (!!maxValue && newValue > maxValue) {newValue = maxValue};
+      if (!!onChange) onChange({ ...event, target: {...event.target, value: newValue}});
+      return newValue;
+    });
+  };
+
+  return (
+    <span
+      id={`num${id}`}
+      className={[styles.inputLine, styles.inputLineNumber].join(' ')}
+    >
+      <input
+        className={[
+          styles.inputText,
+          styles.inputNumber,
+          className || '',
+          !isValid && styles.inputText_invalid,
+        ]
+          .join(' ')
+          .trim()}
+        onChange={onChangeValue}
+        id={id}
+        value={valueInput}
+        type="text"
+        ref={ref}
+        {...rest}
+      />
+      <span>
+        <span onClick={(e) => onAdd(e, +1)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            className={styles.icon}
+            viewBox="0 0 16 16"
+          >
+            <path
+              fillRule="evenodd"
+              d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"
+            />
+          </svg>
+        </span>
+        <span onClick={(e) => onAdd(e, -1)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            className={styles.icon}
+            viewBox="0 0 16 16"
+          >
+            <path
+              fillRule="evenodd"
+              d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"
+            />
+          </svg>
+        </span>
+      </span>
+    </span>
+  );
+});
+
+InputNumber.propTypes = {
+  className: PropTypes.string,
+  valid: PropTypes.bool,
+  validationMessage: PropTypes.string,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  id: PropTypes.string,
+  type: PropTypes.string,
+  ref: PropTypes.object,
+  tip: PropTypes.string,
+  minValue: PropTypes.number,
+  maxValue: PropTypes.number,
 };
 
 //Textarea

@@ -18,7 +18,7 @@ const ProductListItemCard = ({ product, prodId, category }) => {
     <li className={styles.item} key={prodId}>
       <Link
         href={{
-          pathname: `/loja/${category}/${prodId}`,
+          pathname: `/loja/${product.category}/${prodId}`,
         }}
       >
         <a>
@@ -70,7 +70,6 @@ const ProductListItemCard = ({ product, prodId, category }) => {
 ProductListItemCard.propTypes = {
   product: PropTypes.object,
   prodId: PropTypes.string,
-  category: PropTypes.string,
 };
 
 export default ProductListItemCard;

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import Head from 'next/Head';
 import Breadcrumb from '../../../../components/Breadcrumb';
 import ShipmentCalc from '../../../../components/ShipmentCalc';
@@ -7,7 +7,10 @@ import ImageShow from '../../../../components/utilities/ImageShow';
 import SizeSelector from '../../../../components/utilities/SizeSelector';
 import ProductList from '../../../../components/ProductList';
 import styles from '../../../../styles/ProductPage.module.scss';
-import { Input } from '../../../../components/utilities/FormComponents';
+import {
+  Input,
+  InputNumber,
+} from '../../../../components/utilities/FormComponents';
 import { getSizes } from '../../../../data/sizes';
 import { getCategories } from '../../../../data/categories';
 import {
@@ -15,8 +18,9 @@ import {
   getCompleteProductById,
   getBareProductListById,
 } from '../../../../data/products';
+import BagContext from '../../../../store/bag-context';
 
-const optNames = {
+const optSizeNames = {
   u: 'UNIQUE',
   s: 'SPECIAL',
 };
@@ -34,19 +38,52 @@ const ProductPage = ({
   const newPrice = !!product.discount
     ? product.price * (1 - product.discount / 100)
     : false;
+
+  // INPUT OPTIONS FOR PURCHASE: - START
+  // COLOR
   const [selectedColorSet, setSelectedColorSet] = useState(
     Object.keys(product.sets)[0]
   );
+
+  // SIZE TYPE
+  const [sizeType, setSizeType] = useState(optSizeNames.u);
+  const onChangeSizeType = (event) => {
+    setSizeType(event.target.value);
+  };
+
+  // SIZE UNIQUE
+  const [sizeUnique, setSizeUnique] = useState('');
+  const onChangeSizeUnique = (_, value) => {
+    setSizeUnique({ unique: value });
+  };
+
+  // SIZE SPECIAL
+  const [sizeSpecial, setSizeSpecial] = useState();
+  const onChangeSizeSpecial = (name, value) => {
+    setSizeSpecial((sizes) => ({ ...sizes, [name]: value }));
+  };
+
+  // EXTRA OPTIONS
+  const [selectedExtraOptions, setSelectedExtraOptions] = useState({});
+  const onSelectedExtraOptionsHandler = (name, value) => {
+    setSelectedExtraOptions((options) => ({ ...options, [name]: value }));
+  };
+
+  // QUANTITY
+  const [quantity, setQuantity] = useState(1);
+  const onChangeQuantity = (event) => {
+    setQuantity(event.target.value);
+  };
+  // INPUT OPTIONS FOR PURCHASE: -END
+
   const [selectedColorSet_images, setSelectedColorSet_images] = useState(
     product.sets[selectedColorSet].images
   );
 
-  const [selectedExtraOptions, setSelectedExtraOptions] = useState({});
-  const onSelectedExtraOptionsHandler = (name, value) => {
-    let options = { ...selectedExtraOptions };
-    options[name] = value;
-    setSelectedExtraOptions(options);
-  };
+  function setImagesToSlideShow(color) {
+    setSelectedColorSet(color);
+    setSelectedColorSet_images(product.sets[color].images);
+  }
 
   const htmlColors = Object.keys(product.sets).map((color) => (
     <div
@@ -64,16 +101,29 @@ const ProductPage = ({
 
   function openSizesGuide() {}
 
-  function setImagesToSlideShow(color) {
-    setSelectedColorSet(color);
-    setSelectedColorSet_images(product.sets[color].images);
+  const context = useContext(BagContext);
+
+  function addToBag(event) {
+    event.preventDefault();
+    const prodToBag = {
+      prodId: prodId,
+      name: product.name,
+      color: selectedColorSet,
+      sizeType: sizeType,
+      size: sizeType === optSizeNames.u ? sizeUnique : sizeSpecial,
+      extraOptions: selectedExtraOptions,
+      price: product.price,
+      discount: product.discount,
+      weight: product.weight,
+      quantity: quantity,
+    };
+    context.addToBag(prodToBag);
   }
 
-  const [sizeType, setSizeType] = useState(optNames.u);
-  const onChangeSizeType = (event) => {
-    setSizeType(event.target.value);
-    console.log(event.target.value);
-  };
+  function buyHandler(event) {
+    event.preventDefault();
+    context.removeFromBag('PRODUTO');
+  }
 
   return (
     <>
@@ -102,7 +152,7 @@ const ProductPage = ({
             >
               {product.shortDescription}
             </section>
-            <span className={styles.price_line}>
+            <span className={styles.center_spaced_line}>
               <span className={styles.price_side}>
                 {!!newPrice ? (
                   <>
@@ -150,7 +200,7 @@ const ProductPage = ({
               {!!product.sets[selectedColorSet].uniqueSizes && (
                 <div
                   className={
-                    sizeType === optNames.u ? styles.selectedSizeSet : ''
+                    sizeType === optSizeNames.u ? styles.selectedSizeSet : ''
                   }
                 >
                   <label htmlFor="unique_size" onChange={onChangeSizeType}>
@@ -158,7 +208,7 @@ const ProductPage = ({
                       id="unique_size"
                       type="radio"
                       name="size_type"
-                      value={optNames.u}
+                      value={optSizeNames.u}
                       defaultChecked={true}
                     />
                     <span>Única:</span>
@@ -167,11 +217,13 @@ const ProductPage = ({
                     <SizeSelector
                       keyName="uniqueSizes"
                       availableSizeList={
-                        sizeType === optNames.u
+                        sizeType === optSizeNames.u
                           ? product.sets[selectedColorSet].uniqueSizes
                           : []
                       }
                       fullSizeList={allSizes}
+                      name={optSizeNames.u}
+                      onChange={onChangeSizeUnique}
                     />
                   </span>
                 </div>
@@ -179,7 +231,7 @@ const ProductPage = ({
               {!!product.sets[selectedColorSet].specialSizes && (
                 <div
                   className={
-                    sizeType === optNames.s ? styles.selectedSizeSet : ''
+                    sizeType === optSizeNames.s ? styles.selectedSizeSet : ''
                   }
                 >
                   <label htmlFor="special_size" onChange={onChangeSizeType}>
@@ -187,21 +239,23 @@ const ProductPage = ({
                       id="special_size"
                       type="radio"
                       name="size_type"
-                      value={optNames.s}
+                      value={optSizeNames.s}
                     />
                     <span>Especial:</span>
                   </label>
                   <div>
                     {product.sets[selectedColorSet].specialSizes.map((op) => (
-                      <div key={op.name} className={styles.specialSizes}>
+                      <div key={op.id} className={styles.specialSizes}>
                         <span>{op.name}:</span>
                         <span>
                           <SizeSelector
-                            keyName={op.name}
+                            keyName={op.id}
                             availableSizeList={
-                              sizeType === optNames.s ? op.sizes : []
+                              sizeType === optSizeNames.s ? op.sizes : []
                             }
                             fullSizeList={allSizes}
+                            name={op.id}
+                            onChange={onChangeSizeSpecial}
                           />
                         </span>
                       </div>
@@ -224,10 +278,10 @@ const ProductPage = ({
                       <p>{op.name}:</p>
                     </span>
                     <span>
-                      {op.options.map((options) => (
+                      {op.options.map((option) => (
                         <label
-                          htmlFor={`extraOptInpt_${op.name}_${options.name}`}
-                          key={`extraOptLabel_${op.name}_${options.name}`}
+                          htmlFor={`extraOptInpt_${op.name}_${option.name}`}
+                          key={`extraOptLabel_${op.name}_${option.name}`}
                           onChange={(event) =>
                             onSelectedExtraOptionsHandler(
                               op.name,
@@ -235,13 +289,24 @@ const ProductPage = ({
                             )
                           }
                         >
-                          <Input
-                            id={`extraOptInpt_${op.name}_${options.name}`}
-                            type="radio"
-                            name={`extraOptInpt_${op.name}_${op.name}`}
-                            value={options.name}
-                          />
-                          <span>{options.name}</span>
+                          {option.available ? (
+                            <Input
+                              id={`extraOptInpt_${op.name}_${option.name}`}
+                              type="radio"
+                              name={`extraOptInpt_${op.name}_${op.name}`}
+                              value={option.name}
+                            />
+                          ) : (
+                            <Input
+                              id={`extraOptInpt_${op.name}_${option.name}`}
+                              type="radio"
+                              name={`extraOptInpt_${op.name}_${op.name}`}
+                              value={option.name}
+                              disabled
+                              tip={'Esgotado'}
+                            />
+                          )}
+                          <span>{option.name}</span>
                         </label>
                       ))}
                     </span>
@@ -249,6 +314,21 @@ const ProductPage = ({
                 ))}
               </section>
             )}
+            <section
+              className={[styles.section_details, styles.center_spaced_line]
+                .join(' ')
+                .trim()}
+            >
+              <p>Quantidade:</p>
+              <span>
+                <InputNumber
+                  id="quantity"
+                  name="quantity"
+                  minValue={1}
+                  onChange={onChangeQuantity}
+                />
+              </span>
+            </section>
             <section
               className={[
                 styles.section_details,
@@ -262,6 +342,7 @@ const ProductPage = ({
                   className={styles.section_btnline__iconbtnsize}
                   tip={'Adicionar à sacola'}
                   type="button"
+                  onClick={addToBag}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -279,6 +360,7 @@ const ProductPage = ({
                 <Button
                   className={styles.section_btnline__btnsize}
                   type="button"
+                  onClick={buyHandler}
                 >
                   Comprar
                 </Button>

@@ -6,20 +6,23 @@ const SizeSelector = ({
   keyName,
   fullSizeList,
   availableSizeList,
+  name,
+  onChange,
   ...rest
 }) => {
 
   let tags = [];
   const [selectedTag, setSelectedTag] = useState('');
 
-  function onSelect(tag) {
-    setSelectedTag(tag);
+  function onSelect(id, name) {
+    if (onChange) onChange(name, id);
+    setSelectedTag(id);
   }
 
   fullSizeList.forEach(element => {
     let key;
-    if (!!keyName) key = keyName + '_' + element.name;
-    else key = element.name;
+    if (!!keyName) key = keyName + '_' + element.id;
+    else key = element.id;
 
     if (availableSizeList.some((size) => size.value === element.value)) {
       tags.push(
@@ -28,13 +31,13 @@ const SizeSelector = ({
           className={[
             styles.tag,
             styles.abled,
-            element.name === selectedTag && styles.selected,
+            element.id === selectedTag && styles.selected,
           ]
             .join(' ')
             .trim()}
-            onClick={onSelect.bind(this, element.value)}
+            onClick={onSelect.bind(this, element.id, name)}
         >
-          {element.name}
+          {element.value}
         </div>
       );
     } else {
@@ -43,7 +46,7 @@ const SizeSelector = ({
           key={key}
           className={[styles.tag, styles.disabled].join(' ').trim()}
         >
-          {element.name}
+          {element.value}
         </div>
       );
     }
@@ -61,6 +64,8 @@ const SizeSelector = ({
 SizeSelector.propTypes = {
   fullSizeList: PropTypes.array,
   availableSizeList: PropTypes.array,
+  name: PropTypes.string,
+  onChange: PropTypes.func,
 };
 
 export default SizeSelector;
