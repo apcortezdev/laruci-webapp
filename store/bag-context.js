@@ -1,39 +1,85 @@
 import { createContext, useState } from 'react';
 
 const BagContext = createContext({
-  products: {}, // { bagTag, id, name, color, size, qty, price, discount, weight, subtotal }
+  products: {},
+
   qtyItemsInBag: 0,
-  total: 0,
+  totalWeight: 0,
+  totalDiscounts: 0,
+  totalFullPrice: 0,
+  totalFinalPrice: 0,
   addToBag: function (product) {},
   removeFromBag: function (product) {},
 });
 
-export function BagContextProvider(props) {
-  const [qtyItemsInBag, setQtyItemsInBag] = useState(0);
-  const [productList, setProductList] = useState({});
-  const [total, setTotal] = useState(0);
-
-  function validateOptions(prod) {
-
+function objToString(obj) {
+  let text = '';
+  for (const key in obj) {
+    if (Object.hasOwnProperty.call(obj, key)) {
+      text = text + key + obj[key].value;
+    }
   }
+  return text;
+}
+
+export function BagContextProvider(props) {
+  const [productList, setProductList] = useState({});
+  const [qtyItemsInBag, setQtyItemsInBag] = useState(0);
+  const [totalWeight, setTotalWeight] = useState(0);
+  const [totalDiscounts, setTotalDiscounts] = useState(0);
+  const [totalFullPrice, setTotalFullPrice] = useState(0);
+  const [totalFinalPrice, setTotalFinalPrice] = useState(0);
 
   function addToBagHandler(product) {
-    let prodBagId = JSON.stringify(product);
-    const newProduct = {
-      prodBagId: prodBagId,
-      subtotal: product.price * product.quantity,
-      ...product
+    // Create string w/ prod options as key
+    const key =
+      product.prodId +
+      product.color +
+      objToString(product.size) +
+      objToString(product.extraOptions);
+
+    const discount = product.price * (product.discountPercent / 100);
+    const subtotalDiscounts = discount * product.quantity;
+    const subtotalFullPrice = product.price * product.quantity;
+    const subtotalFinalPrice = subtotalFullPrice - subtotalDiscounts;
+    const subtotalWeight = product.weight * product.quantity;
+
+    if (!!productList[key]) {
+      setProductList((list) => ({
+        [key]: {
+          ...list[key],
+          quantity: list[key].quantity + product.quantity,
+          subtotalDiscounts: list[key].subtotalDiscounts + subtotalDiscounts,
+          subtotalFullPrice: list[key].subtotalFullPrice + subtotalFullPrice,
+          subtotalFinalPrice: list[key].subtotalFinalPrice + subtotalFinalPrice,
+          subtotalWeight: list[key].subtotalWeight + subtotalWeight,
+        },
+        ...list,
+      }));
+    } else {
+      const newProduct = {
+        subtotalDiscounts: subtotalDiscounts,
+        subtotalFullPrice: subtotalFullPrice,
+        subtotalFinalPrice: subtotalFinalPrice,
+        subtotalWeight: subtotalWeight,
+        ...product,
+      };
+      setProductList((list) => ({ [key]: newProduct, ...list }));
     }
-    setProductList(list => ({ ...list, [prodBagId]: newProduct }));
-    // setQtyItemsInBag((num) => num + product.qty);
-    // setTotal((tot) => tot + product.subtotal);
+
+    setTotalDiscounts((d) => d + subtotalDiscounts);
+    setTotalFullPrice((tot) => tot + subtotalFullPrice);
+    setTotalFinalPrice((tot) => tot + subtotalFinalPrice);
+
+    setQtyItemsInBag((num) => num + product.quantity);
+    setTotalWeight((w) => w + subtotalWeight);
   }
 
-  function removeFromBagHandler(prodBagId) {
-    setProductList(list => {
-      const {[prodBagId]: _, ...newList} = list;
-      return newList;
-    });
+  function removeFromBagHandler(key) {
+    // setProductList(list => {
+    //   const {[prodBagId]: _, ...newList} = list;
+    //   return newList;
+    // });
     // setQtyItemsInBag((num) => num - product.qty);
     // setTotal((tot) => tot - product.subtotal);
   }
@@ -41,7 +87,10 @@ export function BagContextProvider(props) {
   const context = {
     products: productList,
     qtyItemsInBag: qtyItemsInBag,
-    total: total,
+    totalWeight: totalWeight,
+    totalDiscounts: totalDiscounts,
+    totalFullPrice: totalFullPrice,
+    totalFinalPrice: totalFinalPrice,
     addToBag: addToBagHandler,
     removeFromBag: removeFromBagHandler,
   };

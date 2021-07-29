@@ -3,13 +3,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './ProductListItemCard.module.scss';
 
-const ProductListItemCard = ({ product, prodId, category }) => {
+const ProductListItemCard = ({ product, prodId }) => {
   const prod = product;
 
   let discountPrice = 0;
 
-  if (!!prod.discount) {
-    discountPrice = prod.price * (1 - prod.discount / 100);
+  if (!!prod.discountPercent) {
+    discountPrice = prod.price * (1 - prod.discountPercent / 100);
   }
 
   const img = prod.images[0].image;
@@ -23,8 +23,8 @@ const ProductListItemCard = ({ product, prodId, category }) => {
       >
         <a>
           <article className={styles.card}>
-            {!!prod.discount && (
-              <div className={styles.promo}>-{prod.discount}%</div>
+            {!!prod.discountPercent && (
+              <div className={styles.promo}>-{prod.discountPercent}%</div>
             )}
             <div className={styles.img_container}>
               {/* <div className={styles.img_ratio}> */}
@@ -41,7 +41,7 @@ const ProductListItemCard = ({ product, prodId, category }) => {
             <div className={styles.info_container}>
               <span className={styles.name}>{prod.name}</span>
               <span>
-                {!!prod.discount ? (
+                {!!prod.discountPercent ? (
                   <>
                     <span className={styles.discountText}>
                       De R$ {prod.price.toFixed(2)} por{' '}

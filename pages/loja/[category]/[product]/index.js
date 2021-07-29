@@ -1,4 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
+import { useRouter } from "next/router";
 import Head from 'next/Head';
 import Breadcrumb from '../../../../components/Breadcrumb';
 import ShipmentCalc from '../../../../components/ShipmentCalc';
@@ -34,9 +35,10 @@ const ProductPage = ({
   data,
   relatedProducts,
 }) => {
+  const router = useRouter();
   const product = data;
-  const newPrice = !!product.discount
-    ? product.price * (1 - product.discount / 100)
+  const newPrice = !!product.discountPercent
+    ? product.price * (1 - product.discountPercent / 100)
     : false;
 
   // INPUT OPTIONS FOR PURCHASE: - START
@@ -53,26 +55,26 @@ const ProductPage = ({
 
   // SIZE UNIQUE
   const [sizeUnique, setSizeUnique] = useState('');
-  const onChangeSizeUnique = (_, value) => {
-    setSizeUnique({ unique: value });
+  const onChangeSizeUnique = (id, name, value) => {
+    setSizeUnique({ [id]: { name: name, value: value} });
   };
 
   // SIZE SPECIAL
   const [sizeSpecial, setSizeSpecial] = useState();
-  const onChangeSizeSpecial = (name, value) => {
-    setSizeSpecial((sizes) => ({ ...sizes, [name]: value }));
+  const onChangeSizeSpecial = (id, name, value) => {
+    setSizeSpecial((sizes) => ({ ...sizes, [id]: { name: name, value: value} }));
   };
 
   // EXTRA OPTIONS
   const [selectedExtraOptions, setSelectedExtraOptions] = useState({});
   const onSelectedExtraOptionsHandler = (name, value) => {
-    setSelectedExtraOptions((options) => ({ ...options, [name]: value }));
+    setSelectedExtraOptions((options) => ({ ...options, [name]: { name: name, value: value} }));
   };
 
   // QUANTITY
   const [quantity, setQuantity] = useState(1);
-  const onChangeQuantity = (event) => {
-    setQuantity(event.target.value);
+  const onChangeQuantity = (v) => {
+    setQuantity(q => q + v);
   };
   // INPUT OPTIONS FOR PURCHASE: -END
 
@@ -108,21 +110,22 @@ const ProductPage = ({
     const prodToBag = {
       prodId: prodId,
       name: product.name,
-      color: selectedColorSet,
-      sizeType: sizeType,
+      color: product.sets[selectedColorSet].colorName,
       size: sizeType === optSizeNames.u ? sizeUnique : sizeSpecial,
       extraOptions: selectedExtraOptions,
       price: product.price,
-      discount: product.discount,
+      discountPercent: product.discountPercent,
       weight: product.weight,
       quantity: quantity,
+      image: selectedColorSet_images[0],
     };
     context.addToBag(prodToBag);
   }
 
   function buyHandler(event) {
     event.preventDefault();
-    context.removeFromBag('PRODUTO');
+    addToBag(event);
+    router.push({ pathname: '/loja/sacola' });
   }
 
   return (
@@ -176,7 +179,7 @@ const ProductPage = ({
                     .join(' ')
                     .trim()}
                 >
-                  -{product.discount}%
+                  -{product.discountPercent}%
                 </span>
               )}
             </span>
@@ -222,7 +225,8 @@ const ProductPage = ({
                           : []
                       }
                       fullSizeList={allSizes}
-                      name={optSizeNames.u}
+                      name={'único'}
+                      id={optSizeNames.u}
                       onChange={onChangeSizeUnique}
                     />
                   </span>
@@ -254,7 +258,8 @@ const ProductPage = ({
                               sizeType === optSizeNames.s ? op.sizes : []
                             }
                             fullSizeList={allSizes}
-                            name={op.id}
+                            id={op.id}
+                            name={op.name}
                             onChange={onChangeSizeSpecial}
                           />
                         </span>
@@ -326,6 +331,7 @@ const ProductPage = ({
                   name="quantity"
                   minValue={1}
                   onChange={onChangeQuantity}
+                  value={quantity}
                 />
               </span>
             </section>

@@ -7,6 +7,7 @@ const SizeSelector = ({
   fullSizeList,
   availableSizeList,
   name,
+  id,
   onChange,
   ...rest
 }) => {
@@ -14,9 +15,9 @@ const SizeSelector = ({
   let tags = [];
   const [selectedTag, setSelectedTag] = useState('');
 
-  function onSelect(id, name) {
-    if (onChange) onChange(name, id);
-    setSelectedTag(id);
+  function onSelect(elementId, name, sizeId) {
+    if (onChange) onChange(sizeId, name, elementId);
+    setSelectedTag(elementId);
   }
 
   fullSizeList.forEach(element => {
@@ -35,7 +36,7 @@ const SizeSelector = ({
           ]
             .join(' ')
             .trim()}
-            onClick={onSelect.bind(this, element.id, name)}
+            onClick={onSelect.bind(this, element.id, name, id)}
         >
           {element.value}
         </div>
@@ -62,10 +63,12 @@ const SizeSelector = ({
 };
 
 SizeSelector.propTypes = {
-  fullSizeList: PropTypes.array,
-  availableSizeList: PropTypes.array,
-  name: PropTypes.string,
-  onChange: PropTypes.func,
+  keyName: PropTypes.string,
+  fullSizeList: PropTypes.array.isRequired,
+  availableSizeList: PropTypes.array.isRequired,
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
 };
 
 export default SizeSelector;

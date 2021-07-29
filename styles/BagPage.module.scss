@@ -1,7 +1,156 @@
 @import '_colors.scss';
 @import '_mixin.scss';
 
-.content {
+.container {
   width: 100%;
   min-height: 100%;
+  padding: 0 1rem;
+
+  h1 {
+    display: inline-block;
+    font-family: inherit;
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  h3 {
+    display: inline-block;
+    font-family: inherit;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .primary {
+    color: map-get($map: $colors, $key: primary);
+  }
+
+  .section {
+    @include display-flex();
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+
+    @include media-min-width(29rem) {
+      flex-direction: row;
+    }
+  }
+
+  .baseline {
+    align-items: flex-end;
+  }
+
+  .header {
+    @include media-min-width(29rem) {
+      flex-direction: row-reverse;
+    }
+
+    & > span {
+      padding: 1rem 0;
+      align-self: flex-start;
+
+      @include media-min-width(29rem) {
+        padding: 0;
+      }
+      h3 {
+        padding-left: 1rem;
+      }
+    }
+
+    .button {
+      width: 100%;
+      padding: 0.3rem 1rem;
+      text-transform: capitalize;
+
+      @include media-min-width(29rem) {
+        justify-self: right;
+        width: auto;
+      }
+    }
+  }
+
+  .divisionLine {
+    padding-top: 1.5rem;
+    border-top: 1px solid map-get($map: $colors, $key: light-grey);
+  }
+
+  .totalbox {
+    @include display-flex();
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+    width: 15rem;
+    border: 1px solid map-get($map: $colors, $key: light-grey);
+
+    & > span {
+      @include display-flex();
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+}
+
+.itemsResume_card {
+  @include display-flex();
+  width: 100%;
+  height: 10rem;
+  background-color: map-get($map: $colors, $key: lighter-grey);
+  margin: 1rem 0;
+
+  .itemsResume_image {
+    @include display-flex();
+    width: 10rem;
+    height: 10rem;
+  }
+
+  .itemsResume_details {
+    @include display-flex();
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-left: 1rem;
+    width: calc(100% - 10rem);
+
+    p {
+      padding: 0.9rem 0.3rem;
+      font-size: 0.8rem;
+      text-transform: capitalize;
+    }
+
+    & > p {
+      @include display-flex();
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    & > div {
+      @include display-flex();
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+  }
+}
+
+.icon {
+  fill: map-get($map: $colors, $key: grey);
+}
+
+.qty_selector {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+
+  svg {
+    margin: 0 1rem;
+    cursor: pointer;
+  }
 }

@@ -439,42 +439,36 @@ Input.propTypes = {
   tip: PropTypes.string,
 };
 
-export const InputNumber = React.forwardRef((props, ref) => {
+export const InputNumber = (props) => {
   const {
     className,
     valid,
-    validationMessage,
-    value,
     onChange,
-    id,
     type,
     minValue,
     maxValue,
+    value,
     ...rest
   } = props;
   const isValid = valid != null ? valid : true;
 
-  const [valueInput, setValueInput] = useState(minValue || 0);
-
   const onChangeValue = (event) => {
-    const value = event.target.value.replace(/[^0-9]/gi, '');
-    setValueInput(value);
-    if (!!onChange) onChange({ ...event, target: {...event.target, value: value}});
+    if (!!event.target.value) {
+      const enteredValue = event.target.value.replace(/[^0-9]/gi, '');
+      if (!!enteredValue) onChange(enteredValue - value);
+    } else {
+      onChange(-value);
+    }
   };
 
-  const onAdd = (event, sum) => {
-    setValueInput((v) => {
-      let newValue = v + sum;
-      if (!!minValue && newValue < minValue) {newValue = minValue};
-      if (!!maxValue && newValue > maxValue) {newValue = maxValue};
-      if (!!onChange) onChange({ ...event, target: {...event.target, value: newValue}});
-      return newValue;
-    });
+  const onAdd = (sum) => {
+      if (!!minValue && value + sum < minValue) return onChange(0);
+      if (!!maxValue && value + sum > maxValue) return onChange(0);
+      onChange(sum);
   };
 
   return (
     <span
-      id={`num${id}`}
       className={[styles.inputLine, styles.inputLineNumber].join(' ')}
     >
       <input
@@ -487,14 +481,12 @@ export const InputNumber = React.forwardRef((props, ref) => {
           .join(' ')
           .trim()}
         onChange={onChangeValue}
-        id={id}
-        value={valueInput}
         type="text"
-        ref={ref}
+        value={value}
         {...rest}
       />
       <span>
-        <span onClick={(e) => onAdd(e, +1)}>
+        <span onClick={() => onAdd(+1)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -508,7 +500,7 @@ export const InputNumber = React.forwardRef((props, ref) => {
             />
           </svg>
         </span>
-        <span onClick={(e) => onAdd(e, -1)}>
+        <span onClick={() => onAdd(-1)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -525,18 +517,14 @@ export const InputNumber = React.forwardRef((props, ref) => {
       </span>
     </span>
   );
-});
+};
 
 InputNumber.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.number.isRequired,
   className: PropTypes.string,
   valid: PropTypes.bool,
-  validationMessage: PropTypes.string,
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  id: PropTypes.string,
   type: PropTypes.string,
-  ref: PropTypes.object,
-  tip: PropTypes.string,
   minValue: PropTypes.number,
   maxValue: PropTypes.number,
 };

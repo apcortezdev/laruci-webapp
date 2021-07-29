@@ -1,8 +1,18 @@
+import PropTypes from 'prop-types';
 import Link from 'next/link';
 import styles from './ShipmentCalc.module.scss';
 import Button from './utilities/Button';
+import { useState } from 'react';
 
-const ShipmentCalc = (props) => {
+const ShipmentCalc = ({ weight }) => {
+
+  const [cep, setCep] = useState('');
+
+  const onCalculate  = (event) => {
+    event.preventDefault();
+
+  }
+
   return (
     <div className={styles.shipmentcalc_container}>
       <span>Calcular Entrega:</span>
@@ -15,8 +25,9 @@ const ShipmentCalc = (props) => {
           placeholder="00000-000"
           maxLength="9"
           size="7"
+          onChange={(event) => setCep(event.target.value)}
         />
-        <Button className={styles.input_cep_btn}>Calcular</Button>
+        <Button className={styles.input_cep_btn} onClick={onCalculate}>Calcular</Button>
       </span>
       <span>
         <Link
@@ -37,6 +48,8 @@ const ShipmentCalc = (props) => {
   );
 };
 
-ShipmentCalc.propTypes = {};
+ShipmentCalc.propTypes = {
+  weight: PropTypes.number
+};
 
 export default ShipmentCalc;

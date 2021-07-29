@@ -5,7 +5,7 @@ const dummy = {
     inStock: true,
     category: 'conjuntos',
     price: 19.9901,
-    discount: 10,
+    discountPercent: 10,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
@@ -13,6 +13,7 @@ const dummy = {
     relatedProducts: ['abcde'],
     sets: {
       '#F1F4C4': {
+        colorName: 'Vidro',
         uniqueSizes: [
           { id: 'M', value: 'M', sizeCm: '5' },
           { id: 'G', value: 'G', sizeCm: '5' },
@@ -91,41 +92,46 @@ const dummy = {
         ],
       },
       '#ea4335': {
+        colorName: 'Arruaça',
         uniqueSizes: [
-          { name: 'M', value: 'M', sizeCm: '5' },
-          { name: 'XG', value: 'XG', sizeCm: '5' },
+          { id: 'M', value: 'M', sizeCm: '5' },
+          { id: 'XG', value: 'XG', sizeCm: '5' },
         ],
         specialSizes: [
           {
+            id: 'alcas',
             name: 'alças',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
           {
+            id: 'bojo',
             name: 'bojo',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
           {
+            id: 'base',
             name: 'base',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
           {
+            id: 'cintura',
             name: 'cintura',
             sizes: [
-              { name: 'M', value: 'M', sizeCm: '5' },
-              { name: 'G', value: 'G', sizeCm: '5' },
-              { name: 'XG', value: 'XG', sizeCm: '5' },
+              { id: 'M', value: 'M', sizeCm: '5' },
+              { id: 'G', value: 'G', sizeCm: '5' },
+              { id: 'XG', value: 'XG', sizeCm: '5' },
             ],
           },
         ],
@@ -156,7 +162,7 @@ const dummy = {
     inStock: true,
     category: 'conjuntos',
     price: 89.9,
-    discount: 0,
+    discountPercent: 0,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
@@ -230,7 +236,7 @@ const dummy = {
     inStock: true,
     category: 'conjuntos',
     price: 33.33,
-    discount: 0,
+    discountPercent: 0,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
@@ -301,7 +307,7 @@ const dummy = {
     inStock: true,
     category: 'conjuntos',
     price: 44.44,
-    discount: 0,
+    discountPercent: 0,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
@@ -374,7 +380,7 @@ const dummy = {
     inStock: true,
     category: 'conjuntos',
     price: 55.55,
-    discount: 0,
+    discountPercent: 0,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
     longDescription:
@@ -445,18 +451,6 @@ const dummy = {
 };
 
 async function getProductsForListing(products) {
-  /*returns as:
-    [
-      product: {
-        name,
-        discount,
-        price,
-        shortDescription,
-        images: [ { color, image } ]
-      }
-    ]
-  */
-
   let productsForListing = {};
 
   // if (!Array.isArray(products)) {
@@ -466,7 +460,7 @@ async function getProductsForListing(products) {
       productsForListing[key] = {
         name: element.name,
         category: element.category,
-        discount: element.discount,
+        discountPercent: element.discountPercent,
         price: element.price,
         shortDescription: element.shortDescription,
         images: [],
