@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from '../../../styles/BagPage.module.scss';
 import BagContext from '../../../store/bag-context';
 import Button from '../../../components/utilities/Button';
@@ -18,7 +19,12 @@ function objToString(obj) {
   return text;
 }
 
-const ItemsResume = ({ products }) => {
+const ItemsResume = ({
+  products,
+  onAddProduct,
+  onRemoveProduct,
+  onDeleteProduct,
+}) => {
   let html = [];
 
   for (const key in products) {
@@ -37,7 +43,7 @@ const ItemsResume = ({ products }) => {
             />
           </div>
           <div className={styles.itemsResume_details}>
-            <p>
+            <div className={styles.title}>
               <b>{element.name}</b>
               <span>
                 <svg
@@ -46,6 +52,7 @@ const ItemsResume = ({ products }) => {
                   height="20"
                   className={styles.icon}
                   viewBox="0 0 16 16"
+                  onClick={() => onDeleteProduct(key)}
                 >
                   <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                   <path
@@ -54,8 +61,8 @@ const ItemsResume = ({ products }) => {
                   />
                 </svg>
               </span>
-            </p>
-            <div>
+            </div>
+            <div className={styles.options}>
               <span>
                 <p>
                   <b>cor: </b>
@@ -72,7 +79,7 @@ const ItemsResume = ({ products }) => {
               </span>
               <span>
                 <p>
-                  <b>preço unitário: </b>R$ {element.price.toFixed(2)}
+                  <b>preço unit.: </b>R$ {element.price.toFixed(2)}
                 </p>
                 <p>
                   <b>descontos: </b>
@@ -85,15 +92,16 @@ const ItemsResume = ({ products }) => {
                 </p>
               </span>
               <span>
-                <p>
-                  <span className={styles.qty_selector}>
-                    <b>quantidade: </b>
+                <span className={styles.qty_selector}>
+                  <b>quantidade: </b>
+                  <div>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
                       height="20"
                       className={styles.icon}
                       viewBox="0 0 16 16"
+                      onClick={() => onAddProduct(key)}
                     >
                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
                     </svg>
@@ -104,11 +112,12 @@ const ItemsResume = ({ products }) => {
                       height="20"
                       className={styles.icon}
                       viewBox="0 0 16 16"
+                      onClick={() => onRemoveProduct(key)}
                     >
                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
                     </svg>
-                  </span>
-                </p>
+                  </div>
+                </span>
               </span>
             </div>
           </div>
@@ -127,6 +136,27 @@ const BagPage = (props) => {
     event.preventDefault();
   };
 
+  if (context.qtyItemsInBag <= 0) {
+    return (
+      <div className={[styles.container, styles.empty].join(' ')}>
+        <h1 className={styles.empty_message}>Sua Sacola está vazia!</h1>
+        <Link
+          href={{
+            pathname: '/',
+          }}
+        >
+          <a>Ir para as compras</a>
+        </Link>
+      </div>
+    );
+  }
+
+  const onAddProduct = (productKey) => {};
+
+  const onRemoveProduct = (productKey) => {};
+
+  const onDeleteProduct = (productKey) => {};
+
   return (
     <div className={styles.container}>
       <section className={[styles.section, styles.header].join(' ')}>
@@ -140,7 +170,9 @@ const BagPage = (props) => {
           })`}</h3>
         </span>
       </section>
-      <section className={[styles.section, styles.divisionLine].join(' ')}>
+      <section
+        className={[styles.section, styles.row, styles.divisionLine].join(' ')}
+      >
         <ShipmentCalc weight={context.totalWeight} />
       </section>
       <section
@@ -166,8 +198,13 @@ const BagPage = (props) => {
           </span>
         </span>
       </section>
-      <section>
-        <ItemsResume products={context.products} />
+      <section className={styles.resume}>
+        <ItemsResume
+          products={context.products}
+          onAddProduct={onAddProduct}
+          onRemoveProduct={onRemoveProduct}
+          onDeleteProduct={onDeleteProduct}
+        />
       </section>
     </div>
   );

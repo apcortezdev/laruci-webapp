@@ -40,8 +40,16 @@
     }
   }
 
+  .row {
+    flex-direction: row;
+  }
+
   .baseline {
     align-items: flex-end;
+
+    & > h1 {
+      align-self: flex-start;
+    }
   }
 
   .header {
@@ -50,7 +58,7 @@
     }
 
     & > span {
-      padding: 1rem 0;
+      padding-top: 1rem;
       align-self: flex-start;
 
       @include media-min-width(29rem) {
@@ -63,7 +71,8 @@
 
     .button {
       width: 100%;
-      padding: 0.3rem 1rem;
+      height: 3rem;
+      padding: 0 1rem;
       text-transform: capitalize;
 
       @include media-min-width(29rem) {
@@ -95,53 +104,97 @@
   }
 }
 
-.itemsResume_card {
+.empty {
   @include display-flex();
-  width: 100%;
-  height: 10rem;
-  background-color: map-get($map: $colors, $key: lighter-grey);
-  margin: 1rem 0;
+  flex-direction: column;
+  align-items: center;
 
-  .itemsResume_image {
-    @include display-flex();
-    width: 10rem;
-    height: 10rem;
+  .empty_message {
+    font-size: 1.5rem;
+    text-transform: capitalize;
+    margin-top: 5rem;
+
+    & ~ a {
+      font-family: inherit;
+      font-size: 1rem;
+      text-transform: capitalize;
+      text-decoration: underline;
+      margin: 0;
+      cursor: pointer;
+      color: map-get($map: $colors, $key: primary);
+    }
+  }
+}
+
+.resume {
+  margin-bottom: 5rem;
+
+  p {
+    margin: .5rem 0;
   }
 
-  .itemsResume_details {
+  .itemsResume_card {
     @include display-flex();
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-around;
-    padding-left: 1rem;
-    width: calc(100% - 10rem);
+    width: 100%;
+    background-color: map-get($map: $colors, $key: lighter-grey);
+    margin: 1rem 0;
 
-    p {
-      padding: 0.9rem 0.3rem;
+    @include media-min-width(29rem) {
+      height: 10rem;
+    }
+
+    .itemsResume_image {
+      @include display-flex();
+      width: 10rem;
+      height: 10rem;
+    }
+
+    .itemsResume_details {
+      width: calc(100% - 10rem);
       font-size: 0.8rem;
-      text-transform: capitalize;
-    }
+      padding: 1rem;
 
-    & > p {
-      @include display-flex();
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      font-size: 0.9rem;
-    }
+      & > div {
+        @include display-flex();
+        flex-direction: row;
+        width: 100%;
+      }
 
-    & > div {
-      @include display-flex();
-      width: 100%;
-      flex-direction: row;
-      justify-content: space-around;
+      .title {
+        justify-content: space-between;
+        align-items: center;
+        text-transform: capitalize;
+      }
+
+      .options {
+        justify-content: space-around;
+
+        & > span {
+          padding: 0.5rem;
+        }
+
+        span:last-child {
+          @include display-flex();
+          flex-direction: column;
+
+          & > div {
+            @include display-flex();
+            align-items: center;
+            margin-top: 0.3rem;
+          }
+        }
+      }
     }
   }
 }
 
 .icon {
-  fill: map-get($map: $colors, $key: grey);
+  fill: map-get($map: $colors, $key: dark-grey);
+  cursor: pointer;
+
+  &:hover {
+    fill: map-get($map: $colors, $key: grey);
+  }
 }
 
 .qty_selector {
@@ -151,6 +204,5 @@
 
   svg {
     margin: 0 1rem;
-    cursor: pointer;
   }
 }

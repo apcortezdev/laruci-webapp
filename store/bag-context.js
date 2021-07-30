@@ -45,7 +45,12 @@ export function BagContextProvider(props) {
     const subtotalWeight = product.weight * product.quantity;
 
     if (!!productList[key]) {
+      console.log('here');
+      console.log(productList[key].quantity);
+      console.log(product.quantity);
+
       setProductList((list) => ({
+        ...list,
         [key]: {
           ...list[key],
           quantity: list[key].quantity + product.quantity,
@@ -54,7 +59,6 @@ export function BagContextProvider(props) {
           subtotalFinalPrice: list[key].subtotalFinalPrice + subtotalFinalPrice,
           subtotalWeight: list[key].subtotalWeight + subtotalWeight,
         },
-        ...list,
       }));
     } else {
       const newProduct = {

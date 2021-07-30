@@ -2,18 +2,18 @@
 @import '../styles/_mixin.scss';
 
 .shipmentcalc_container {
-  span {
+  & > span {
     display: block;
-    margin-bottom: 0.8rem;
+    margin: 1rem 0;
     &:first-child {
       font-weight: 500;
     }
   }
 
   .input_cep {
-    font-size: 1rem;
     font-family: inherit;
     padding: 0.8rem 0.4rem;
+    width: 7rem;
 
     &:focus {
       outline: map-get($map: $colors, $key: accent-dark) auto 3px;
