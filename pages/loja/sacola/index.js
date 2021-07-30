@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,6 +25,35 @@ const ItemsResume = ({
   onRemoveProduct,
   onDeleteProduct,
 }) => {
+
+  const [thumbList, setThumbList] = useState({});
+
+  const loadImages = (prods) => {
+    let list = [];
+    for (const key in prods) {
+      if (Object.hasOwnProperty.call(prods, key)) {
+        list.push(prods[key].prodId);
+      }
+    }  
+    fetch('/api/products', {
+      method: 'GET',
+      // headers: { 'Content-Type': 'application/json' },
+      // body: JSON.stringify({ list : list }),
+    })
+    .then(res => res.json())
+    .then((data) => {
+      console.log(data);
+      setThumbList(data.productsTumbs);
+    })
+    .catch(err => console.log(err)); // REVIEW
+  }
+
+  useEffect(() => {
+    if (!!products) {
+      loadImages(products);
+    }
+  }, [products]);
+
   let html = [];
 
   for (const key in products) {
@@ -34,7 +63,7 @@ const ItemsResume = ({
         <div key={key} className={styles.itemsResume_card}>
           <div className={styles.itemsResume_image}>
             <Image
-              src={element.image}
+              src={thumbList[element.prodId] || '/laruci_logo.png'}
               alt={`Resumo de compra item ${key}`}
               width={200}
               height={200}
@@ -52,7 +81,7 @@ const ItemsResume = ({
                   height="20"
                   className={styles.icon}
                   viewBox="0 0 16 16"
-                  onClick={() => onDeleteProduct(key)}
+                  onClick={() => onDeleteProduct(products[key])}
                 >
                   <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                   <path
@@ -79,7 +108,7 @@ const ItemsResume = ({
               </span>
               <span>
                 <p>
-                  <b>preço unit.: </b>R$ {element.price.toFixed(2)}
+                  <b>preço unit.: </b>R$ {element.price}
                 </p>
                 <p>
                   <b>descontos: </b>
@@ -88,7 +117,7 @@ const ItemsResume = ({
                     : '-'}
                 </p>
                 <p>
-                  <b>subtotal: </b>R$ {element.subtotalFinalPrice.toFixed(2)}
+                  <b>subtotal: </b>R$ {element.subtotalFinalPrice}
                 </p>
               </span>
               <span>
@@ -101,7 +130,7 @@ const ItemsResume = ({
                       height="20"
                       className={styles.icon}
                       viewBox="0 0 16 16"
-                      onClick={() => onAddProduct(key)}
+                      onClick={() => onRemoveProduct(products[key])}
                     >
                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
                     </svg>
@@ -112,7 +141,7 @@ const ItemsResume = ({
                       height="20"
                       className={styles.icon}
                       viewBox="0 0 16 16"
-                      onClick={() => onRemoveProduct(key)}
+                      onClick={() => onAddProduct(products[key])}
                     >
                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
                     </svg>
@@ -129,14 +158,34 @@ const ItemsResume = ({
   return <div>{html}</div>;
 };
 
-const BagPage = (props) => {
+const BagPage = () => {
   const context = useContext(BagContext);
 
   const onGoToPayment = (event) => {
     event.preventDefault();
   };
 
-  if (context.qtyItemsInBag <= 0) {
+  const onAddProduct = (product) => {
+    product.quantity = 1;
+    const prodToAdd = {
+      prodId: product.prodId,
+      name: product.name,
+      color: product.color,
+      size: product.size,
+      extraOptions: product.extraOptions,
+      price: product.price,
+      discountPercent: product.discountPercent,
+      weight: product.weight,
+      quantity: 1,
+    };
+    context.addToBag(prodToAdd);
+  };
+
+  const onRemoveProduct = (product) => {};
+
+  const onDeleteProduct = (product) => {};
+
+  if (context.bag.qtyItemsInBag <= 0) {
     return (
       <div className={[styles.container, styles.empty].join(' ')}>
         <h1 className={styles.empty_message}>Sua Sacola está vazia!</h1>
@@ -151,12 +200,6 @@ const BagPage = (props) => {
     );
   }
 
-  const onAddProduct = (productKey) => {};
-
-  const onRemoveProduct = (productKey) => {};
-
-  const onDeleteProduct = (productKey) => {};
-
   return (
     <div className={styles.container}>
       <section className={[styles.section, styles.header].join(' ')}>
@@ -165,15 +208,15 @@ const BagPage = (props) => {
         </Button>
         <span>
           <h1>Sacola</h1>
-          <h3>{`(${context.qtyItemsInBag} ${
-            context.qtyItemsInBag === 1 ? 'item' : 'itens'
+          <h3>{`(${context.bag.qtyItemsInBag} ${
+            context.bag.qtyItemsInBag === 1 ? 'item' : 'itens'
           })`}</h3>
         </span>
       </section>
       <section
         className={[styles.section, styles.row, styles.divisionLine].join(' ')}
       >
-        <ShipmentCalc weight={context.totalWeight} />
+        <ShipmentCalc weight={context.bag.totalWeight} />
       </section>
       <section
         className={[styles.section, styles.divisionLine, styles.baseline].join(
@@ -182,10 +225,10 @@ const BagPage = (props) => {
       >
         <h1>Resumo</h1>
         <span className={styles.totalbox}>
-          {context.totalDiscounts !== 0 ? (
+          {context.bag.totalDiscounts !== 0 ? (
             <span>
               <h3>Descontos:</h3>
-              <h3>R$ {context.totalDiscounts.toFixed(2)}</h3>
+              <h3>R$ {context.bag.totalDiscounts}</h3>
             </span>
           ) : (
             ''
@@ -193,14 +236,14 @@ const BagPage = (props) => {
           <span>
             <h3>Total:</h3>
             <h3 className={styles.primary}>
-              R$ {context.totalFinalPrice.toFixed(2)}
+              R$ {context.bag.totalFinalPrice}
             </h3>
           </span>
         </span>
       </section>
       <section className={styles.resume}>
         <ItemsResume
-          products={context.products}
+          products={context.bag.products}
           onAddProduct={onAddProduct}
           onRemoveProduct={onRemoveProduct}
           onDeleteProduct={onDeleteProduct}

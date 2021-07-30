@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { getMainPageNotice } from '../data/notice';
 import { useEffect, useState } from 'react';
 import '../styles/globals.scss';
+import { CookiesProvider } from 'react-cookie';
 
 function MyApp(props) {
   const { Component, pageProps } = props;
@@ -30,13 +31,15 @@ function MyApp(props) {
   let page;
   if (router.pathname.startsWith('/loja/')) {
     page = (
-      <BagContextProvider>
-        <Main notice={notice}>
-          <Store notice={!!notice}>
-            <Component {...pageProps} />
-          </Store>
-        </Main>
-      </BagContextProvider>
+      <CookiesProvider>
+        <BagContextProvider>
+          <Main notice={notice}>
+            <Store notice={!!notice}>
+              <Component {...pageProps} />
+            </Store>
+          </Main>
+        </BagContextProvider>
+      </CookiesProvider>
     );
   } else {
     page = <Component {...pageProps} />;

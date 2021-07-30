@@ -38,7 +38,7 @@ const ProductPage = ({
   const router = useRouter();
   const product = data;
   const newPrice = !!product.discountPercent
-    ? product.price * (1 - product.discountPercent / 100)
+    ? product.price.toFixed(2) * (1 - product.discountPercent / 100)
     : false;
 
   // INPUT OPTIONS FOR PURCHASE: - START
@@ -56,19 +56,19 @@ const ProductPage = ({
   // SIZE UNIQUE
   const [sizeUnique, setSizeUnique] = useState('');
   const onChangeSizeUnique = (id, name, value) => {
-    setSizeUnique({ [id]: { name: name, value: value} });
+    setSizeUnique({ [id]: value });
   };
 
   // SIZE SPECIAL
   const [sizeSpecial, setSizeSpecial] = useState();
   const onChangeSizeSpecial = (id, name, value) => {
-    setSizeSpecial((sizes) => ({ ...sizes, [id]: { name: name, value: value} }));
+    setSizeSpecial((sizes) => ({ ...sizes, [id]: value }));
   };
 
   // EXTRA OPTIONS
   const [selectedExtraOptions, setSelectedExtraOptions] = useState({});
   const onSelectedExtraOptionsHandler = (name, value) => {
-    setSelectedExtraOptions((options) => ({ ...options, [name]: { name: name, value: value} }));
+    setSelectedExtraOptions((options) => ({ ...options, [name]: value }));
   };
 
   // QUANTITY
@@ -110,14 +110,14 @@ const ProductPage = ({
     const prodToBag = {
       prodId: prodId,
       name: product.name,
-      color: product.sets[selectedColorSet].colorName,
+      colorId: product.sets[selectedColorSet].colorId,
+      colorName: product.sets[selectedColorSet].colorName,
       size: sizeType === optSizeNames.u ? sizeUnique : sizeSpecial,
       extraOptions: selectedExtraOptions,
-      price: product.price,
+      price: product.price.toFixed(2),
       discountPercent: product.discountPercent,
       weight: product.weight,
       quantity: quantity,
-      image: selectedColorSet_images[0],
     };
     context.addToBag(prodToBag);
   }

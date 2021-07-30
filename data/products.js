@@ -4,7 +4,7 @@ const dummy = {
     name: 'Produto 01',
     inStock: true,
     category: 'conjuntos',
-    price: 19.9901,
+    price: 19.99,
     discountPercent: 10,
     weight: 0.5,
     shortDescription: 'Lindo sutiã com bojo meia taça',
@@ -13,6 +13,7 @@ const dummy = {
     relatedProducts: ['abcde'],
     sets: {
       '#F1F4C4': {
+        colorId: 'vdrF1F4C4',
         colorName: 'Vidro',
         uniqueSizes: [
           { id: 'M', value: 'M', sizeCm: '5' },
@@ -92,6 +93,7 @@ const dummy = {
         ],
       },
       '#ea4335': {
+        colorId: 'arrea4335',
         colorName: 'Arruaça',
         uniqueSizes: [
           { id: 'M', value: 'M', sizeCm: '5' },
@@ -494,4 +496,12 @@ export async function getBareProductListById(list) {
 export async function getBareProductListByCategory(category) {
   // filter products by category
   return await getProductsForListing(dummy);
+}
+
+export async function getProductImageThumb(productId) {
+  // returns tumb image for BagPage so it won't have to save link in cookie
+  const res = {
+    abcde: 'https://images.unsplash.com/photo-1590474176361-3360c446dd02?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=771&q=80',
+  };
+  return res;  
 }

@@ -1,13 +1,15 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 
 const BagContext = createContext({
-  products: {},
-
-  qtyItemsInBag: 0,
-  totalWeight: 0,
-  totalDiscounts: 0,
-  totalFullPrice: 0,
-  totalFinalPrice: 0,
+  bag: {
+    products: {},
+    qtyItemsInBag: 0,
+    totalWeight: 0,
+    totalDiscounts: 0,
+    totalFullPrice: 0,
+    totalFinalPrice: 0,
+  },
   addToBag: function (product) {},
   removeFromBag: function (product) {},
 });
@@ -16,13 +18,15 @@ function objToString(obj) {
   let text = '';
   for (const key in obj) {
     if (Object.hasOwnProperty.call(obj, key)) {
-      text = text + key + obj[key].value;
+      text = text + key + obj[key];
     }
   }
   return text;
 }
 
 export function BagContextProvider(props) {
+  const [cookies, setCookie, removeCookie] = useCookies(['laruciBag']);
+
   const [productList, setProductList] = useState({});
   const [qtyItemsInBag, setQtyItemsInBag] = useState(0);
   const [totalWeight, setTotalWeight] = useState(0);
@@ -30,11 +34,60 @@ export function BagContextProvider(props) {
   const [totalFullPrice, setTotalFullPrice] = useState(0);
   const [totalFinalPrice, setTotalFinalPrice] = useState(0);
 
+  useEffect(() => {
+    //recover cookie
+    const cookie = cookies.laruciBag;
+
+    console.log(cookie)
+
+    // let qtyItemsInBag;
+    // let totalWeight;
+    // let totalDiscounts;
+    // let totalFullPrice;
+    // let totalFinalPrice;
+
+    // for (const iterator of cookie) {
+    // }
+
+    // if (cookie) {
+    //   setProductList(cookie.p);
+    //   setQtyItemsInBag(cookie.q);
+    //   setTotalDiscounts(cookie.d);
+    //   setTotalWeight(cookie.w);
+    //   setTotalFullPrice(cookie.f);
+    //   setTotalFinalPrice(cookie.t);
+    // }
+  }, []);
+
+  function saveCookie(products) {
+    let cookie = [];
+
+    for (const key in products) {
+      if (Object.hasOwnProperty.call(products, key)) {
+        const element = products[key];
+        cookie.push({
+          id: element.prodId,
+          cl: element.colorId,
+          sz: element.size,
+          ex: element.extraOptions,
+          qt: element.quantity,
+        });
+      }
+    }
+
+    let expiration = new Date();
+    setCookie('laruciBag', cookie, {
+      expires: new Date(expiration.setTime(expiration.getTime() + 3 * 3600000)),
+      path: '/loja',
+      sameSite: 'strict',
+    });
+  }
+
   function addToBagHandler(product) {
     // Create string w/ prod options as key
     const key =
       product.prodId +
-      product.color +
+      product.colorId +
       objToString(product.size) +
       objToString(product.extraOptions);
 
@@ -44,22 +97,23 @@ export function BagContextProvider(props) {
     const subtotalFinalPrice = subtotalFullPrice - subtotalDiscounts;
     const subtotalWeight = product.weight * product.quantity;
 
-    if (!!productList[key]) {
-      console.log('here');
-      console.log(productList[key].quantity);
-      console.log(product.quantity);
+    let products = {};
 
-      setProductList((list) => ({
-        ...list,
+    if (!!productList[key]) {
+      products = {
+        ...productList,
         [key]: {
-          ...list[key],
-          quantity: list[key].quantity + product.quantity,
-          subtotalDiscounts: list[key].subtotalDiscounts + subtotalDiscounts,
-          subtotalFullPrice: list[key].subtotalFullPrice + subtotalFullPrice,
-          subtotalFinalPrice: list[key].subtotalFinalPrice + subtotalFinalPrice,
-          subtotalWeight: list[key].subtotalWeight + subtotalWeight,
+          ...productList[key],
+          quantity: productList[key].quantity + product.quantity,
+          subtotalDiscounts:
+            productList[key].subtotalDiscounts + subtotalDiscounts,
+          subtotalFullPrice:
+            productList[key].subtotalFullPrice + subtotalFullPrice,
+          subtotalFinalPrice:
+            productList[key].subtotalFinalPrice + subtotalFinalPrice,
+          subtotalWeight: productList[key].subtotalWeight + subtotalWeight,
         },
-      }));
+      };
     } else {
       const newProduct = {
         subtotalDiscounts: subtotalDiscounts,
@@ -68,15 +122,17 @@ export function BagContextProvider(props) {
         subtotalWeight: subtotalWeight,
         ...product,
       };
-      setProductList((list) => ({ [key]: newProduct, ...list }));
+      products = { ...productList, [key]: newProduct };
     }
 
-    setTotalDiscounts((d) => d + subtotalDiscounts);
-    setTotalFullPrice((tot) => tot + subtotalFullPrice);
-    setTotalFinalPrice((tot) => tot + subtotalFinalPrice);
+    setProductList(products);
+    setQtyItemsInBag((v) => v + product.quantity);
+    setTotalDiscounts((v) => v + subtotalDiscounts);
+    setTotalWeight((v) => v + subtotalWeight);
+    setTotalFullPrice((v) => v + subtotalFullPrice);
+    setTotalFinalPrice((v) => v + subtotalFinalPrice);
 
-    setQtyItemsInBag((num) => num + product.quantity);
-    setTotalWeight((w) => w + subtotalWeight);
+    saveCookie(products);
   }
 
   function removeFromBagHandler(key) {
@@ -89,12 +145,14 @@ export function BagContextProvider(props) {
   }
 
   const context = {
-    products: productList,
-    qtyItemsInBag: qtyItemsInBag,
-    totalWeight: totalWeight,
-    totalDiscounts: totalDiscounts,
-    totalFullPrice: totalFullPrice,
-    totalFinalPrice: totalFinalPrice,
+    bag: {
+      products: productList,
+      qtyItemsInBag: qtyItemsInBag,
+      totalWeight: totalWeight,
+      totalDiscounts: totalDiscounts.toFixed(2),
+      totalFullPrice: totalFullPrice.toFixed(2),
+      totalFinalPrice: totalFinalPrice.toFixed(2),
+    },
     addToBag: addToBagHandler,
     removeFromBag: removeFromBagHandler,
   };

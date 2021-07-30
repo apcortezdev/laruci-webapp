@@ -11,7 +11,7 @@ const ShopBar = ({ isTransparent }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const bagContext = useContext(BagContext);
   let qtyInBag;
-  if (!!bagContext) qtyInBag = bagContext.qtyItemsInBag;
+  if (!!bagContext) qtyInBag = bagContext.bag.qtyItemsInBag;
 
   const toggleMobileMenu = () => {
     setToggleMenu((toggle) => !toggle);
