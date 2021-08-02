@@ -10,46 +10,6 @@ const AdSizesPage = (props) => {
     return <p>Esta página no ecxiste!</p>;
   }
 
-  if (!props.notice) {
-    console.log(props);
-    return (
-      <Admin>
-        <div className={styles.wrapper}>
-          <p>Loading...</p>
-        </div>
-      </Admin>
-    );
-  }
-
-  const [notice, setNotice] = useState(props.notice.notice);
-  const [isNoticeValid, setIsNoticeValid] = useState(true);
-
-  const [initialDate, setInitialDate] = useState(props.notice.initialDate);
-  const [isInitialDateValid, setIsInitialDateValid] = useState(true);
-
-  const [finalDate, setFinalDate] = useState(props.notice.finalDate);
-  const [isFinalDateValid, setIsFinalDateValid] = useState(true);
-
-  const resetContactData = (event) => {
-    event.preventDefault();
-  };
-
-  const saveContactData = (event) => {
-    event.preventDefault();
-  };
-
-  const setNoticeValue = (event) => {
-    setNotice(event.target.value);
-  };
-
-  const setInitialDateValue = (event) => {
-    setInitialDate(event.target.value);
-  };
-
-  const setFinalDateValue = (event) => {
-    setFinalDate(event.target.value);
-  }
-
   return (
     <Admin>
       <div className={styles.wrapper}>
@@ -77,45 +37,7 @@ const AdSizesPage = (props) => {
           </ul>
         </div>
         <form className={styles.form}>
-          <span className={styles.form_line}>
-            <label htmlFor="notice">Aviso:</label>
-            <Input
-              id="notice"
-              type="text"
-              placeholder="Sem Aviso"
-              value={notice}
-              valid={isNoticeValid}
-              onChange={setNoticeValue}
-              validationMessage={'Tem algo errado neste campo'}
-            />
-          </span>
-          <span className={styles.form_line}>
-            <label htmlFor="initial_date">Datas:</label>
-            <span className={styles.form_input_dates}>
-              <label htmlFor="initial_date">De:</label>
-              <Input
-                id="initial_date"
-                type="date"
-                placeholder="Sem Data"
-                value={initialDate}
-                valid={isInitialDateValid}
-                onChange={setInitialDateValue}
-                validationMessage={'Tem algo errado neste campo'}
-                className={styles.input_date}
-              />
-              <label htmlFor="final_date">Até:</label>
-              <Input
-                id="final_date"
-                type="date"
-                placeholder="Sem Data"
-                value={finalDate}
-                valid={isFinalDateValid}
-                onChange={setFinalDateValue}
-                validationMessage={'Tem algo errado neste campo'}
-                className={styles.input_date}
-              />
-            </span>
-          </span>
+          
           <span className={styles.form_line}>
             <Button className={styles.formButton} onClick={resetContactData}>
               Cancelar

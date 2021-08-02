@@ -1,45 +1,55 @@
+import { useRouter } from 'next/router';
 import Admin from '../../components/admin/Admin';
 import { Input } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import styles from '../../styles/AdNoticePage.module.scss';
-import { getMainPageNotice } from '../../data/notice';
-import { useEffect, useState } from 'react';
+import { getNotice } from '../../data/notice';
+import { useState } from 'react';
 
 const AdNoticePage = (props) => {
+  const router = useRouter();
+
   if (props.user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
 
-  if (!props.notice) {
-    console.log(props);
-    return (
-      <Admin>
-        <div className={styles.wrapper}>
-          <p>Loading...</p>
-        </div>
-      </Admin>
-    );
-  }
+  const notice = JSON.parse(props.notice)
 
-  const [notice, setNotice] = useState(props.notice.notice);
+  const [text, setText] = useState(notice.text || '');
   const [isNoticeValid, setIsNoticeValid] = useState(true);
 
-  const [initialDate, setInitialDate] = useState(props.notice.initialDate);
+  const date = notice.startDate ? new Date(notice.startDate) : null;
+  const [initialDate, setInitialDate] = useState();
   const [isInitialDateValid, setIsInitialDateValid] = useState(true);
 
-  const [finalDate, setFinalDate] = useState(props.notice.finalDate);
+  const [finalDate, setFinalDate] = useState();
   const [isFinalDateValid, setIsFinalDateValid] = useState(true);
 
-  const resetContactData = (event) => {
+  const resetNoticeData = (event) => {
     event.preventDefault();
+    router.replace({ pathname: '/admin/' });
   };
 
-  const saveContactData = (event) => {
+  const saveNoticeData = async (event) => {
     event.preventDefault();
+
+    const newNotice = {
+      text: text,
+      startDate: initialDate,
+      endDate: finalDate,
+    };
+
+    const res = await fetch('/api/admin/notice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notice: newNotice }),
+    });
+
+    console.log(res);
   };
 
-  const setNoticeValue = (event) => {
-    setNotice(event.target.value);
+  const setTextValue = (event) => {
+    setText(event.target.value);
   };
 
   const setInitialDateValue = (event) => {
@@ -48,7 +58,7 @@ const AdNoticePage = (props) => {
 
   const setFinalDateValue = (event) => {
     setFinalDate(event.target.value);
-  }
+  };
 
   return (
     <Admin>
@@ -71,8 +81,8 @@ const AdNoticePage = (props) => {
               em branco.
             </li>
             <li>
-              As datas estipulam um limite de tempo em que o aviso estará à mostra
-              no site.
+              As datas estipulam um limite de tempo em que o aviso estará à
+              mostra no site.
             </li>
           </ul>
         </div>
@@ -83,9 +93,9 @@ const AdNoticePage = (props) => {
               id="notice"
               type="text"
               placeholder="Sem Aviso"
-              value={notice}
+              value={text}
               valid={isNoticeValid}
-              onChange={setNoticeValue}
+              onChange={setTextValue}
               validationMessage={'Tem algo errado neste campo'}
             />
           </span>
@@ -95,9 +105,9 @@ const AdNoticePage = (props) => {
               <label htmlFor="initial_date">De:</label>
               <Input
                 id="initial_date"
-                type="date"
-                placeholder="Sem Data"
-                value={initialDate}
+                type="text"
+                placeholder="Sem data"
+                // mask={['99/99/9999']}
                 valid={isInitialDateValid}
                 onChange={setInitialDateValue}
                 validationMessage={'Tem algo errado neste campo'}
@@ -106,9 +116,9 @@ const AdNoticePage = (props) => {
               <label htmlFor="final_date">Até:</label>
               <Input
                 id="final_date"
-                type="date"
-                placeholder="Sem Data"
-                value={finalDate}
+                type="text"
+                placeholder="Sem data"
+                // mask={['99/99/9999']}
                 valid={isFinalDateValid}
                 onChange={setFinalDateValue}
                 validationMessage={'Tem algo errado neste campo'}
@@ -117,13 +127,13 @@ const AdNoticePage = (props) => {
             </span>
           </span>
           <span className={styles.form_line}>
-            <Button className={styles.formButton} onClick={resetContactData}>
+            <Button className={styles.formButton} onClick={resetNoticeData}>
               Cancelar
             </Button>
             <Button
               type="submit"
               className={styles.formButton}
-              onClick={saveContactData}
+              onClick={saveNoticeData}
             >
               Salvar
             </Button>
@@ -135,11 +145,24 @@ const AdNoticePage = (props) => {
 };
 
 export async function getServerSideProps() {
-  const notice = getMainPageNotice();
+  let notice;
+  try {
+    notice = await getNotice();
+  } catch (err) {
+    return { notFound: true };
+  }
+
+  const propNotice = {
+    text: notice.text || '',
+    startDate: notice.startDate || '',
+    endDate: notice.endDate || '',
+    createdDate: notice.createdDate || ''
+  }
+
   return {
     props: {
       user: 'admin',
-      notice: notice,
+      notice: JSON.stringify(propNotice),
     },
   };
 }

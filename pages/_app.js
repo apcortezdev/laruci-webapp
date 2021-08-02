@@ -3,7 +3,7 @@ import Main from '../components/main/Main';
 import Store from '../components/store/Store';
 import { BagContextProvider } from '../store/bag-context';
 import { useRouter } from 'next/router';
-import { getMainPageNotice } from '../data/notice';
+// import { getNotice } from '../data/notice';
 import { useEffect, useState } from 'react';
 import '../styles/globals.scss';
 import { CookiesProvider } from 'react-cookie';
@@ -20,12 +20,12 @@ function MyApp(props) {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    (async () => {
-      const dataNotice = await getMainPageNotice();
-      if (dataNotice) {
-        setNotice(dataNotice.notice);
-      }
-    })();
+    // (async () => {
+    //   const dataNotice = await getNotice();
+    //   if (dataNotice) {
+    //     setNotice(dataNotice.text);
+    //   }
+    // })();
   }, []);
 
   let page;

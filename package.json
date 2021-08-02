@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "mongodb": "^4.0.1",
+    "mongoose": "^5.13.5",
     "next": "10.2.3",
     "react": "17.0.2",
     "react-cookie": "^4.0.3",

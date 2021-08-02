@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie';
 
 const BagContext = createContext({
   bag: {
+    loaded: false,
     products: {},
     qtyItemsInBag: 0,
     totalWeight: 0,
@@ -27,6 +28,7 @@ function objToString(obj) {
 export function BagContextProvider(props) {
   const [cookies, setCookie, removeCookie] = useCookies(['laruciBag']);
 
+  const [loaded, setLoadded] = useState(false);
   const [productList, setProductList] = useState({});
   const [qtyItemsInBag, setQtyItemsInBag] = useState(0);
   const [totalWeight, setTotalWeight] = useState(0);
@@ -36,9 +38,11 @@ export function BagContextProvider(props) {
 
   useEffect(() => {
     //recover cookie
+    setLoadded(true);
+
     const cookie = cookies.laruciBag;
 
-    console.log(cookie)
+    console.log(cookie);
 
     // let qtyItemsInBag;
     // let totalWeight;
@@ -125,6 +129,7 @@ export function BagContextProvider(props) {
       products = { ...productList, [key]: newProduct };
     }
 
+    setLoadded(true);
     setProductList(products);
     setQtyItemsInBag((v) => v + product.quantity);
     setTotalDiscounts((v) => v + subtotalDiscounts);
@@ -146,6 +151,7 @@ export function BagContextProvider(props) {
 
   const context = {
     bag: {
+      loaded: loaded,
       products: productList,
       qtyItemsInBag: qtyItemsInBag,
       totalWeight: totalWeight,

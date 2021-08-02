@@ -320,7 +320,7 @@ const maskReducer = (state, action) => {
   }
 };
 
-export const Input = React.forwardRef((props, ref) => {
+export const InputMask = (props, ref) => {
   const {
     className,
     valid,
@@ -389,7 +389,6 @@ export const Input = React.forwardRef((props, ref) => {
           onChange={onChange}
           value={value}
           type="radio"
-          ref={ref}
           {...rest}
         />
         <span className={styles.radio_checkmark} />
@@ -415,7 +414,6 @@ export const Input = React.forwardRef((props, ref) => {
         onBlur={onBlurValue}
         value={maskState.maskedValue}
         type={type}
-        ref={ref}
       />
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
@@ -423,9 +421,243 @@ export const Input = React.forwardRef((props, ref) => {
       {!!tip && <span className={styles.tooltip}>{tip}</span>}
     </span>
   );
-});
+};
+
+InputMask.propTypes = {
+  className: PropTypes.string,
+  valid: PropTypes.bool,
+  validationMessage: PropTypes.string,
+  mask: PropTypes.array,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  id: PropTypes.string,
+  onBlur: PropTypes.func,
+  type: PropTypes.string,
+  ref: PropTypes.object,
+  tip: PropTypes.string,
+};
+
+export const Input = (props, ref) => {
+  const {
+    className,
+    valid,
+    validationMessage,
+    mask,
+    value,
+    onChange,
+    id,
+    onBlur,
+    type,
+    tip,
+    ...rest
+  } = props;
+  const isValid = valid != null ? valid : true;
+
+  const [maskState, dispatchMask] = useReducer(maskReducer, {
+    masks: false,
+    activeMask: false,
+    maskedValue: '',
+  });
+
+  useEffect(() => {
+    dispatchMask({ type: 'INITIAL', masks: mask, value: value });
+  }, []);
+
+  const onChangeValue = (event) => {
+    dispatchMask({ value: event.target.value });
+    if (!!onChange) {
+      if (!!maskState.activeMask) {
+        const e = {
+          ...event,
+          target: {
+            ...event.target,
+            value: unmasker(event.target.value),
+          },
+        };
+        onChange(e);
+      } else {
+        onChange(event);
+      }
+    }
+  };
+
+  const onBlurValue = (event) => {
+    if (onBlur) {
+      const e = {
+        ...event,
+        target: {
+          ...event.target,
+          value: unmasker(event.target.value),
+        },
+      };
+      onBlur(e);
+    }
+  };
+
+  if (type === 'radio') {
+    return (
+      <div className={styles.radio_container}>
+        <input
+          id={id}
+          onBlur={onBlur}
+          className={[styles.radio_input, !!className ? className : '']
+            .join(' ')
+            .trim()}
+          onChange={onChange}
+          value={value}
+          type="radio"
+          {...rest}
+        />
+        <span className={styles.radio_checkmark} />
+        {!!tip && <span className={styles.tooltip}>{tip}</span>}
+      </div>
+    );
+  }
+
+  return (
+    <span id={`STP_${id}`} className={styles.inputLine}>
+      <input
+        className={[
+          styles.inputText,
+          className || '',
+          !isValid && styles.inputText_invalid,
+        ]
+          .join(' ')
+          .trim()}
+        onChange={onChangeValue}
+        id={id}
+        {...rest}
+        maxLength={maskState.length}
+        onBlur={onBlurValue}
+        value={maskState.maskedValue}
+        type={type}
+      />
+      <span className={styles.validationMessage}>
+        {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
+      </span>
+      {!!tip && <span className={styles.tooltip}>{tip}</span>}
+    </span>
+  );
+};
 
 Input.propTypes = {
+  className: PropTypes.string,
+  valid: PropTypes.bool,
+  validationMessage: PropTypes.string,
+  mask: PropTypes.array,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  id: PropTypes.string,
+  onBlur: PropTypes.func,
+  type: PropTypes.string,
+  ref: PropTypes.object,
+  tip: PropTypes.string,
+};
+
+export const InputRadio = (props, ref) => {
+  const {
+    className,
+    valid,
+    validationMessage,
+    mask,
+    value,
+    onChange,
+    id,
+    onBlur,
+    type,
+    tip,
+    ...rest
+  } = props;
+  const isValid = valid != null ? valid : true;
+
+  const [maskState, dispatchMask] = useReducer(maskReducer, {
+    masks: false,
+    activeMask: false,
+    maskedValue: '',
+  });
+
+  useEffect(() => {
+    dispatchMask({ type: 'INITIAL', masks: mask, value: value });
+  }, []);
+
+  const onChangeValue = (event) => {
+    dispatchMask({ value: event.target.value });
+    if (!!onChange) {
+      if (!!maskState.activeMask) {
+        const e = {
+          ...event,
+          target: {
+            ...event.target,
+            value: unmasker(event.target.value),
+          },
+        };
+        onChange(e);
+      } else {
+        onChange(event);
+      }
+    }
+  };
+
+  const onBlurValue = (event) => {
+    if (onBlur) {
+      const e = {
+        ...event,
+        target: {
+          ...event.target,
+          value: unmasker(event.target.value),
+        },
+      };
+      onBlur(e);
+    }
+  };
+
+  if (type === 'radio') {
+    return (
+      <div className={styles.radio_container}>
+        <input
+          id={id}
+          onBlur={onBlur}
+          className={[styles.radio_input, !!className ? className : '']
+            .join(' ')
+            .trim()}
+          onChange={onChange}
+          value={value}
+          type="radio"
+          {...rest}
+        />
+        <span className={styles.radio_checkmark} />
+        {!!tip && <span className={styles.tooltip}>{tip}</span>}
+      </div>
+    );
+  }
+
+  return (
+    <span id={`STP_${id}`} className={styles.inputLine}>
+      <input
+        className={[
+          styles.inputText,
+          className || '',
+          !isValid && styles.inputText_invalid,
+        ]
+          .join(' ')
+          .trim()}
+        onChange={onChangeValue}
+        id={id}
+        {...rest}
+        maxLength={maskState.length}
+        onBlur={onBlurValue}
+        value={maskState.maskedValue}
+        type={type}
+      />
+      <span className={styles.validationMessage}>
+        {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
+      </span>
+      {!!tip && <span className={styles.tooltip}>{tip}</span>}
+    </span>
+  );
+};
+
+InputRadio.propTypes = {
   className: PropTypes.string,
   valid: PropTypes.bool,
   validationMessage: PropTypes.string,
@@ -462,15 +694,13 @@ export const InputNumber = (props) => {
   };
 
   const onAdd = (sum) => {
-      if (!!minValue && value + sum < minValue) return onChange(0);
-      if (!!maxValue && value + sum > maxValue) return onChange(0);
-      onChange(sum);
+    if (!!minValue && value + sum < minValue) return onChange(0);
+    if (!!maxValue && value + sum > maxValue) return onChange(0);
+    onChange(sum);
   };
 
   return (
-    <span
-      className={[styles.inputLine, styles.inputLineNumber].join(' ')}
-    >
+    <span className={[styles.inputLine, styles.inputLineNumber].join(' ')}>
       <input
         className={[
           styles.inputText,

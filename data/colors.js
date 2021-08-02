@@ -8,3 +8,9 @@ const dummyColors = [
 export async function getColors() {
   return dummyColors;
 }
+
+export async function addDummyColors() {
+  const color = new Color({
+    
+  })
+}

@@ -1,10 +1,46 @@
-const dummyNotice = {
-    notice: 'Frete Grátis para compras a partir de 1 milhão de reais! =)',
-    startDate: '12/07/2021',
-    endDate: '14/07/2021',
-};
+import dbConnect from '../utils/dbConnect';
+import Notice from '../models/notice';
 
+// ERRORS: ERN001 - ERN002
+export async function getNotice() {
+  let notice;
 
-export async function getMainPageNotice() {
-    return dummyNotice;
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('INTERNAL ERROR: ERN001');
+  }
+
+  try {
+    notice = await Notice.findOne().sort('-createdDate');
+  } catch (err) {
+    if (err) {
+      throw new Error('INTERNAL ERROR: ERN002');
+    }
+  }
+
+  return notice;
+}
+
+// ERRORS: ERN003
+export async function postNotice(notice) {
+
+  const newNotice = new Notice({
+    text: notice.text,
+    startDate: notice.startDate,
+    endDate: notice.endDate,
+  });
+
+  try {
+    var created = newNotice.save();
+    return created;
+  } catch (err) {
+    console.log(err);
+    if (err) {
+      throw new Error('INTERNAL ERROR: ERN003');
+    }
+  }
+
+  console.log(notice);
+  return notice;
 }

@@ -26,34 +26,6 @@ const ItemsResume = ({
   onDeleteProduct,
 }) => {
 
-  const [thumbList, setThumbList] = useState({});
-
-  const loadImages = (prods) => {
-    let list = [];
-    for (const key in prods) {
-      if (Object.hasOwnProperty.call(prods, key)) {
-        list.push(prods[key].prodId);
-      }
-    }  
-    fetch('/api/products', {
-      method: 'GET',
-      // headers: { 'Content-Type': 'application/json' },
-      // body: JSON.stringify({ list : list }),
-    })
-    .then(res => res.json())
-    .then((data) => {
-      console.log(data);
-      setThumbList(data.productsTumbs);
-    })
-    .catch(err => console.log(err)); // REVIEW
-  }
-
-  useEffect(() => {
-    if (!!products) {
-      loadImages(products);
-    }
-  }, [products]);
-
   let html = [];
 
   for (const key in products) {
@@ -63,7 +35,7 @@ const ItemsResume = ({
         <div key={key} className={styles.itemsResume_card}>
           <div className={styles.itemsResume_image}>
             <Image
-              src={thumbList[element.prodId] || '/laruci_logo.png'}
+              src={products.image || '/laruci_logo.png'}
               alt={`Resumo de compra item ${key}`}
               width={200}
               height={200}
@@ -160,6 +132,34 @@ const ItemsResume = ({
 
 const BagPage = () => {
   const context = useContext(BagContext);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = (prods) => {
+      setIsLoading(true);
+      let list = [];
+      for (const key in prods) {
+        if (Object.hasOwnProperty.call(prods, key)) {
+          list.push(prods[key].prodId);
+        }
+      }  
+      fetch('/api/bag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ list : list }),
+      })
+      .then(res => res.json())
+      .then((data) => {
+        console.log(data);
+        setThumbList(data.productsTumbs);
+        setIsLoading(false);
+      })
+      .catch(err => console.log(err)); // REVIEW
+    }
+    if (context.bag.qtyItemsInBag > 0 && context.bag.load) {
+      loadProducts(context.bag.products);
+    }
+  }, [context.bag]);
 
   const onGoToPayment = (event) => {
     event.preventDefault();
@@ -184,6 +184,14 @@ const BagPage = () => {
   const onRemoveProduct = (product) => {};
 
   const onDeleteProduct = (product) => {};
+
+  if (isLoading) {
+    return (
+      <div className={[styles.container, styles.empty].join(' ')}>
+        <h1 className={styles.empty_message}>Carregando...</h1>
+      </div>
+    );
+  }
 
   if (context.bag.qtyItemsInBag <= 0) {
     return (

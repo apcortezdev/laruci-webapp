@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import Main from '../components/main/Main';
 import MainMenu from '../components/MainMenu';
-import { getMainPageNotice } from '../data/notice';
+// import { getNotice } from '../data/notice';
 import { getPageInfo } from '../data/pageInfo';
 import styles from '../styles/Home.module.scss';
 
@@ -84,11 +84,16 @@ export default function Home({ notice, info }) {
 }
 
 export async function getStaticProps() {
-  const notice = await getMainPageNotice();
+  // const notice = await getNotice();
+  let noticeText = '';
+  // if (notice) {
+  //   noticeText = notice.text;
+  // }
+  
   const info = await getPageInfo();
   return {
     props: {
-      notice: notice.notice,
+      notice: noticeText || '',
       info: info,
     },
     revalidate: 86400,
