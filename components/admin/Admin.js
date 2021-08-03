@@ -29,10 +29,10 @@ const Admin = (props) => {
             <div className={styles.dropdown}>
               <span>Produtos</span>
               <div className={styles.dropdown_content}>
-                <Link href={{ pathname: '/admin/banners/' }} passHref>
+                <Link href={{ pathname: '/admin/produtos/' }} passHref>
                   <a>Produtos</a>
                 </Link>
-                <Link href={{ pathname: '/admin/banners/' }} passHref>
+                <Link href={{ pathname: '/admin/categorias/' }} passHref>
                   <a>Categorias</a>
                 </Link>
                 <Link href={{ pathname: '/admin/banners/' }} passHref>

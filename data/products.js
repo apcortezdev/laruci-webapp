@@ -2,7 +2,8 @@ const dummy = {
   abcde: {
     id: 'abcde',
     name: 'Produto 01',
-    inStock: true,
+    limitStock: true,
+    stockNumber: 50,
     category: 'conjuntos',
     price: 19.99,
     discountPercent: 10,

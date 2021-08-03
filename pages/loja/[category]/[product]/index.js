@@ -9,7 +9,7 @@ import SizeSelector from '../../../../components/utilities/SizeSelector';
 import ProductList from '../../../../components/ProductList';
 import styles from '../../../../styles/ProductPage.module.scss';
 import {
-  Input,
+  InputRadio,
   InputNumber,
 } from '../../../../components/utilities/FormComponents';
 import { getSizes } from '../../../../data/sizes';
@@ -207,7 +207,7 @@ const ProductPage = ({
                   }
                 >
                   <label htmlFor="unique_size" onChange={onChangeSizeType}>
-                    <Input
+                    <InputRadio
                       id="unique_size"
                       type="radio"
                       name="size_type"
@@ -239,7 +239,7 @@ const ProductPage = ({
                   }
                 >
                   <label htmlFor="special_size" onChange={onChangeSizeType}>
-                    <Input
+                    <InputRadio
                       id="special_size"
                       type="radio"
                       name="size_type"
@@ -295,19 +295,19 @@ const ProductPage = ({
                           }
                         >
                           {option.available ? (
-                            <Input
+                            <InputRadio
                               id={`extraOptInpt_${op.name}_${option.name}`}
                               type="radio"
                               name={`extraOptInpt_${op.name}_${op.name}`}
                               value={option.name}
                             />
                           ) : (
-                            <Input
+                            <InputRadio
                               id={`extraOptInpt_${op.name}_${option.name}`}
                               type="radio"
                               name={`extraOptInpt_${op.name}_${op.name}`}
                               value={option.name}
-                              disabled
+                              // disabled
                               tip={'Esgotado'}
                             />
                           )}

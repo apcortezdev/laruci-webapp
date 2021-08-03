@@ -3,13 +3,21 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const product = new Schema({
+  code: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     required: true,
   },
-  inStock: {
+  limitStock: {
     type: Boolean,
-    required: true,
+    required: false,
+  },
+  stockNumber: {
+    type: Number,
+    required: false,
   },
   category: {
     type: String,
@@ -86,3 +94,5 @@ const product = new Schema({
     },
   ],
 });
+
+export default mongoose.models.Product || mongoose.model('Notice', product);

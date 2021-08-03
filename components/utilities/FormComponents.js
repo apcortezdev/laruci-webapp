@@ -99,7 +99,7 @@ SelectColor.propTypes = {
 };
 
 //Select w/ Text options
-// expect array 'options' in pattern: [ {name, value}, ...]
+// expect array 'options' in pattern: [ { id, name, value}, ...]
 const SelectTextItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
@@ -278,7 +278,7 @@ const maskReducer = (state, action) => {
     // Set mask by pattern
     let activeMask = !!sortedMasks
       ? sortedMasks.find((m) =>
-          unmasker(m).startsWith(asUnmasked(action.value))
+          unmasker(m).startsWith(asUnmasked(action.value || ''))
         )
       : false;
     activeMask = typeof activeMask === 'undefined' ? false : activeMask;
@@ -320,7 +320,7 @@ const maskReducer = (state, action) => {
   }
 };
 
-export const InputMask = (props, ref) => {
+export const InputMask = (props) => {
   const {
     className,
     valid,
@@ -376,26 +376,6 @@ export const InputMask = (props, ref) => {
       onBlur(e);
     }
   };
-
-  if (type === 'radio') {
-    return (
-      <div className={styles.radio_container}>
-        <input
-          id={id}
-          onBlur={onBlur}
-          className={[styles.radio_input, !!className ? className : '']
-            .join(' ')
-            .trim()}
-          onChange={onChange}
-          value={value}
-          type="radio"
-          {...rest}
-        />
-        <span className={styles.radio_checkmark} />
-        {!!tip && <span className={styles.tooltip}>{tip}</span>}
-      </div>
-    );
-  }
 
   return (
     <span id={`STP_${id}`} className={styles.inputLine}>
@@ -437,85 +417,13 @@ InputMask.propTypes = {
   tip: PropTypes.string,
 };
 
-export const Input = (props, ref) => {
-  const {
-    className,
-    valid,
-    validationMessage,
-    mask,
-    value,
-    onChange,
-    id,
-    onBlur,
-    type,
-    tip,
-    ...rest
-  } = props;
+// Input type text
+export const Input = (props) => {
+  const { className, valid, validationMessage, id, type, tip, ...rest } = props;
   const isValid = valid != null ? valid : true;
 
-  const [maskState, dispatchMask] = useReducer(maskReducer, {
-    masks: false,
-    activeMask: false,
-    maskedValue: '',
-  });
-
-  useEffect(() => {
-    dispatchMask({ type: 'INITIAL', masks: mask, value: value });
-  }, []);
-
-  const onChangeValue = (event) => {
-    dispatchMask({ value: event.target.value });
-    if (!!onChange) {
-      if (!!maskState.activeMask) {
-        const e = {
-          ...event,
-          target: {
-            ...event.target,
-            value: unmasker(event.target.value),
-          },
-        };
-        onChange(e);
-      } else {
-        onChange(event);
-      }
-    }
-  };
-
-  const onBlurValue = (event) => {
-    if (onBlur) {
-      const e = {
-        ...event,
-        target: {
-          ...event.target,
-          value: unmasker(event.target.value),
-        },
-      };
-      onBlur(e);
-    }
-  };
-
-  if (type === 'radio') {
-    return (
-      <div className={styles.radio_container}>
-        <input
-          id={id}
-          onBlur={onBlur}
-          className={[styles.radio_input, !!className ? className : '']
-            .join(' ')
-            .trim()}
-          onChange={onChange}
-          value={value}
-          type="radio"
-          {...rest}
-        />
-        <span className={styles.radio_checkmark} />
-        {!!tip && <span className={styles.tooltip}>{tip}</span>}
-      </div>
-    );
-  }
-
   return (
-    <span id={`STP_${id}`} className={styles.inputLine}>
+    <span id={`IPT_${id}`} className={styles.inputLine}>
       <input
         className={[
           styles.inputText,
@@ -524,13 +432,9 @@ export const Input = (props, ref) => {
         ]
           .join(' ')
           .trim()}
-        onChange={onChangeValue}
         id={id}
         {...rest}
-        maxLength={maskState.length}
-        onBlur={onBlurValue}
-        value={maskState.maskedValue}
-        type={type}
+        type="text"
       />
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
@@ -544,133 +448,37 @@ Input.propTypes = {
   className: PropTypes.string,
   valid: PropTypes.bool,
   validationMessage: PropTypes.string,
-  mask: PropTypes.array,
-  value: PropTypes.string,
-  onChange: PropTypes.func,
   id: PropTypes.string,
-  onBlur: PropTypes.func,
   type: PropTypes.string,
-  ref: PropTypes.object,
   tip: PropTypes.string,
 };
 
-export const InputRadio = (props, ref) => {
-  const {
-    className,
-    valid,
-    validationMessage,
-    mask,
-    value,
-    onChange,
-    id,
-    onBlur,
-    type,
-    tip,
-    ...rest
-  } = props;
-  const isValid = valid != null ? valid : true;
-
-  const [maskState, dispatchMask] = useReducer(maskReducer, {
-    masks: false,
-    activeMask: false,
-    maskedValue: '',
-  });
-
-  useEffect(() => {
-    dispatchMask({ type: 'INITIAL', masks: mask, value: value });
-  }, []);
-
-  const onChangeValue = (event) => {
-    dispatchMask({ value: event.target.value });
-    if (!!onChange) {
-      if (!!maskState.activeMask) {
-        const e = {
-          ...event,
-          target: {
-            ...event.target,
-            value: unmasker(event.target.value),
-          },
-        };
-        onChange(e);
-      } else {
-        onChange(event);
-      }
-    }
-  };
-
-  const onBlurValue = (event) => {
-    if (onBlur) {
-      const e = {
-        ...event,
-        target: {
-          ...event.target,
-          value: unmasker(event.target.value),
-        },
-      };
-      onBlur(e);
-    }
-  };
-
-  if (type === 'radio') {
-    return (
-      <div className={styles.radio_container}>
-        <input
-          id={id}
-          onBlur={onBlur}
-          className={[styles.radio_input, !!className ? className : '']
-            .join(' ')
-            .trim()}
-          onChange={onChange}
-          value={value}
-          type="radio"
-          {...rest}
-        />
-        <span className={styles.radio_checkmark} />
-        {!!tip && <span className={styles.tooltip}>{tip}</span>}
-      </div>
-    );
-  }
+// Input type radio
+export const InputRadio = (props) => {
+  const { className, type, tip, ...rest } = props;
 
   return (
-    <span id={`STP_${id}`} className={styles.inputLine}>
+    <div className={styles.radio_container}>
       <input
-        className={[
-          styles.inputText,
-          className || '',
-          !isValid && styles.inputText_invalid,
-        ]
+        className={[styles.radio_input, !!className ? className : '']
           .join(' ')
           .trim()}
-        onChange={onChangeValue}
-        id={id}
+        type="radio"
         {...rest}
-        maxLength={maskState.length}
-        onBlur={onBlurValue}
-        value={maskState.maskedValue}
-        type={type}
       />
-      <span className={styles.validationMessage}>
-        {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
-      </span>
+      <span className={styles.radio_checkmark} />
       {!!tip && <span className={styles.tooltip}>{tip}</span>}
-    </span>
+    </div>
   );
 };
 
 InputRadio.propTypes = {
   className: PropTypes.string,
-  valid: PropTypes.bool,
-  validationMessage: PropTypes.string,
-  mask: PropTypes.array,
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  id: PropTypes.string,
-  onBlur: PropTypes.func,
   type: PropTypes.string,
-  ref: PropTypes.object,
   tip: PropTypes.string,
 };
 
+// Input type number
 export const InputNumber = (props) => {
   const {
     className,
@@ -694,9 +502,13 @@ export const InputNumber = (props) => {
   };
 
   const onAdd = (sum) => {
-    if (!!minValue && value + sum < minValue) return onChange(0);
-    if (!!maxValue && value + sum > maxValue) return onChange(0);
-    onChange(sum);
+    if (!props.disabled) {
+      if (typeof minValue != 'undefined' && value + sum < minValue)
+        return onChange(0);
+      if (typeof maxValue != 'undefined' && value + sum > maxValue)
+        return onChange(0);
+      onChange(sum);
+    }
   };
 
   return (
@@ -749,6 +561,7 @@ export const InputNumber = (props) => {
   );
 };
 
+// Input type checkbox
 InputNumber.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.number.isRequired,
@@ -757,6 +570,41 @@ InputNumber.propTypes = {
   type: PropTypes.string,
   minValue: PropTypes.number,
   maxValue: PropTypes.number,
+};
+
+export const InputCheck = (props) => {
+  const { className, valid, validationMessage, id, type, tip, ...rest } = props;
+  const isValid = valid != null ? valid : true;
+
+  return (
+    <span id={`IPT_${id}`} className={styles.inputLine_check}>
+      <input
+        className={[
+          styles.inputText,
+          className || '',
+          !isValid && styles.inputText_invalid,
+        ]
+          .join(' ')
+          .trim()}
+        id={id}
+        {...rest}
+        type="checkbox"
+      />
+      <span className={styles.validationMessage}>
+        {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
+      </span>
+      {!!tip && <span className={styles.tooltip}>{tip}</span>}
+    </span>
+  );
+};
+
+InputCheck.propTypes = {
+  className: PropTypes.string,
+  valid: PropTypes.bool,
+  validationMessage: PropTypes.string,
+  id: PropTypes.string,
+  type: PropTypes.string,
+  tip: PropTypes.string,
 };
 
 //Textarea

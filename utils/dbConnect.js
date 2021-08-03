@@ -10,10 +10,11 @@ async function dbConnect() {
     return;
   }
 
-  //   env.MONGODB_URI = 'newSRV'
+    // env.MONGODEV_URI = 'SRV'
 
   /* connecting to our database */
-  const db = await mongoose.connect(process.env.MONGODB_URI, {
+  // console.log(process.env.MONGODEV_URI)
+  const db = await mongoose.connect(process.env.MONGODEV_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,

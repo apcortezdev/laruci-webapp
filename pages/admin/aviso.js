@@ -1,6 +1,7 @@
+import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import { useRouter } from 'next/router';
 import Admin from '../../components/admin/Admin';
-import { Input } from '../../components/utilities/FormComponents';
+import { Input, InputMask } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import styles from '../../styles/AdNoticePage.module.scss';
 import { getNotice } from '../../data/notice';
@@ -13,39 +14,51 @@ const AdNoticePage = (props) => {
     return <p>Esta página no ecxiste!</p>;
   }
 
-  const notice = JSON.parse(props.notice)
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const notice = JSON.parse(props.notice);
 
   const [text, setText] = useState(notice.text || '');
   const [isNoticeValid, setIsNoticeValid] = useState(true);
 
-  const date = notice.startDate ? new Date(notice.startDate) : null;
   const [initialDate, setInitialDate] = useState();
   const [isInitialDateValid, setIsInitialDateValid] = useState(true);
 
   const [finalDate, setFinalDate] = useState();
   const [isFinalDateValid, setIsFinalDateValid] = useState(true);
 
-  const resetNoticeData = (event) => {
+  const onCancelHandler = (event) => {
     event.preventDefault();
     router.replace({ pathname: '/admin/' });
   };
 
-  const saveNoticeData = async (event) => {
+  const onConfirmSaveHandler = (event) => {
+    event.preventDefault();
+    onDismissConfirmation(event);
+    onSaveHandler(event);
+  }
+
+  const onSaveHandler = async (event) => {
     event.preventDefault();
 
     const newNotice = {
+      id: notice.id || '',
       text: text,
       startDate: initialDate,
       endDate: finalDate,
     };
 
     const res = await fetch('/api/admin/notice', {
-      method: 'POST',
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notice: newNotice }),
     });
 
-    console.log(res);
+    if (res.status !== 200) {
+      onCancelHandler(event);
+    } else {
+      window.alert('ERRO! Por favor contate o administrador')
+    }
   };
 
   const setTextValue = (event) => {
@@ -58,6 +71,16 @@ const AdNoticePage = (props) => {
 
   const setFinalDateValue = (event) => {
     setFinalDate(event.target.value);
+  };
+
+  const onShowConfirmation = (event) => {
+    event.preventDefault();
+    setShowConfirmation(true);
+  };
+
+  const onDismissConfirmation = (event) => {
+    event.preventDefault();
+    setShowConfirmation(false);
   };
 
   return (
@@ -103,22 +126,22 @@ const AdNoticePage = (props) => {
             <label htmlFor="initial_date">Datas:</label>
             <span className={styles.form_input_dates}>
               <label htmlFor="initial_date">De:</label>
-              <Input
+              <InputMask
                 id="initial_date"
                 type="text"
                 placeholder="Sem data"
-                // mask={['99/99/9999']}
+                mask={['99/99/9999']}
                 valid={isInitialDateValid}
                 onChange={setInitialDateValue}
                 validationMessage={'Tem algo errado neste campo'}
                 className={styles.input_date}
               />
               <label htmlFor="final_date">Até:</label>
-              <Input
+              <InputMask
                 id="final_date"
                 type="text"
                 placeholder="Sem data"
-                // mask={['99/99/9999']}
+                mask={['99/99/9999']}
                 valid={isFinalDateValid}
                 onChange={setFinalDateValue}
                 validationMessage={'Tem algo errado neste campo'}
@@ -127,19 +150,20 @@ const AdNoticePage = (props) => {
             </span>
           </span>
           <span className={styles.form_line}>
-            <Button className={styles.formButton} onClick={resetNoticeData}>
+            <Button className={styles.formButton} onClick={onCancelHandler}>
               Cancelar
             </Button>
             <Button
               type="submit"
               className={styles.formButton}
-              onClick={saveNoticeData}
+              onClick={onShowConfirmation}
             >
               Salvar
             </Button>
           </span>
         </form>
       </div>
+      <ConfirmationDialog show={showConfirmation} onCancel={onDismissConfirmation} onConfirm={onConfirmSaveHandler}/>
     </Admin>
   );
 };
@@ -153,11 +177,12 @@ export async function getServerSideProps() {
   }
 
   const propNotice = {
+    id: notice._id || '',
     text: notice.text || '',
     startDate: notice.startDate || '',
     endDate: notice.endDate || '',
-    createdDate: notice.createdDate || ''
-  }
+    createdDate: notice.createdDate || '',
+  };
 
   return {
     props: {

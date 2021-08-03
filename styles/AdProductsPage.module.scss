@@ -1,0 +1,77 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.wrapper {
+  @include display-flex();
+  margin-top: 1rem;
+  flex-direction: column;
+  align-items: center;
+
+  .warning {
+    border-bottom: 1px dotted map-get($map: $colors, $key: light-grey);
+    & > h1 {
+      margin: 2rem auto;
+      font-weight: inherit;
+    }
+
+    & > div {
+      max-width: 40rem;
+      text-align: justify;
+      line-height: 1.5rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  .product {
+    width: 50%;
+
+    & > span {
+      display: inline-block;
+      width: 100%;
+      margin: 1rem 0;
+    }
+
+    .inpwbutton {
+      @include display-flex();
+      flex-direction: row;
+      align-items: center;
+
+      .button {
+        margin-left: 1rem;
+        height: 3rem;
+      }
+    }
+
+    .inp_text {
+      height: 3rem;
+    }
+
+    .inp_number {
+      width: 4rem;
+    }
+
+    .inp_text_upper {
+      text-transform: uppercase;
+    }
+
+    .inp_check_line {
+      @include display-flex();
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      & > span {
+        @include display-flex();
+        flex-direction: row;
+        align-items: center;
+        height: 3rem;
+        padding: 0.5rem;
+        
+        & > label {
+          @include display-flex();
+          flex-direction: row;
+        }
+      }
+    }
+  }
+}
