@@ -10,7 +10,7 @@ async function dbConnect() {
     return;
   }
 
-    env.MONGODEV_URI = 'mongodb+srv://dbLaruciAdm:la6413qre$db90@larucidev.kudc4.mongodb.net/dbDev?retryWrites=true&w=majority'
+    env.MONGODEV_URI = 'SRV'
 
   /* connecting to our database */
   // console.log(process.env.MONGODEV_URI)
