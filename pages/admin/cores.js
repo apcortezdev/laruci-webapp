@@ -1,10 +1,10 @@
 import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import Admin from '../../components/admin/Admin';
-import { Input } from '../../components/utilities/FormComponents';
+import { Input, InputColor } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import styles from '../../styles/AdColorsPage.module.scss';
 import { useEffect, useState } from 'react';
-import { getCategoriesJSON } from '../../data/categories';
+import { getColorsJSON } from '../../data/colors';
 
 const METHOD = {
   SAVE: 'SAVE',
@@ -13,18 +13,27 @@ const METHOD = {
 };
 
 const ItemList = ({ item, onEdit, onDelete }) => {
-  const [categoryName, setCategoryName] = useState(item.text);
+  const [colorName, setColorName] = useState(item.text);
+  const [colorCode, setColorCode] = useState(item.code);
   const [edit, setEdit] = useState(false);
   return (
     <tr key={'tr_' + item._id}>
+      <td>
+        <InputColor
+          className={styles.inp_color}
+          value={colorCode}
+          onChange={(e) => setColorCode(e.target.value)}
+          disabled={!edit}
+        />
+      </td>
       {!edit ? (
         <td>{item.text}</td>
       ) : (
         <td>
           <Input
             className={styles.inp_text}
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
+            value={colorName}
+            onChange={(e) => setColorName(e.target.value)}
           />
         </td>
       )}
@@ -37,7 +46,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
             if (!edit) setEdit(true);
             else {
               setEdit(false);
-              onEdit(event, item._id, categoryName);
+              onEdit(event, item._id, colorName, colorCode);
             }
           }}
         >
@@ -102,7 +111,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
   );
 };
 
-const AdColorsPage = ({ user, categories }) => {
+const AdColorsPage = ({ user, colors }) => {
   if (user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
@@ -111,57 +120,64 @@ const AdColorsPage = ({ user, categories }) => {
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [confirmationMethod, setConfirmationMethod] = useState('');
   const [okText, setOkText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
 
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [updCategoryName, setUpdCategoryName] = useState('');
-  const [categoryList, setCategoryList] = useState([]);
+  const [selectedColor, setSelectedColor] = useState('');
+
+  const [newColorName, setNewColorName] = useState('');
+  const [updColorName, setUpdColorName] = useState('');
+
+  const [newColorCode, setNewColorCode] = useState('#000000');
+  const [updColorCode, setUpdColorCode] = useState('');
+
+  const [colorList, setColorList] = useState([]);
 
   useEffect(() => {
-    setCategoryList(categories);
+    setColorList(colors);
   }, []);
 
   const onConfirmation = (event) => {
     event.preventDefault();
-    setNewCategoryName('');
-    onDismissConfirmation(event);
-
+    
     if (confirmationMethod === METHOD.SAVE) {
-      saveCategory();
+      saveColor();
     }
-
+    
     if (confirmationMethod === METHOD.DELETE) {
-      deleteCategory();
+      deleteColor();
     }
-
+    
     if (confirmationMethod === METHOD.EDIT) {
-      editCategory();
+      editColor();
     }
+    
+    setNewColorName('');
+    setNewColorCode('#000000');
+    onDismissConfirmation(event);
   };
 
   // Save New
   const onSaveConfirmation = async (event) => {
     event.preventDefault();
-    if (newCategoryName.length > 0) {
-      setConfirmationMessage(`Adicionar "${newCategoryName}" às categorias?`);
+    if (newColorName.length > 0 && newColorCode.length > 0) {
+      setConfirmationMessage(`Adicionar cor "${newColorName}"?`);
       setConfirmationMethod(METHOD.SAVE);
       setOkText('Salvar');
       setShowConfirmation(true);
     }
   };
 
-  const saveCategory = async () => {
-    const newCategory = await fetch('/api/admin/categories', {
+  const saveColor = async () => {
+    const newColor = await fetch('/api/admin/colors', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: newCategoryName }),
+      body: JSON.stringify({ text: newColorName, code: newColorCode }),
     });
-    if (newCategory.status === 201) {
-      const data = await newCategory.json();
-      setCategoryList((list) => [...list, data.category]);
+    if (newColor.status === 201) {
+      const data = await newColor.json();
+      setColorList((list) => [...list, data.color]);
     } else {
       window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + newCategory.status
+        'Ops, Algo de errado não está certo! ERRO: ' + newColor.status
       );
     }
   };
@@ -169,66 +185,71 @@ const AdColorsPage = ({ user, categories }) => {
   // Delete
   const onDeleteConfirmation = async (event, _id) => {
     event.preventDefault();
-    let categoryName = categoryList.find((i) => i._id === _id).text;
+    let colorName = colorList.find((i) => i._id === _id).text;
     setConfirmationMessage(
-      `ATENÇÃO: Deletar uma categoria irá afetar todos os produtos pertencentes a ela. Deseja deletar a categoria "${categoryName}"?`
+      `ATENÇÃO: Deletar uma cor irá afetar todos os produtos pertencentes a ela. Deseja deletar a cor "${colorName}"?`
     );
     setConfirmationMethod(METHOD.DELETE);
-    setSelectedCategory(_id);
+    setSelectedColor(_id);
     setOkText('Deletar');
     setShowConfirmation(true);
   };
 
-  const deleteCategory = async () => {
-    const deleteCategory = await fetch('/api/admin/categories', {
+  const deleteColor = async () => {
+    const deleteColor = await fetch('/api/admin/colors', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: selectedCategory }),
+      body: JSON.stringify({ id: selectedColor }),
     });
-    if (deleteCategory.status === 200) {
-      const data = await deleteCategory.json();
-      setCategoryList((list) => {
+    if (deleteColor.status === 200) {
+      const data = await deleteColor.json();
+      setColorList((list) => {
         let newList = [...list];
-        newList.splice(newList.indexOf((i) => i._id === selectedCategory));
+        newList.splice(newList.indexOf((i) => i._id === data._id));
         return newList;
       });
     } else {
       window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + deleteCategory.status
+        'Ops, Algo de errado não está certo! ERRO: ' + deleteColor.status
       );
     }
   };
 
   // Update
-  const onEditConfirmation = async (event, _id, newValue) => {
+  const onEditConfirmation = async (event, _id, newName, newCode) => {
     event.preventDefault();
-    let categoryName = categoryList.find((i) => i._id === _id).text;
-    setConfirmationMessage(`Deseja alterar ${categoryName} para ${newValue}?`);
-    setUpdCategoryName(newValue);
+    let colorName = colorList.find((i) => i._id === _id).text;
+    setConfirmationMessage(`Deseja alterar ${colorName} para ${newName}?`);
+    setUpdColorName(newName);
+    setUpdColorCode(newCode);
     setConfirmationMethod(METHOD.EDIT);
-    setSelectedCategory(_id);
+    setSelectedColor(_id);
     setOkText('Salvar');
     setShowConfirmation(true);
   };
 
-  const editCategory = async () => {
-    const updatedCategory = await fetch('/api/admin/categories', {
+  const editColor = async () => {
+    const updatedColor = await fetch('/api/admin/colors', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: selectedCategory, newText: updCategoryName }),
+      body: JSON.stringify({
+        id: selectedColor,
+        newText: updColorName,
+        newCode: updColorCode,
+      }),
     });
-    if (updatedCategory.status === 200) {
-      const data = await updatedCategory.json();
-      setCategoryList((list) => {
+    if (updatedColor.status === 200) {
+      const data = await updatedColor.json();
+      setColorList((list) => {
         let newList = [...list];
         newList[
-          newList.indexOf(newList.find((i) => i._id === data.category._id))
-        ] = data.category;
+          newList.indexOf(newList.find((i) => i._id === data.color._id))
+        ] = data.color;
         return newList;
       });
     } else {
       window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + updatedCategory.status
+        'Ops, Algo de errado não está certo! ERRO: ' + updatedColor.status
       );
     }
   };
@@ -242,7 +263,7 @@ const AdColorsPage = ({ user, categories }) => {
     <Admin>
       <div className={styles.wrapper}>
         <section className={styles.warning}>
-          <h1>Categorias</h1>
+          <h1>Cores</h1>
           <div>
             ATENÇÃO: <br />
             <ul>
@@ -257,11 +278,11 @@ const AdColorsPage = ({ user, categories }) => {
             </ul>
           </div>
         </section>
-        <section className={styles.categories}>
+        <section className={styles.colors}>
           <form>
             <table>
               <tbody>
-                {categoryList.map((i) => (
+                {colorList.map((i) => (
                   <ItemList
                     key={i._id}
                     item={i}
@@ -271,10 +292,17 @@ const AdColorsPage = ({ user, categories }) => {
                 ))}
                 <tr>
                   <td>
+                    <InputColor
+                      className={styles.inp_color}
+                      value={newColorCode}
+                      onChange={(e) => setNewColorCode(e.target.value)}
+                    />
+                  </td>
+                  <td>
                     <Input
                       className={styles.inp_text}
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      value={newColorName}
+                      onChange={(e) => setNewColorName(e.target.value)}
                     />
                   </td>
                   <td>
@@ -312,14 +340,13 @@ const AdColorsPage = ({ user, categories }) => {
 };
 
 export async function getServerSideProps() {
+  const colors = await getColorsJSON();
+  const ColorList = await JSON.parse(colors);
 
-  const categories = await getCategoriesJSON();
-  const catList = await JSON.parse(categories);
-  
   return {
     props: {
       user: 'admin',
-      categories: catList,
+      colors: ColorList,
     },
   };
 }

@@ -4,12 +4,12 @@ import styles from './FormComponents.module.scss';
 import PropTypes from 'prop-types';
 
 //Select w/ Color Options
-// expect array 'colors' in pattern: [ {name, value}, ...]
+// expect array 'colors' in pattern: [ { id, text, code}, ...]
 const SelectColorItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
   const onOver = () => {
-    setHoverEffect({ backgroundColor: props.colorCode || '#FAFAFA' });
+    setHoverEffect({ backgroundColor: '#e7e7e7' });
   };
 
   const onLeave = () => {
@@ -22,9 +22,15 @@ const SelectColorItem = (props) => {
       style={hoverEffect}
       onMouseOver={onOver}
       onMouseLeave={onLeave}
-      onClick={() => props.onSelect(props.colorName)}
+      onClick={() => props.onSelect(props.optionId, props.optionText)}
     >
-      {props.colorName}
+      {props.palette && (
+        <span
+          className={styles.colorExample}
+          style={{ backgroundColor: props.optionCode }}
+        ></span>
+      )}
+      {props.optionText}
     </span>
   );
 };
@@ -34,9 +40,9 @@ export const SelectColor = (props) => {
   const [selected, setSelected] = useState(props.placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
-  const changeSelected = (name, value) => {
-    setSelected(name);
-    props.onChange(value);
+  const changeSelected = (id, text) => {
+    setSelected(text);
+    props.onChange(id);
     setOptionsAsVisible(false);
   };
 
@@ -51,16 +57,20 @@ export const SelectColor = (props) => {
       <SelectColorItem
         key={props.placeholder}
         onSelect={() => changeSelected(props.placeholder, props.placeholder)}
-        colorName={props.placeholder}
+        optionId={props.placeholder}
+        optionText={props.placeholder}
+        palette={false}
       />,
     ];
     colors.forEach((color) => {
       array.push(
         <SelectColorItem
-          key={color.name}
-          onSelect={() => changeSelected(color.name, color.value)}
-          colorName={color.name}
-          colorCode={color.value}
+          key={color.id}
+          onSelect={() => changeSelected(color.id, color.text)}
+          optionId={color.id}
+          optionText={color.text}
+          optionCode={color.code}
+          palette={true}
         />
       );
     });
@@ -72,7 +82,9 @@ export const SelectColor = (props) => {
   return (
     <div
       ref={ref}
-      className={[styles.select, props.className].join(' ').trim()}
+      className={[styles.select, styles.colors, props.className]
+        .join(' ')
+        .trim()}
       onClick={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
@@ -99,7 +111,7 @@ SelectColor.propTypes = {
 };
 
 //Select w/ Text options
-// expect array 'options' in pattern: [ { id, name, value}, ...]
+// expect array 'options' in pattern: [ { id, text }, ...]
 const SelectTextItem = (props) => {
   const [hoverEffect, setHoverEffect] = useState({});
 
@@ -117,9 +129,9 @@ const SelectTextItem = (props) => {
       style={hoverEffect}
       onMouseOver={onOver}
       onMouseLeave={onLeave}
-      onClick={() => props.onSelect(props.optionName, props.optionValue)}
+      onClick={() => props.onSelect(props.optionId, props.optionText)}
     >
-      {props.optionName}
+      {props.optionText}
     </span>
   );
 };
@@ -129,10 +141,10 @@ export const SelectText = (props) => {
   const [selected, setSelected] = useState(props.placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
-  const changeSelected = (id, value) => {
+  const changeSelected = (id, text) => {
     setOptionsAsVisible(false);
-    setSelected(id);
-    props.onChange(value);
+    setSelected(text);
+    props.onChange(id);
   };
 
   const setOptionsAsVisible = (visible) => {
@@ -146,8 +158,8 @@ export const SelectText = (props) => {
       <SelectTextItem
         key={props.placeholder}
         onSelect={() => changeSelected(props.placeholder, props.placeholder)}
-        optionName={props.placeholder}
-        optionValue={props.placeholder}
+        optionId={props.placeholder}
+        optionText={props.placeholder}
       />,
     ];
 
@@ -155,9 +167,9 @@ export const SelectText = (props) => {
       array.push(
         <SelectTextItem
           key={opt.id}
-          onSelect={() => changeSelected(opt.id, opt.value)}
-          optionName={opt.value}
-          optionValue={opt.id}
+          onSelect={() => changeSelected(opt.id, opt.text)}
+          optionId={opt.id}
+          optionText={opt.text}
         />
       );
     });
@@ -561,7 +573,6 @@ export const InputNumber = (props) => {
   );
 };
 
-// Input type checkbox
 InputNumber.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.number.isRequired,
@@ -572,6 +583,7 @@ InputNumber.propTypes = {
   maxValue: PropTypes.number,
 };
 
+// Input type checkbox
 export const InputCheck = (props) => {
   const { className, valid, validationMessage, id, type, tip, ...rest } = props;
   const isValid = valid != null ? valid : true;
@@ -633,4 +645,28 @@ Textarea.propTypes = {
   className: PropTypes.string,
   valid: PropTypes.bool,
   validationMessage: PropTypes.string,
+};
+
+// Input type color
+export const InputColor = (props) => {
+  const { className, id, type, tip, ...rest } = props;
+
+  return (
+    <span id={`IPC_${id}`} className={styles.inputColorLine}>
+      <input
+        className={[styles.inputColor, className || ''].join(' ').trim()}
+        id={id}
+        {...rest}
+        type="color"
+      />
+      {!!tip && <span className={styles.tooltip}>{tip}</span>}
+    </span>
+  );
+};
+
+InputColor.propTypes = {
+  className: PropTypes.string,
+  id: PropTypes.string,
+  type: PropTypes.string,
+  tip: PropTypes.string,
 };

@@ -3,7 +3,7 @@ import { SelectColor, SelectText } from './utilities/FormComponents';
 import styles from './ListingPageFilter.module.scss';
 import Button from '../components/utilities/Button';
 
-const ListingPageFilter = ({ colorList, sizesList }) => {
+const ListingPageFilter = ({ colors, sizes }) => {
   const [selectedColor, setSelectedColor] = useState();
   const [selectedSize, setSelectedSize] = useState();
   const [selectedOrder, setSelectedOrder] = useState();
@@ -14,22 +14,32 @@ const ListingPageFilter = ({ colorList, sizesList }) => {
   };
 
   const orderList = [
-    { name: 'Menor Preço', value: 'c' },
-    { name: 'Maior Preço', value: 'e' },
-    { name: 'A - Z', value: 'a' },
-    { name: 'Z - A', value: 'z' },
+    { id: 'cheap', text: 'Menor Preço' },
+    { id: 'expe', text: 'Maior Preço' },
+    { id: 'asc', text: 'A - Z' },
+    { id: 'desc', text: 'Z - A' },
   ];
 
+  const [colorList, setColorList] = useState([]);
+  const [sizeList, setSizeList] = useState([]);
+
+  useEffect(() => {
+    setSizeList(sizes.map((s) => ({ id: s._id, text: s.name })));
+    setColorList(
+      colors.map((c) => ({ id: c._id, text: c.text, code: c.code }))
+    );
+  }, []);
+
   const setColor = (color) => {
-    //   setSelectedColor(color);
+    setSelectedColor(color);
   };
 
   const setSize = (size) => {
-    //   setSelectedColor(color);
+    setSelectedSize(size);
   };
 
   const setOrder = (order) => {
-    //   setSelectedColor(color);
+    setSelectedOrder(order);
   };
 
   const submitSearch = (event) => {
@@ -94,7 +104,7 @@ const ListingPageFilter = ({ colorList, sizesList }) => {
                 id="size"
                 placeholder="Todos"
                 onChange={setSize}
-                options={sizesList}
+                options={sizeList}
               />
             </div>
           </div>

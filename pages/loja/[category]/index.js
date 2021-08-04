@@ -4,9 +4,9 @@ import styles from '../../../styles/ListingPage.module.scss';
 import ListingPageFilter from '../../../components/ListingPageFilter';
 import ProductList from '../../../components/ProductList';
 import Button from '../../../components/utilities/Button';
-import { getColors } from '../../../data/colors';
 import { getSizes } from '../../../data/sizes';
 import { getCategoriesJSON } from '../../../data/categories';
+import { getColorsJSON } from '../../../data/colors';
 import { getBareProductListByCategory } from '../../../data/products';
 
 const ListingPage = ({
@@ -15,9 +15,9 @@ const ListingPage = ({
   categoryList,
   data,
   colorList,
-  sizesList,
+  sizeList,
 }) => {
-  if (!data || !category || !colorList || !sizesList) {
+  if (!data || !category || !colorList || !sizeList) {
     return <p className="center">Loading...</p>;
   }
 
@@ -26,7 +26,7 @@ const ListingPage = ({
   return (
     <Main notice={notice} categoryList={categoryList}>
       <Store notice={!!notice} categoryList={categoryList}>
-        <ListingPageFilter colorList={colorList} sizesList={sizesList} />
+        <ListingPageFilter colors={colorList} sizes={sizeList} />
         <ProductList list={data} type="page" />
         <section>
           <Button className={styles.loadbutton} onClick={loadNextPage}>
@@ -51,12 +51,14 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const category = params.category;
 
-  const colors = await getColors();
   const sizes = await getSizes();
   const data = await getBareProductListByCategory(category);
 
   const categories = await getCategoriesJSON();
   const catList = await JSON.parse(categories);
+
+  const colors = await getColorsJSON();
+  const ColorList = await JSON.parse(colors);
 
   return {
     props: {
@@ -64,8 +66,8 @@ export async function getStaticProps({ params }) {
       category: category,
       categoryList: catList,
       data: data,
-      colorList: colors,
-      sizesList: sizes,
+      colorList: ColorList,
+      sizeList: sizes,
     },
   };
 }

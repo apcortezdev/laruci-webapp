@@ -7,10 +7,14 @@ const color = new Schema({
     type: String,
     required: true,
   },
+  text: {
+    type: String,
+    required: true,
+  },
   code: {
     type: String,
     required: true,
   },
 });
 
-module.exports = mongoose.model('Color', color);
+export default mongoose.models.Color || mongoose.model('Color', color);

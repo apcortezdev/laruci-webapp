@@ -67,10 +67,18 @@
 //SelectorItem
 .selector_item {
   @include display-flex();
+  align-items: center;
   padding: 0.3rem 0.3rem 0.3rem 1rem;
   border: none;
   // background-color: white;
   transition: background-color 0.2s ease-in-out;
+}
+
+.colorExample {
+  border: 1px solid map-get($map: $colors, $key: light-grey);
+  width: 1rem;
+  height: 1rem;
+  margin-right: .3rem;
 }
 
 //input text
@@ -240,5 +248,27 @@
 
   &:disabled ~ .radio_checkmark {
     border: 3px solid map-get($map: $colors, $key: light-grey);
+  }
+}
+
+//color
+.inputColorLine {
+  width: 3rem;
+}
+.inputColor {
+  font-family: inherit;
+  font-size: inherit;
+  border-radius: 5px;
+  border: 1px solid map-get($map: $colors, $key: grey);
+  height: 3rem;
+  padding: 0.1rem;
+  margin: 0;
+
+  &:hover:enabled {
+    border-color: map-get($map: $colors, $key: black);
+  }
+
+  &:focus {
+    outline: none;
   }
 }

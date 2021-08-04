@@ -169,7 +169,7 @@ const AdProductsPage = (props) => {
                 placeholder="Selecione"
                 // className={styles.inp_text}
                 onChange={() => {}}
-                options={[{ id: 'vaca', name: 'Vaca', value: 'vaca' }]}
+                options={[{ id: 'vaca', text: 'Vaca' }]}
               />
             </label>
           </span>

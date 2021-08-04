@@ -6,7 +6,6 @@ export default async function handler(req, res) {
       const newCategory = await postCategories(req.body.text);
       res.status(201).json({ statusCode: '201', category: newCategory });
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         statusCode: '500',
         message: 'ERROR SAVING CATEGORY: ' + err.message,
@@ -33,7 +32,7 @@ export default async function handler(req, res) {
     } catch (err) {
       res.status(500).json({
         statusCode: '500',
-        message: 'ERROR DELETING CATEGORY: ' + err.message,
+        message: 'ERROR UPDATING CATEGORY: ' + err.message,
       });
     }
   }
