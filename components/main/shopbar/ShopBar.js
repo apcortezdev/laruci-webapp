@@ -7,7 +7,7 @@ import Backdrop from '../../utilities/Backdrop';
 import Link from 'next/link';
 import BagContext from '../../../store/bag-context';
 
-const ShopBar = ({ isTransparent }) => {
+const ShopBar = ({ categoryList, isTransparent }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const bagContext = useContext(BagContext);
   let qtyInBag;
@@ -20,9 +20,9 @@ const ShopBar = ({ isTransparent }) => {
   return (
     <>
       <div
-        className={[styles.container, isTransparent ? styles.transparent : ''].join(
-          ' '
-        ).trim()}
+        className={[styles.container, isTransparent ? styles.transparent : '']
+          .join(' ')
+          .trim()}
       >
         <div className={styles.shopbar_inner}>
           <span className={styles.mobilenav_area}>
@@ -95,19 +95,21 @@ const ShopBar = ({ isTransparent }) => {
                 >
                   <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5z" />
                 </svg>
-                <span>{qtyInBag !== 0 ? qtyInBag : ''}</span>                
+                <span>{qtyInBag !== 0 ? qtyInBag : ''}</span>
               </a>
             </Link>
           </span>
         </div>
         <div
-          className={[
-            styles.mobilenav,
-            toggleMenu ? styles.open : styles.close,
-          ].join(' ').trim()}
+          className={[styles.mobilenav, toggleMenu ? styles.open : styles.close]
+            .join(' ')
+            .trim()}
         >
           <ShopNav onMobileClick={toggleMobileMenu} />
-          <MainMenu onMobileClick={toggleMobileMenu} />
+          <MainMenu
+            onMobileClick={toggleMobileMenu}
+            categoryList={categoryList}
+          />
         </div>
         {toggleMenu && <Backdrop onDismiss={toggleMobileMenu} />}
       </div>
@@ -116,6 +118,7 @@ const ShopBar = ({ isTransparent }) => {
 };
 
 ShopBar.propTypes = {
+  categoryList: PropTypes.array.isRequired,
   isTransparent: PropTypes.bool,
 };
 

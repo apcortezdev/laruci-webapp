@@ -4,7 +4,7 @@ import NoticeBar from './NoticeBar';
 import ShopBar from './shopbar/ShopBar';
 import styles from './Main.module.scss';
 
-const Main = ({ notice, children, isTransparent, transparency }) => {
+const Main = ({ categoryList, notice, children, isTransparent, transparency }) => {
   return (
     <>
       <header className={styles.navbar}>
@@ -20,7 +20,7 @@ const Main = ({ notice, children, isTransparent, transparency }) => {
               : {}
           }
         >
-          <ShopBar isTransparent={isTransparent} />
+          <ShopBar isTransparent={isTransparent} categoryList={categoryList}/>
         </div>
       </header>
       <main
@@ -39,6 +39,7 @@ const Main = ({ notice, children, isTransparent, transparency }) => {
 };
 
 Main.propTypes = {
+  categoryList: PropTypes.array.isRequired,
   isTransparent: PropTypes.bool,
   notice: PropTypes.string,
   transparency: PropTypes.number,

@@ -67,7 +67,7 @@ export async function deleteCategories(_id) {
   }
 
   try {
-    const deleted = Category.findByIdAndDelete(_id);
+    const deleted = await Category.findByIdAndDelete(_id);
     return deleted;
   } catch (err) {
     if (err) {
@@ -97,7 +97,7 @@ export async function putCategories(_id, text) {
   }
 
   try {
-    const updated = Category.findByIdAndUpdate(
+    const updated = await Category.findByIdAndUpdate(
       _id,
       { name: name.toLowerCase(), text: text.toLowerCase() },
       {

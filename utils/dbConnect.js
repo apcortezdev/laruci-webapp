@@ -1,6 +1,6 @@
 /* This is a database connection function*/
 import mongoose from 'mongoose';
-// import { env } from 'process';
+import { env } from 'process';
 
 const connection = {}; /* creating connection object*/
 
@@ -10,7 +10,7 @@ async function dbConnect() {
     return;
   }
 
-    // env.MONGODEV_URI = 'SRV'
+    env.MONGODEV_URI = 'mongodb+srv://dbLaruciAdm:la6413qre$db90@larucidev.kudc4.mongodb.net/dbDev?retryWrites=true&w=majority'
 
   /* connecting to our database */
   // console.log(process.env.MONGODEV_URI)

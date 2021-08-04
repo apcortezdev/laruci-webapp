@@ -29,15 +29,11 @@ function MyApp(props) {
   }, []);
 
   let page;
-  if (router.pathname.startsWith('/loja/')) {
+  if (router.pathname.startsWith('/loja')) {
     page = (
       <CookiesProvider>
         <BagContextProvider>
-          <Main notice={notice}>
-            <Store notice={!!notice}>
-              <Component {...pageProps} />
-            </Store>
-          </Main>
+          <Component {...pageProps} />
         </BagContextProvider>
       </CookiesProvider>
     );

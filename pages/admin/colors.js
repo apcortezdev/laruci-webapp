@@ -2,7 +2,7 @@ import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import Admin from '../../components/admin/Admin';
 import { Input } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
-import styles from '../../styles/AdCategoriesPage.module.scss';
+import styles from '../../styles/AdColorsPage.module.scss';
 import { useEffect, useState } from 'react';
 import { getCategoriesJSON } from '../../data/categories';
 
@@ -102,7 +102,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
   );
 };
 
-const AdCategoriesPage = ({ user, categories }) => {
+const AdColorsPage = ({ user, categories }) => {
   if (user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
@@ -312,8 +312,10 @@ const AdCategoriesPage = ({ user, categories }) => {
 };
 
 export async function getServerSideProps() {
+
   const categories = await getCategoriesJSON();
   const catList = await JSON.parse(categories);
+  
   return {
     props: {
       user: 'admin',
@@ -322,4 +324,4 @@ export async function getServerSideProps() {
   };
 }
 
-export default AdCategoriesPage;
+export default AdColorsPage;

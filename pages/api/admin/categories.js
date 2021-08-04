@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'DELETE') {
     try {
-      const deletedCategory = deleteCategories(req.body.id);
+      const deletedCategory = await deleteCategories(req.body.id);
       res.status(200).json({ statusCode: '200', category: deletedCategory });
     } catch (err) {
       res.status(500).json({
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     try {
-      const updatedCategory = putCategories(req.body.id, req.body.newText);
+      const updatedCategory = await putCategories(req.body.id, req.body.newText);
       res.status(200).json({ statusCode: '200', category: updatedCategory });
     } catch (err) {
       res.status(500).json({

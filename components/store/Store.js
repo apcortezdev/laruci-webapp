@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import WebMenu from '../MainMenu';
 import styles from './Store.module.scss';
 
-const Store = ({ notice, children }) => {
+const Store = ({ categoryList, notice, children }) => {
   return (
     <div className={styles.content_wrapper}>
       <div
@@ -10,7 +10,7 @@ const Store = ({ notice, children }) => {
           .join(' ')
           .trim()}
       >
-        <WebMenu onMobileClick={false} />
+        <WebMenu onMobileClick={false} categoryList={categoryList}/>
       </div>
 
       <div className={styles.content}>
@@ -23,6 +23,7 @@ const Store = ({ notice, children }) => {
 };
 
 Store.propTypes = {
+  categoryList: PropTypes.array.isRequired,
   notice: PropTypes.bool,
 };
 
