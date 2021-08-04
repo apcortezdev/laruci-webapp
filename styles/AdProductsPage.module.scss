@@ -24,6 +24,7 @@
 
   .product {
     width: 50%;
+    margin: 2rem 0;
 
     & > span {
       display: inline-block;
@@ -54,23 +55,51 @@
       text-transform: uppercase;
     }
 
-    .inp_check_line {
-      @include display-flex();
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
+    .selectCategories {
+      text-transform: capitalize;
+    }
 
+    .price {
+      width: 10rem;
+    }
+
+    .inp_check_line {
       & > span {
         @include display-flex();
         flex-direction: row;
         align-items: center;
         height: 3rem;
         padding: 0.5rem;
-        
+
         & > label {
           @include display-flex();
           flex-direction: row;
         }
+      }
+    }
+
+    .group_line {
+      @include display-flex();
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .margins {
+      & > label {
+        max-width: 7rem;
+      }
+
+      label:first-child {
+        margin-right: 1rem;
+      }
+
+      label:last-child {
+        margin-left: 1rem;
+      }
+
+      input {
+        text-align: right;
       }
     }
   }

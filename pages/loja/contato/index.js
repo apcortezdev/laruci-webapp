@@ -4,7 +4,7 @@ import Button from '../../../components/utilities/Button';
 import FacebookIconLink from '../../../components/utilities/FacebookIconLink';
 import InstagramIconLink from '../../../components/utilities/InstagramIconLink';
 import WhatsappIconLink from '../../../components/utilities/WhatsappIconLink';
-import styles from '../../../styles/ContactPage.module.scss';
+import styles from '../../../styles/loja/ContactPage.module.scss';
 import { getFullContactInfo } from '../../../data/contact';
 import {
   Input,

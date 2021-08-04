@@ -1,4 +1,4 @@
-import styles from '../../../styles/UserPage.module.scss';
+import styles from '../../../styles/loja/UserPage.module.scss';
 
 const UserPage = (props) => {
   return <div className={styles.container}>User</div>;

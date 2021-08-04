@@ -1,15 +1,16 @@
 import React, { useContext, useState } from 'react';
+import Head from 'next/Head';
+import { useRouter } from 'next/router';
+import BagContext from '../../../../store/bag-context';
 import Main from '../../../../components/main/Main';
 import Store from '../../../../components/store/Store';
-import { useRouter } from 'next/router';
-import Head from 'next/Head';
 import Breadcrumb from '../../../../components/Breadcrumb';
 import ShipmentCalc from '../../../../components/ShipmentCalc';
 import Button from '../../../../components/utilities/Button';
 import ImageShow from '../../../../components/utilities/ImageShow';
 import SizeSelector from '../../../../components/utilities/SizeSelector';
 import ProductList from '../../../../components/ProductList';
-import styles from '../../../../styles/ProductPage.module.scss';
+import styles from '../../../../styles/loja/ProductPage.module.scss';
 import {
   InputRadio,
   InputNumber,
@@ -21,7 +22,8 @@ import {
   getCompleteProductById,
   getBareProductListById,
 } from '../../../../data/products';
-import BagContext from '../../../../store/bag-context';
+import { getCurrentNotice } from '../../../data/notice';
+
 
 const optSizeNames = {
   u: 'UNIQUE',
@@ -442,11 +444,14 @@ export async function getStaticProps({ params }) {
   const categories = await getCategoriesJSON();
   const catList = await JSON.parse(categories);
 
+  const notice = await getCurrentNotice();
+  let noticeText = notice ? notice.text : '';
+
   return {
     props: {
       title: 'Laruci',
       canonical: `http://localhost:3000/${category}/${productId}`,
-      notice: '',
+      notice: noticeText,
       categoryList: catList,
       prodCategory: category,
       prodId: productId,

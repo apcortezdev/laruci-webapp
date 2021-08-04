@@ -1,4 +1,4 @@
-import styles from '../../../styles/SizesPage.module.scss';
+import styles from '../../../../styles/loja/SizesPage.module.scss';
 import { getAboutInfo } from '../../../data/about';
 
 const SizesPage = ({ notice }) => {

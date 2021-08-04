@@ -2,9 +2,9 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import Main from '../../components/main/Main';
 import MainMenu from '../../components/MainMenu';
-// import { getNotice } from '../data/notice';
+import { getCurrentNotice } from '../../data/notice';
 import { getPageInfo } from '../../data/pageInfo';
-import styles from '../../styles/Home.module.scss';
+import styles from '../../styles/loja/Home.module.scss';
 import { getCategoriesJSON } from '../../data/categories';
 
 export default function Home({ notice, categoryList, info }) {
@@ -72,13 +72,18 @@ export default function Home({ notice, categoryList, info }) {
         </div>
       </section>
       <div
-        className={[styles.mainmenu, !isTransparent 
-          ? !!notice ? styles.fixed_with_notice : styles.fixed
-          : '']
+        className={[
+          styles.mainmenu,
+          !isTransparent
+            ? !!notice
+              ? styles.fixed_with_notice
+              : styles.fixed
+            : '',
+        ]
           .join(' ')
           .trim()}
       >
-        <MainMenu categoryList={categoryList} onMobileClick={false}/>
+        <MainMenu categoryList={categoryList} onMobileClick={false} />
       </div>
       <section className={styles.home_listng}></section>
     </Main>
@@ -86,12 +91,9 @@ export default function Home({ notice, categoryList, info }) {
 }
 
 export async function getStaticProps() {
-  // const notice = await getNotice();
-  let noticeText = '';
-  // if (notice) {
-  //   noticeText = notice.text;
-  // }
-  
+  const notice = await getCurrentNotice();
+  let noticeText = notice ? notice.text : '';
+
   const info = await getPageInfo();
 
   const categories = await getCategoriesJSON();
@@ -99,11 +101,10 @@ export async function getStaticProps() {
 
   return {
     props: {
-      notice: noticeText || '',
+      notice: noticeText,
       categoryList: catList,
       info: info,
     },
     revalidate: 86400,
   };
 }
-

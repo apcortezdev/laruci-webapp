@@ -1,12 +1,13 @@
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import styles from '../../../styles/ListingPage.module.scss';
+import styles from '../../../styles/loja/ListingPage.module.scss';
 import ListingPageFilter from '../../../components/ListingPageFilter';
 import ProductList from '../../../components/ProductList';
 import Button from '../../../components/utilities/Button';
 import { getSizes } from '../../../data/sizes';
 import { getCategoriesJSON } from '../../../data/categories';
 import { getColorsJSON } from '../../../data/colors';
+import { getCurrentNotice } from '../../../data/notice';
 import { getBareProductListByCategory } from '../../../data/products';
 
 const ListingPage = ({
@@ -51,6 +52,9 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const category = params.category;
 
+  const notice = await getCurrentNotice();
+  let noticeText = notice ? notice.text : '';
+
   const sizes = await getSizes();
   const data = await getBareProductListByCategory(category);
 
@@ -62,7 +66,7 @@ export async function getStaticProps({ params }) {
 
   return {
     props: {
-      notice: '',
+      notice: noticeText,
       category: category,
       categoryList: catList,
       data: data,

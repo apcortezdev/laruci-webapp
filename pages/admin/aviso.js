@@ -1,11 +1,11 @@
-import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import { useRouter } from 'next/router';
-import Admin from '../../components/admin/Admin';
-import { Input, InputMask } from '../../components/utilities/FormComponents';
-import Button from '../../components/utilities/Button';
-import styles from '../../styles/AdNoticePage.module.scss';
-import { getNotice } from '../../data/notice';
 import { useState } from 'react';
+import styles from '../../styles/AdNoticePage.module.scss';
+import Admin from '../../components/admin/Admin';
+import Button from '../../components/utilities/Button';
+import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
+import { Input, InputMask } from '../../components/utilities/FormComponents';
+import { getNoticeJSON } from '../../data/notice';
 
 const AdNoticePage = (props) => {
   const router = useRouter();
@@ -36,7 +36,7 @@ const AdNoticePage = (props) => {
     event.preventDefault();
     onDismissConfirmation(event);
     onSaveHandler(event);
-  }
+  };
 
   const onSaveHandler = async (event) => {
     event.preventDefault();
@@ -57,7 +57,7 @@ const AdNoticePage = (props) => {
     if (res.status !== 200) {
       onCancelHandler(event);
     } else {
-      window.alert('ERRO! Por favor contate o administrador')
+      window.alert('ERRO! Por favor contate o administrador');
     }
   };
 
@@ -163,18 +163,17 @@ const AdNoticePage = (props) => {
           </span>
         </form>
       </div>
-      <ConfirmationDialog show={showConfirmation} onCancel={onDismissConfirmation} onConfirm={onConfirmSaveHandler}/>
+      <ConfirmationDialog
+        show={showConfirmation}
+        onCancel={onDismissConfirmation}
+        onConfirm={onConfirmSaveHandler}
+      />
     </Admin>
   );
 };
 
 export async function getServerSideProps() {
-  let notice;
-  try {
-    notice = await getNotice();
-  } catch (err) {
-    return { notFound: true };
-  }
+  const notice = await getNoticeJSON();
 
   const propNotice = {
     id: notice._id || '',
@@ -187,7 +186,7 @@ export async function getServerSideProps() {
   return {
     props: {
       user: 'admin',
-      notice: JSON.stringify(propNotice),
+      notice: notice,
     },
   };
 }

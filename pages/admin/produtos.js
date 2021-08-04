@@ -1,3 +1,5 @@
+import { useEffect, useReducer, useState } from 'react';
+import styles from '../../styles/AdProductsPage.module.scss';
 import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import { useRouter } from 'next/router';
 import Admin from '../../components/admin/Admin';
@@ -10,8 +12,20 @@ import {
   InputMask,
 } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
-import styles from '../../styles/AdProductsPage.module.scss';
-import { useReducer, useState } from 'react';
+import { getCategoriesJSON } from '../../data/categories';
+import { getColorsJSON } from '../../data/colors';
+
+/* LEMBRETE: VALIDE OS VALORES DE PREÇO, PESO E DISCONTO PARA APENAS UM PONTO DECIMAL CONTANDO O NÚMERO DE PONTOS:
+
+var temp = "This is a string.";
+var count = (temp. match(/is/g) || []). ...
+console. log(count);
+​
+Output: 2.
+​
+Explaination : The g in the regular expression (short for global) says to search the whole string rather than just find the first occurrence.
+
+*/
 
 const fields = {
   CODE: 'code',
@@ -19,6 +33,10 @@ const fields = {
   LIMIT_STOCK: 'limitStock',
   STOCK_NUMBER: 'stockNumber',
   CATEGORY: 'category',
+  COLOR: 'color',
+  PRICE: 'price',
+  DISCOUNT_PERCENTAGE: 'discountPercentage',
+  WEIGHT: 'weight',
 };
 
 const productReducer = (state, action) => {
@@ -48,20 +66,27 @@ const productReducer = (state, action) => {
   return state;
 };
 
-const AdProductsPage = (props) => {
+const AdProductsPage = ({ user, categoryList, colorList }) => {
   const router = useRouter();
 
-  if (props.user !== 'admin') {
+  if (user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
 
+  if (!categoryList) {
+    return (
+      <Admin>
+        <div className={styles.wrapper}>
+          <p>Loading...</p>
+        </div>
+      </Admin>
+    );
+  }
+
+  const [categories, setCategories] = useState([]);
+
   const onChange = (value, field) => {
     dispatchProductState({ field: field, value: value });
-  };
-
-  const [a, setA] = useState(0);
-  const onChangeNum = (v) => {
-    setA((b) => b + v);
   };
 
   const [productState, dispatchProductState] = useReducer(productReducer, {
@@ -71,8 +96,15 @@ const AdProductsPage = (props) => {
       limitStock: true,
       stockNumber: 0,
       category: '',
+      price: '',
+      discountPercentage: '',
+      weight: '',
     },
   });
+
+  useEffect(() => {
+    setCategories(categoryList.map((c) => ({ id: c._id, text: c.text })));
+  }, []);
 
   return (
     <Admin>
@@ -121,7 +153,9 @@ const AdProductsPage = (props) => {
           </span>
           <span>
             Estoque:
-            <span className={styles.inp_check_line}>
+            <span
+              className={[styles.inp_check_line, styles.group_line].join(' ')}
+            >
               <span>
                 <label
                   htmlFor="prod_limitStock_nolimit"
@@ -167,10 +201,60 @@ const AdProductsPage = (props) => {
               <SelectText
                 id="category"
                 placeholder="Selecione"
-                // className={styles.inp_text}
-                onChange={() => {}}
-                options={[{ id: 'vaca', text: 'Vaca' }]}
+                className={styles.selectCategories}
+                onChange={(v) => onChange(v, fields.CATEGORY)}
+                options={categories}
               />
+            </label>
+          </span>
+          <span className={[styles.group_line, styles.margins].join(' ')}>
+            <label htmlFor="price">
+              Preço:
+              <span className={styles.group_line}>
+                R$
+                <Input
+                  id="price"
+                  className={styles.inp_text}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^0-9,.]/gi, '');
+                    value = value.replace(',', '.');
+                    onChange(value, fields.PRICE);
+                  }}
+                  value={productState.product.price}
+                />
+              </span>
+            </label>
+            <label htmlFor="discount">
+              Desconto:
+              <span className={styles.group_line}>
+                <Input
+                  id="discount"
+                  className={styles.inp_text}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^0-9,.]/gi, '');
+                    value = value.replace(',', '.');
+                    onChange(value, fields.DISCOUNT_PERCENTAGE);
+                  }}
+                  value={productState.product.discountPercentage}
+                />
+                %
+              </span>
+            </label>
+            <label htmlFor="weight">
+              Peso:
+              <span className={styles.group_line}>
+                <Input
+                  id="weight"
+                  className={styles.inp_text}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^0-9,.]/gi, '');
+                    value = value.replace(',', '.');
+                    onChange(value, fields.WEIGHT);
+                  }}
+                  value={productState.product.weight}
+                />
+                Kg
+              </span>
             </label>
           </span>
         </section>
@@ -196,10 +280,17 @@ export async function getServerSideProps() {
   //     createdDate: notice.createdDate || '',
   //   };
 
+  const categories = await getCategoriesJSON();
+  const catList = await JSON.parse(categories);
+
+  const colors = await getColorsJSON();
+  const ColorList = await JSON.parse(colors);
+
   return {
     props: {
       user: 'admin',
-      //   notice: JSON.stringify(propNotice),
+      categoryList: catList,
+      colorList: ColorList,
     },
   };
 }

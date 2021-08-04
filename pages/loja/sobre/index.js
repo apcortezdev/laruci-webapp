@@ -1,4 +1,4 @@
-import styles from '../../../styles/AboutPage.module.scss';
+import styles from '../../../styles/loja/AboutPage.module.scss';
 import { getAboutInfo } from '../../../data/about';
 
 const AboutPage = ({ notice }) => {

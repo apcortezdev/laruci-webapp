@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from '../../../styles/BagPage.module.scss';
+import styles from '../../../styles/loja/BagPage.module.scss';
 import BagContext from '../../../store/bag-context';
 import Button from '../../../components/utilities/Button';
 import ShipmentCalc from '../../../components/ShipmentCalc';

@@ -22,9 +22,38 @@ export async function getNotice() {
   return notice;
 }
 
+export async function getNoticeJSON() {
+  let notice = await getNotice();
+  return JSON.stringify(notice);
+}
+
+// ERRORS: ERN001 - ERN002
+export async function getCurrentNotice() {
+  let notice;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('INTERNAL ERROR: ERN001');
+  }
+
+  try {
+    const today = new Date();
+    notice = await Notice.findOne(
+      { startDate: { $lte: today }, endDate: { $gte: today } },
+      'text'
+    ).sort('-createdDate');
+  } catch (err) {
+    if (err) {
+      throw new Error('INTERNAL ERROR: ERN002');
+    }
+  }
+
+  return notice;
+}
+
 // ERRORS: ERN003
 export async function postNotice(notice) {
-
   const newNotice = new Notice({
     text: notice.text,
     startDate: notice.startDate,
