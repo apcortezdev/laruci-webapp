@@ -123,11 +123,10 @@ const AdSectionsPage = ({ user, sections }) => {
 
   const onConfirmation = (event) => {
     event.preventDefault();
-    setNewSectionName('');
-    onDismissConfirmation(event);
 
+    const name = newSectionName;
     if (confirmationMethod === METHOD.SAVE) {
-      saveSection();
+      saveSection(name);
     }
 
     if (confirmationMethod === METHOD.DELETE) {
@@ -137,6 +136,9 @@ const AdSectionsPage = ({ user, sections }) => {
     if (confirmationMethod === METHOD.EDIT) {
       editSection();
     }
+
+    setNewSectionName('');
+    onDismissConfirmation(event);
   };
 
   // Save New
@@ -150,11 +152,11 @@ const AdSectionsPage = ({ user, sections }) => {
     }
   };
 
-  const saveSection = async () => {
+  const saveSection = async (name) => {
     const newSection = await fetch('/api/admin/sections', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: newSectionName }),
+      body: JSON.stringify({ text: name }),
     });
     if (newSection.status === 201) {
       const data = await newSection.json();
@@ -189,7 +191,10 @@ const AdSectionsPage = ({ user, sections }) => {
       const data = await deleteSection.json();
       setSectionList((list) => {
         let newList = [...list];
-        newList.splice(newList.indexOf(newList.find((i) => i._id === data.section._id)), 1);
+        newList.splice(
+          newList.indexOf(newList.find((i) => i._id === data.section._id)),
+          1
+        );
         return newList;
       });
     } else {

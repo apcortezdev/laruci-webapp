@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import styles from './Button.module.scss';
 
-const Button = ({className, children, tip, ...rest}) => {
+const Button = ({ className, children, tip, ...rest }) => {
   return (
     <button
-      className={[className, styles.button].join(' ').trim()}
+      className={[styles.button, className ? className : ''].join(' ').trim()}
       {...rest}
     >
       {children}

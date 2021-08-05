@@ -123,11 +123,10 @@ const AdCategoriesPage = ({ user, categories }) => {
 
   const onConfirmation = (event) => {
     event.preventDefault();
-    setNewCategoryName('');
-    onDismissConfirmation(event);
 
+    const name = newCategoryName;
     if (confirmationMethod === METHOD.SAVE) {
-      saveCategory();
+      saveCategory(name);
     }
 
     if (confirmationMethod === METHOD.DELETE) {
@@ -137,6 +136,9 @@ const AdCategoriesPage = ({ user, categories }) => {
     if (confirmationMethod === METHOD.EDIT) {
       editCategory();
     }
+
+    setNewCategoryName('');
+    onDismissConfirmation(event);
   };
 
   // Save New
@@ -150,11 +152,11 @@ const AdCategoriesPage = ({ user, categories }) => {
     }
   };
 
-  const saveCategory = async () => {
+  const saveCategory = async (name) => {
     const newCategory = await fetch('/api/admin/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: newCategoryName }),
+      body: JSON.stringify({ text: name }),
     });
     if (newCategory.status === 201) {
       const data = await newCategory.json();
@@ -189,7 +191,10 @@ const AdCategoriesPage = ({ user, categories }) => {
       const data = await deleteCategory.json();
       setCategoryList((list) => {
         let newList = [...list];
-        newList.splice(newList.indexOf(newList.find((i) => i._id === data.category._id)), 1);
+        newList.splice(
+          newList.indexOf(newList.find((i) => i._id === data.category._id)),
+          1
+        );
         return newList;
       });
     } else {

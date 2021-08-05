@@ -4,7 +4,7 @@ import styles from '../../../styles/loja/ListingPage.module.scss';
 import ListingPageFilter from '../../../components/ListingPageFilter';
 import ProductList from '../../../components/ProductList';
 import Button from '../../../components/utilities/Button';
-import { getSizes } from '../../../data/sizes';
+import { getSizeSetsJSON } from '../../../data/sizeSets';
 import { getCategoriesJSON } from '../../../data/categories';
 import { getColorsJSON } from '../../../data/colors';
 import { getCurrentNotice } from '../../../data/notice';
@@ -55,7 +55,9 @@ export async function getStaticProps({ params }) {
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
 
-  const sizes = await getSizes();
+  const sizes = await getSizeSetsJSON();
+  const sizeSetsList = await JSON.parse(colors);
+
   const data = await getBareProductListByCategory(category);
 
   const categories = await getCategoriesJSON();
@@ -71,7 +73,7 @@ export async function getStaticProps({ params }) {
       categoryList: catList,
       data: data,
       colorList: ColorList,
-      sizeList: sizes,
+      sizeList: sizeSetsList,
     },
   };
 }

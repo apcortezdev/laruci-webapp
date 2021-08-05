@@ -65,7 +65,7 @@ const product = new Schema({
           sizes: [
             {
               type: mongoose.Schema.Types.ObjectId,
-              ref: 'Size',
+              ref: 'SizeSet',
               required: true,
             },
           ],

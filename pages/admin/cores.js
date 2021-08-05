@@ -138,8 +138,10 @@ const AdColorsPage = ({ user, colors }) => {
   const onConfirmation = (event) => {
     event.preventDefault();
     
+    const name = newColorName;
+    const code = newColorCode;
     if (confirmationMethod === METHOD.SAVE) {
-      saveColor();
+      saveColor(name, code);
     }
     
     if (confirmationMethod === METHOD.DELETE) {
@@ -166,11 +168,11 @@ const AdColorsPage = ({ user, colors }) => {
     }
   };
 
-  const saveColor = async () => {
+  const saveColor = async (name, code) => {
     const newColor = await fetch('/api/admin/colors', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: newColorName, code: newColorCode }),
+      body: JSON.stringify({ text: name, code: code }),
     });
     if (newColor.status === 201) {
       const data = await newColor.json();
