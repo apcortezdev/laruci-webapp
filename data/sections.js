@@ -1,8 +1,8 @@
-import Category from '../models/category';
+import Section from '../models/section';
 import dbConnect from '../utils/dbConnect';
 
-export async function getCategories() {
-  let categories = [];
+export async function getSections() {
+  let sections = [];
 
   try {
     await dbConnect();
@@ -11,21 +11,21 @@ export async function getCategories() {
   }
 
   try {
-    categories = await Category.find();
+    sections = await Section.find();
   } catch (err) {
     if (err) {
       throw new Error('ERN002');
     }
   }
-  return categories;
+  return sections;
 }
 
-export async function getCategoriesJSON() {
-  let categories = await getCategories();
-  return JSON.stringify(categories);
+export async function getSectionsJSON() {
+  let sections = await getSections();
+  return JSON.stringify(sections);
 }
 
-export async function postCategory(text) {
+export async function postSection(text) {
   let name = text;
 
   name = name
@@ -38,7 +38,7 @@ export async function postCategory(text) {
     .replace(/[-|_]/, '')
     .replace(/[ ]+/g, '');
 
-  const newCategory = new Category({
+  const newSection = new Section({
     name: name.toLowerCase(),
     text: text.toLowerCase(),
   });
@@ -50,7 +50,7 @@ export async function postCategory(text) {
   }
 
   try {
-    const created = newCategory.save();
+    const created = newSection.save();
     return created;
   } catch (err) {
     if (err) {
@@ -59,7 +59,7 @@ export async function postCategory(text) {
   }
 }
 
-export async function deleteCategory(_id) {
+export async function deleteSection(_id) {
   try {
     await dbConnect();
   } catch (err) {
@@ -67,7 +67,7 @@ export async function deleteCategory(_id) {
   }
 
   try {
-    const deleted = await Category.findByIdAndDelete(_id);
+    const deleted = await Section.findByIdAndDelete(_id);
     return deleted;
   } catch (err) {
     if (err) {
@@ -77,7 +77,7 @@ export async function deleteCategory(_id) {
   }
 }
 
-export async function putCategory(_id, text) {
+export async function putSection(_id, text) {
   let name = text;
 
   name = name
@@ -97,7 +97,7 @@ export async function putCategory(_id, text) {
   }
 
   try {
-    const updated = await Category.findByIdAndUpdate(
+    const updated = await Section.findByIdAndUpdate(
       _id,
       { name: name.toLowerCase(), text: text.toLowerCase() },
       {

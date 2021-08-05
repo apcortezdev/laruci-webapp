@@ -627,7 +627,7 @@ export const Textarea = ({ className, valid, validationMessage, ...rest }) => {
       <textarea
         className={[
           styles.inputText,
-          className || '',
+          className ? className : '',
           !isValid && styles.inputText_invalid,
         ]
           .join(' ')

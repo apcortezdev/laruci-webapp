@@ -25,7 +25,7 @@ export async function getColorsJSON() {
   return JSON.stringify(colors);
 }
 
-export async function postColors(text, code) {
+export async function postColor(text, code) {
   let name = text;
   name = name
     .replace(/[ã|á|à]/gi, 'a')
@@ -59,7 +59,7 @@ export async function postColors(text, code) {
   }
 }
 
-export async function deleteColors(_id) {
+export async function deleteColor(_id) {
   try {
     await dbConnect();
   } catch (err) {
@@ -77,7 +77,7 @@ export async function deleteColors(_id) {
   }
 }
 
-export async function putColors(_id, text, code) {
+export async function putColor(_id, text, code) {
   let name = text;
   name = name
     .replace(/[ã|á|à]/gi, 'a')

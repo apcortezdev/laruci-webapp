@@ -26,80 +26,110 @@
     width: 50%;
     margin: 2rem 0;
 
-    & > span {
-      display: inline-block;
-      width: 100%;
-      margin: 1rem 0;
-    }
-
-    .inpwbutton {
-      @include display-flex();
-      flex-direction: row;
-      align-items: center;
-
-      .button {
-        margin-left: 1rem;
-        height: 3rem;
-      }
-    }
-
-    .inp_text {
-      height: 3rem;
-    }
-
-    .inp_number {
-      width: 4rem;
-    }
-
-    .inp_text_upper {
-      text-transform: uppercase;
-    }
-
-    .selectCategories {
-      text-transform: capitalize;
-    }
-
-    .price {
-      width: 10rem;
-    }
-
-    .inp_check_line {
+    .form {
       & > span {
+        display: inline-block;
+        width: 100%;
+        margin: 1rem 0;
+      }
+
+      .inpwbutton {
         @include display-flex();
         flex-direction: row;
         align-items: center;
-        height: 3rem;
-        padding: 0.5rem;
 
-        & > label {
-          @include display-flex();
-          flex-direction: row;
+        .button {
+          margin-left: 1rem;
+          height: 3rem;
         }
       }
-    }
 
-    .group_line {
-      @include display-flex();
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .margins {
-      & > label {
-        max-width: 7rem;
+      .inp_text {
+        height: 3rem;
       }
 
-      label:first-child {
-        margin-right: 1rem;
+      .inp_textarea {
+        height: 30rem;
       }
 
-      label:last-child {
-        margin-left: 1rem;
+      .inp_number {
+        width: 4rem;
       }
 
-      input {
-        text-align: right;
+      .uppercase {
+        text-transform: uppercase;
+      }
+
+      .capitalize {
+        text-transform: capitalize;
+      }
+
+      .inp_check_line {
+        & > span {
+          @include display-flex();
+          flex-direction: row;
+          align-items: center;
+          height: 3rem;
+          padding: 0.5rem;
+
+          & > label {
+            @include display-flex();
+            flex-direction: row;
+          }
+        }
+      }
+
+      .group_line {
+        @include display-flex();
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .margins {
+        & > label {
+          max-width: 7rem;
+        }
+
+        label:first-child {
+          margin-right: 1rem;
+        }
+
+        label:last-child {
+          margin-left: 1rem;
+        }
+
+        input {
+          text-align: right;
+        }
+      }
+
+      .borderAround {
+        border: 1px solid map-get($map: $colors, $key: light-grey);
+      }
+
+      .padding {
+        padding: 1rem;
+      }
+
+      .sets {
+        & > span {
+          display: block;
+          margin: 1rem 0;
+        }
+
+        span:last-child {
+          text-align: right;
+        }
+      }
+
+      .icon {
+        fill: map-get($map: $colors, $key: white);
+      }
+
+      .buttonSmall {
+        height: 3rem;
+        width: 3rem;
       }
     }
   }

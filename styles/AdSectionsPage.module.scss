@@ -1,0 +1,67 @@
+@import '_colors.scss';
+@import '_mixin.scss';
+
+.wrapper {
+  @include display-flex();
+  margin-top: 1rem;
+  flex-direction: column;
+  align-items: center;
+
+  .warning {
+    border-bottom: 1px dotted map-get($map: $colors, $key: light-grey);
+    & > h1 {
+      margin: 2rem auto;
+      font-weight: inherit;
+    }
+
+    & > div {
+      max-width: 40rem;
+      text-align: justify;
+      line-height: 1.5rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  .sections {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    table {
+      border: 1px solid map-get($map: $colors, $key: light-grey);
+
+      td {
+        text-transform: capitalize;
+        padding: 0.5rem;
+        border-bottom: 1px dotted map-get($map: $colors, $key: light-grey);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    .inp_text {
+      width: 100%;
+    }
+
+    .button {
+      height: 3rem;
+      width: 3rem;
+    }
+
+    .button_delete {
+      margin-left: 0.5rem;
+      background-color: map-get($map: $colors, $key: promo-red);
+
+      &:hover {
+        background-color: map-get($map: $colors, $key: dark-red);
+      }
+    }
+
+    .icon {
+      fill: map-get($map: $colors, $key: white);
+    }
+  }
+}

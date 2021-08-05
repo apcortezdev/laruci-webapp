@@ -1,6 +1,6 @@
 /* This is a database connection function*/
 import mongoose from 'mongoose';
-import { env } from 'process';
+// import { env } from 'process';
 
 const connection = {}; /* creating connection object*/
 
@@ -10,11 +10,11 @@ async function dbConnect() {
     return;
   }
 
-    env.MONGODEV_URI = 'SRV'
+    // env.MONGODEV_URI = 'SRV'
 
   /* connecting to our database */
   // console.log(process.env.MONGODEV_URI)
-  const db = await mongoose.connect(process.env.MONGODEV_URI, {
+  const db = await mongoose.connect(process.env.URIDEVDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,

@@ -1,10 +1,10 @@
 import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import Admin from '../../components/admin/Admin';
-import { Input, InputColor } from '../../components/utilities/FormComponents';
+import { Input } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
-import styles from '../../styles/AdColorsPage.module.scss';
+import styles from '../../styles/AdSectionsPage.module.scss';
 import { useEffect, useState } from 'react';
-import { getColorsJSON } from '../../data/colors';
+import { getSectionsJSON } from '../../data/sections';
 
 const METHOD = {
   SAVE: 'SAVE',
@@ -13,27 +13,18 @@ const METHOD = {
 };
 
 const ItemList = ({ item, onEdit, onDelete }) => {
-  const [colorName, setColorName] = useState(item.text);
-  const [colorCode, setColorCode] = useState(item.code);
+  const [sectionName, setSectionName] = useState(item.text);
   const [edit, setEdit] = useState(false);
   return (
     <tr key={'tr_' + item._id}>
-      <td>
-        <InputColor
-          className={styles.inp_color}
-          value={colorCode}
-          onChange={(e) => setColorCode(e.target.value)}
-          disabled={!edit}
-        />
-      </td>
       {!edit ? (
         <td>{item.text}</td>
       ) : (
         <td>
           <Input
             className={styles.inp_text}
-            value={colorName}
-            onChange={(e) => setColorName(e.target.value)}
+            value={sectionName}
+            onChange={(e) => setSectionName(e.target.value)}
           />
         </td>
       )}
@@ -46,7 +37,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
             if (!edit) setEdit(true);
             else {
               setEdit(false);
-              onEdit(event, item._id, colorName, colorCode);
+              onEdit(event, item._id, sectionName);
             }
           }}
         >
@@ -111,7 +102,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
   );
 };
 
-const AdColorsPage = ({ user, colors }) => {
+const AdSectionsPage = ({ user, sections }) => {
   if (user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
@@ -120,64 +111,57 @@ const AdColorsPage = ({ user, colors }) => {
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [confirmationMethod, setConfirmationMethod] = useState('');
   const [okText, setOkText] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
 
-  const [selectedColor, setSelectedColor] = useState('');
-
-  const [newColorName, setNewColorName] = useState('');
-  const [updColorName, setUpdColorName] = useState('');
-
-  const [newColorCode, setNewColorCode] = useState('#000000');
-  const [updColorCode, setUpdColorCode] = useState('');
-
-  const [colorList, setColorList] = useState([]);
+  const [newSectionName, setNewSectionName] = useState('');
+  const [updSectionName, setUpdSectionName] = useState('');
+  const [sectionList, setSectionList] = useState([]);
 
   useEffect(() => {
-    setColorList(colors);
+    setSectionList(sections);
   }, []);
 
   const onConfirmation = (event) => {
     event.preventDefault();
-    
-    if (confirmationMethod === METHOD.SAVE) {
-      saveColor();
-    }
-    
-    if (confirmationMethod === METHOD.DELETE) {
-      deleteColor();
-    }
-    
-    if (confirmationMethod === METHOD.EDIT) {
-      editColor();
-    }
-    
-    setNewColorName('');
-    setNewColorCode('#000000');
+    setNewSectionName('');
     onDismissConfirmation(event);
+
+    if (confirmationMethod === METHOD.SAVE) {
+      saveSection();
+    }
+
+    if (confirmationMethod === METHOD.DELETE) {
+      deleteSection();
+    }
+
+    if (confirmationMethod === METHOD.EDIT) {
+      editSection();
+    }
   };
 
   // Save New
   const onSaveConfirmation = async (event) => {
     event.preventDefault();
-    if (newColorName.length > 0 && newColorCode.length > 0) {
-      setConfirmationMessage(`Adicionar cor "${newColorName}"?`);
+    if (newSectionName.length > 0) {
+      setConfirmationMessage(`Adicionar "${newSectionName}" às seções?`);
       setConfirmationMethod(METHOD.SAVE);
       setOkText('Salvar');
       setShowConfirmation(true);
     }
   };
 
-  const saveColor = async () => {
-    const newColor = await fetch('/api/admin/colors', {
+  const saveSection = async () => {
+    const newSection = await fetch('/api/admin/sections', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: newColorName, code: newColorCode }),
+      body: JSON.stringify({ text: newSectionName }),
     });
-    if (newColor.status === 201) {
-      const data = await newColor.json();
-      setColorList((list) => [...list, data.color]);
+    if (newSection.status === 201) {
+      const data = await newSection.json();
+      setSectionList((list) => [...list, data.section]);
     } else {
       window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + newColor.status
+        'Ops, Algo de errado não está certo! ERRO: ' + newSection.status
       );
     }
   };
@@ -185,71 +169,66 @@ const AdColorsPage = ({ user, colors }) => {
   // Delete
   const onDeleteConfirmation = async (event, _id) => {
     event.preventDefault();
-    let colorName = colorList.find((i) => i._id === _id).text;
+    let sectionName = sectionList.find((i) => i._id === _id).text;
     setConfirmationMessage(
-      `ATENÇÃO: Deletar uma cor irá afetar todos os produtos pertencentes a ela. Deseja deletar a cor "${colorName}"?`
+      `ATENÇÃO: Deletar uma seção irá afetar todos os produtos pertencentes a ela. Deseja deletar a seção "${sectionName}"?`
     );
     setConfirmationMethod(METHOD.DELETE);
-    setSelectedColor(_id);
+    setSelectedSection(_id);
     setOkText('Deletar');
     setShowConfirmation(true);
   };
 
-  const deleteColor = async () => {
-    const deleteColor = await fetch('/api/admin/colors', {
+  const deleteSection = async () => {
+    const deleteSection = await fetch('/api/admin/sections', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: selectedColor }),
+      body: JSON.stringify({ id: selectedSection }),
     });
-    if (deleteColor.status === 200) {
-      const data = await deleteColor.json();
-      setColorList((list) => {
+    if (deleteSection.status === 200) {
+      const data = await deleteSection.json();
+      setSectionList((list) => {
         let newList = [...list];
-        newList.splice(newList.indexOf(newList.find((i) => i._id === data.color._id)), 1);
+        newList.splice(newList.indexOf(newList.find((i) => i._id === data.section._id)), 1);
         return newList;
       });
     } else {
       window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + deleteColor.status
+        'Ops, Algo de errado não está certo! ERRO: ' + deleteSection.status
       );
     }
   };
 
   // Update
-  const onEditConfirmation = async (event, _id, newName, newCode) => {
+  const onEditConfirmation = async (event, _id, newValue) => {
     event.preventDefault();
-    let colorName = colorList.find((i) => i._id === _id).text;
-    setConfirmationMessage(`Deseja alterar ${colorName} para ${newName}?`);
-    setUpdColorName(newName);
-    setUpdColorCode(newCode);
+    let sectionName = sectionList.find((i) => i._id === _id).text;
+    setConfirmationMessage(`Deseja alterar ${sectionName} para ${newValue}?`);
+    setUpdSectionName(newValue);
     setConfirmationMethod(METHOD.EDIT);
-    setSelectedColor(_id);
+    setSelectedSection(_id);
     setOkText('Salvar');
     setShowConfirmation(true);
   };
 
-  const editColor = async () => {
-    const updatedColor = await fetch('/api/admin/colors', {
+  const editSection = async () => {
+    const updatedSection = await fetch('/api/admin/sections', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: selectedColor,
-        newText: updColorName,
-        newCode: updColorCode,
-      }),
+      body: JSON.stringify({ id: selectedSection, newText: updSectionName }),
     });
-    if (updatedColor.status === 200) {
-      const data = await updatedColor.json();
-      setColorList((list) => {
+    if (updatedSection.status === 200) {
+      const data = await updatedSection.json();
+      setSectionList((list) => {
         let newList = [...list];
         newList[
-          newList.indexOf(newList.find((i) => i._id === data.color._id))
-        ] = data.color;
+          newList.indexOf(newList.find((i) => i._id === data.section._id))
+        ] = data.section;
         return newList;
       });
     } else {
       window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + updatedColor.status
+        'Ops, Algo de errado não está certo! ERRO: ' + updatedSection.status
       );
     }
   };
@@ -263,7 +242,7 @@ const AdColorsPage = ({ user, colors }) => {
     <Admin>
       <div className={styles.wrapper}>
         <section className={styles.warning}>
-          <h1>Cores</h1>
+          <h1>Seções</h1>
           <div>
             ATENÇÃO: <br />
             <ul>
@@ -278,11 +257,11 @@ const AdColorsPage = ({ user, colors }) => {
             </ul>
           </div>
         </section>
-        <section className={styles.colors}>
+        <section className={styles.sections}>
           <form>
             <table>
               <tbody>
-                {colorList.map((i) => (
+                {sectionList.map((i) => (
                   <ItemList
                     key={i._id}
                     item={i}
@@ -292,17 +271,10 @@ const AdColorsPage = ({ user, colors }) => {
                 ))}
                 <tr>
                   <td>
-                    <InputColor
-                      className={styles.inp_color}
-                      value={newColorCode}
-                      onChange={(e) => setNewColorCode(e.target.value)}
-                    />
-                  </td>
-                  <td>
                     <Input
                       className={styles.inp_text}
-                      value={newColorName}
-                      onChange={(e) => setNewColorName(e.target.value)}
+                      value={newSectionName}
+                      onChange={(e) => setNewSectionName(e.target.value)}
                     />
                   </td>
                   <td>
@@ -340,15 +312,15 @@ const AdColorsPage = ({ user, colors }) => {
 };
 
 export async function getServerSideProps() {
-  const colors = await getColorsJSON();
-  const ColorList = await JSON.parse(colors);
+  const sections = await getSectionsJSON();
+  const list = await JSON.parse(sections);
 
   return {
     props: {
       user: 'admin',
-      colors: ColorList,
+      sections: list,
     },
   };
 }
 
-export default AdColorsPage;
+export default AdSectionsPage;

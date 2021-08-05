@@ -38,6 +38,9 @@ const Admin = (props) => {
                 <Link href={{ pathname: '/admin/cores/' }} passHref>
                   <a>Cores</a>
                 </Link>
+                <Link href={{ pathname: '/admin/secoes/' }} passHref>
+                  <a>Seções</a>
+                </Link>
                 <Link href={{ pathname: '/admin/tamanhos/' }} passHref>
                   <a>Tamanhos</a>
                 </Link>

@@ -189,7 +189,7 @@ const AdCategoriesPage = ({ user, categories }) => {
       const data = await deleteCategory.json();
       setCategoryList((list) => {
         let newList = [...list];
-        newList.splice(newList.indexOf((i) => i._id === selectedCategory));
+        newList.splice(newList.indexOf(newList.find((i) => i._id === data.category._id)), 1);
         return newList;
       });
     } else {

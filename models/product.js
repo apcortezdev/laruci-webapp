@@ -46,6 +46,11 @@ const product = new Schema({
   },
   set: [
     {
+      sectionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Section',
+        required: true,
+      },
       colorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Color',
