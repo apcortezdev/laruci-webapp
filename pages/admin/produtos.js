@@ -17,6 +17,7 @@ import Button from '../../components/utilities/Button';
 import { getCategoriesJSON } from '../../data/categories';
 import { getColorsJSON } from '../../data/colors';
 import { getSectionsJSON } from '../../data/sections';
+import { getSizeSetsJSON } from '../../data/sizeSets';
 
 /* LEMBRETE: VALIDE OS VALORES DE PREÇO, PESO E DISCONTO PARA APENAS UM PONTO DECIMAL CONTANDO O NÚMERO DE PONTOS:
 
@@ -30,12 +31,18 @@ Explaination : The g in the regular expression (short for global) says to search
 
 */
 
+const types = {
+  ADD_TO_FIELD: 'ADD_TO_FIELD',
+  ADD_SET: 'ADD_SET',
+};
+
 const fields = {
   CODE: 'code',
   NAME: 'name',
   LIMIT_STOCK: 'limitStock',
   STOCK_NUMBER: 'stockNumber',
   CATEGORY: 'category',
+  SECTION: 'sectionId',
   COLOR: 'color',
   PRICE: 'price',
   DISCOUNT_PERCENTAGE: 'discountPercentage',
@@ -43,42 +50,131 @@ const fields = {
   SHORT_DESCRIPTION: 'shortDescription',
   LONG_DESCRIPTION: 'longDescription',
   SETS: 'sets',
+  COLORID: 'colorId',
+};
+
+// SizeGroup: group of selection of SizeSets in 'Único' and 'Personalizados'
+const SizeGroup = ({
+  name,
+  disabled,
+  sizeSets,
+
+  selectedGroup,
+  onSelectGroup,
+
+  selectedSizes,
+  onSelectSize,
+}) => {
+  return (
+    <div className={styles.groupCmp}>
+      <table>
+        <tbody>
+          {sizeSets.map((set) => (
+            <tr
+              className={
+                !disabled && selectedGroup === set._id ? styles.sizeSet : ''
+              }
+              key={set._id}
+            >
+              <td>
+                <label
+                  htmlFor={'op' + name + set._id}
+                  onChange={(e) => {
+                    onSelectGroup(name, e.target.value);
+                  }}
+                >
+                  <InputRadio
+                    id={'op' + name + set._id}
+                    name={name}
+                    value={set._id}
+                    defaultChecked={() => {
+                      if (selectedGroup === set._id) return true;
+                      else return false;
+                    }}
+                    disabled={disabled}
+                  />
+                </label>
+              </td>
+              <td>
+                <span className={styles.gridLine}>
+                  {set.sizes.map((size) => (
+                    <span
+                      key={set._id + size}
+                      className={[
+                        styles.tag,
+                        disabled || selectedGroup !== set._id
+                          ? styles.disabled
+                          : '',
+                        typeof selectedSizes[size] !== 'undefined'
+                          ? styles.tag_selected
+                          : '',
+                      ]
+                        .join(' ')
+                        .trim()}
+                      onClick={() => {
+                        if (!disabled && selectedGroup === set._id)
+                          onSelectSize(name, size);
+                      }}
+                    >
+                      {size}
+                    </span>
+                  ))}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 const productReducer = (state, action) => {
   let product = state.product;
 
-  const field = action.field;
+  const fieldOne = action.fieldOne;
+  const fieldTwo = action.fieldTwo || false;
   let value = action.value;
 
-  switch (action.field) {
-    case fields.LIMIT_STOCK:
-      value = action.value === 'UNLIMITED';
-      break;
-    case fields.STOCK_NUMBER:
-      value = state.product.stockNumber + action.value;
-      break;
-    case fields.SETS:
-      value = state.sets;
-      value.push(action.value);
-      break;
+  if (action.type === types.ADD_TO_FIELD) {
+    switch (action.fieldOne) {
+      case fields.LIMIT_STOCK:
+        value = action.value === 'UNLIMITED';
+        product = {
+          ...product,
+          [fieldOne]: value,
+        };
+        break;
+
+      case fields.STOCK_NUMBER:
+        value = state.product.stockNumber + action.value;
+        product = {
+          ...product,
+          [fieldOne]: value,
+        };
+        break;
+
+      case fields.SETS:
+        product = {
+          ...product,
+          [fieldOne]: {
+            ...product[fieldOne],
+            [fieldTwo]: value,
+          },
+        };
+        break;
+    }
   }
-
-  if (field) {
-    product = {
-      ...product,
-      [field]: value,
-    };
-
-    return { product };
-  }
-
-  return state;
+  return { product };
 };
 
-const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
-  const router = useRouter();
-
+const AdProductsPage = ({
+  user,
+  categoryList,
+  colorList,
+  sectionList,
+  sizeSetList,
+}) => {
   if (user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
@@ -96,9 +192,15 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
   const [sections, setSections] = useState([]);
+  const [sizeSets, setSizeSets] = useState([]);
 
-  const onChange = (value, field) => {
-    dispatchProductState({ field: field, value: value });
+  const onChange = (value, fieldOne, fieldTwo, type = types.ADD_TO_FIELD) => {
+    dispatchProductState({
+      value: value,
+      fieldOne: fieldOne,
+      fieldTwo: fieldTwo,
+      type: type,
+    });
   };
 
   const onAddSet = (event) => {
@@ -113,35 +215,117 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
       limitStock: true,
       stockNumber: 0,
       category: '',
+      sectionId: '',
       price: '',
       discountPercentage: '',
       weight: '',
       shortDescription: '',
       longDescription: '',
-      sets: [
-        {
-          colorId: '',
-          sectionId: '',
-        },
-      ],
+      sets: {},
+      //  {
+      //    colorId: '',
+      //    sizeSetsCollection: {},
+      //    images: [],
+      //    extraOptions: [],
+      //  },
+      // }
     },
   });
-
-  // set
-  const [section, setSection] = useState('');
-  const [color, setColor] = useState('');
 
   useEffect(() => {
     setCategories(categoryList.map((c) => ({ id: c._id, text: c.text })));
     setSections(sectionList.map((c) => ({ id: c._id, text: c.text })));
+    setSizeSets(sizeSetList);
     setColors(
       colorList.map((c) => ({ id: c._id, text: c.text, code: c.code }))
     );
   }, []);
 
+  // Opções
+  //toggles
+  const [toggleUnique, setToggleUnique] = useState(false);
+  const [toggleCustom, setToggleCustom] = useState(false);
+
+  // Options info
+  const [selectedColor, setSelectedColor] = useState('');
+
+  const [selectedSizeSets, setSelectedSizeSets] = useState({});
+  const onSelectGroup = (name, value, list) => {
+    list((list) => ({
+      ...list,
+      [name]: {
+        name: name,
+        isUnique: name === 'unique',
+        sizeSetId: value,
+        availableSizes: {},
+      },
+    }));
+  };
+  const onSelectSize = (name, value, list) => {
+    list((list) => {
+      let newList = { ...list };
+      if (typeof newList[name] !== 'undefined') {
+        if (typeof newList[name].availableSizes[value] !== 'undefined') {
+          delete newList[name].availableSizes[value];
+        } else {
+          newList = {
+            ...list,
+            [name]: {
+              ...list[name],
+              availableSizes: {
+                ...list[name].availableSizes,
+                [value]: value,
+              },
+            },
+          };
+        }
+      }
+      return newList;
+    });
+  };
+
+  // temp Custom Options info
+  const [tempSizeSetName, setTempSizeSetName] = useState('');
+  const [tempSizeSetGroupId, setTempSizeSetGroupId] = useState();
+  const [tempSizeSetSizes, setTempSizeSetSizes] = useState({});
+
+  const onNewCustom = () => {
+    if (tempSizeSetName.length > 0) {
+      const name = tempSizeSetName;
+      const sizeSetId = tempSizeSetGroupId;
+      const availableSizes = { ...tempSizeSetSizes };
+      const newSet = Symbol(name);
+      setSelectedSizeSets((list) => ({
+        ...list,
+        [newSet]: {
+          name: name,
+          isUnique: false,
+          sizeSetId: sizeSetId,
+          availableSizes: availableSizes,
+        },
+      }));
+      setTempSizeSetName('');
+      setTempSizeSetGroupId('');
+      setTempSizeSetSizes({});
+    }
+  };
+
+  const onNoCustom = () => {
+    //removes all Symbol() from obj
+    setSelectedSizeSets((list) => JSON.parse(JSON.stringify(list)));
+  };
+
+  const onRemoveCustom = (symbol) => {
+    setSelectedSizeSets((list) => {
+      let newList = { ...list };
+      delete newList[symbol];
+      return newList;
+    });
+  };
+
   return (
     <Admin>
-      <div className={styles.wrapper}>
+      <div className={[styles.wrapper, styles.centeredColumn].join(' ')}>
         <section className={styles.warning}>
           <h1>Produtos</h1>
           <div>
@@ -182,6 +366,30 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
                   className={styles.inp_text}
                   onChange={(e) => onChange(e.target.value, fields.NAME)}
                   value={productState.product.name}
+                />
+              </label>
+            </span>
+            <span>
+              <label htmlFor="category">
+                Categoria:
+                <SelectText
+                  id="category"
+                  placeholder="Selecione"
+                  className={styles.capitalize}
+                  onChange={(v) => onChange(v, fields.CATEGORY)}
+                  options={categories}
+                />
+              </label>
+            </span>
+            <span>
+              <label htmlFor="section">
+                Seção:
+                <SelectText
+                  id="section"
+                  placeholder="Selecione"
+                  className={styles.capitalize}
+                  onChange={(v) => onChange(v, fields.SECTION)}
+                  options={sections}
                 />
               </label>
             </span>
@@ -232,18 +440,6 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
                   />
                 </span>
               </span>
-            </span>
-            <span>
-              <label htmlFor="category">
-                Categoria:
-                <SelectText
-                  id="category"
-                  placeholder="Selecione"
-                  className={styles.capitalize}
-                  onChange={(v) => onChange(v, fields.CATEGORY)}
-                  options={categories}
-                />
-              </label>
             </span>
             <span className={[styles.group_line, styles.margins].join(' ')}>
               <label htmlFor="price">
@@ -304,6 +500,7 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
                   onChange={(e) =>
                     onChange(e.target.value, fields.SHORT_DESCRIPTION)
                   }
+                  maxLength={60}
                   value={productState.product.shortDescription}
                 />
               </label>
@@ -323,7 +520,7 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
               </label>
             </span>
             <div className={styles.sets}>
-              Seleções:
+              Opções:
               <div
                 className={[
                   styles.borderAround,
@@ -332,48 +529,210 @@ const AdProductsPage = ({ user, categoryList, colorList, sectionList }) => {
                 ].join(' ')}
               >
                 <span>
-                  <label htmlFor="section">
-                    Seção:
-                    <SelectText
-                      id="section"
-                      placeholder="Selecione"
-                      className={styles.capitalize}
-                      onChange={(v) => setSection(v)}
-                      options={sections}
-                    />
-                  </label>
-                </span>
-                <span>
                   <label htmlFor="color">
                     Cor:
                     <SelectColor
                       id="color"
                       placeholder="Selecione"
                       className={styles.capitalize}
-                      onChange={(v) => setColor(v)}
+                      onChange={(v) => setSelectedColor(v)}
                       colors={colors}
                     />
                   </label>
                 </span>
-                <span>Tamanhos:</span>
                 <span>
-                  <Button
-                    className={styles.buttonSmall}
-                    type="submit"
+                  Tamanhos:
+                  <span className={styles.sizeGroup}>
+                    <label htmlFor="unique">
+                      <span>
+                        <InputCheck
+                          id="unique"
+                          onChange={() => setToggleUnique((t) => !t)}
+                        />
+                      </span>
+                      Único
+                    </label>
+                    <SizeGroup
+                      name="unique"
+                      disabled={!toggleUnique}
+                      sizeSets={sizeSets}
+                      onSelectGroup={(a, b) =>
+                        onSelectGroup(a, b, setSelectedSizeSets)
+                      }
+                      onSelectSize={(a, b) =>
+                        onSelectSize(a, b, setSelectedSizeSets)
+                      }
+                      selectedSizes={
+                        typeof selectedSizeSets.unique === 'undefined'
+                          ? {}
+                          : selectedSizeSets.unique.availableSizes
+                      }
+                      selectedGroup={
+                        typeof selectedSizeSets.unique === 'undefined'
+                          ? {}
+                          : selectedSizeSets.unique.sizeSetId
+                      }
+                    />
+                  </span>
+                  <span
+                    className={[styles.sizeGroup, styles.noDivision].join(' ')}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      className={styles.icon}
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
-                    </svg>
-                  </Button>
+                    <label htmlFor="custom">
+                      <span>
+                        <InputCheck
+                          id="custom"
+                          onChange={() => {
+                            if (toggleCustom) {
+                              onNoCustom();
+                              setTempSizeSetName('');
+                              setTempSizeSetGroupId('');
+                              setTempSizeSetSizes({});
+                              setToggleCustom(false);
+                            } else {
+                              setToggleCustom(true);
+                            }
+                          }}
+                        />
+                      </span>
+                      Personalizados
+                    </label>
+                    {Object.getOwnPropertySymbols(selectedSizeSets).map((s) => {
+                      return (
+                        <div
+                          className={[
+                            styles.centeredColumn,
+                            styles.paddingTwo,
+                            styles.marginTwo,
+                            styles.lineBotton,
+                          ].join(' ')}
+                          key={selectedSizeSets[s].name}
+                        >
+                          <span
+                            className={[
+                              styles.paddingTwo,
+                              styles.width100,
+                            ].join(' ')}
+                          >
+                            {selectedSizeSets[s].name}
+                          </span>
+
+                          <span className={styles.gridLine}>
+                            {sizeSets
+                              .find(
+                                (si) => si._id === selectedSizeSets[s].sizeSetId
+                              )
+                              .sizes.map((size) => (
+                                <span
+                                  key={selectedSizeSets[s].name + size}
+                                  className={[
+                                    styles.tag,
+                                    typeof selectedSizeSets[s].availableSizes[
+                                      size
+                                    ] !== 'undefined'
+                                      ? styles.tag_selected
+                                      : '',
+                                  ]
+                                    .join(' ')
+                                    .trim()}
+                                >
+                                  {size}
+                                </span>
+                              ))}
+                          </span>
+                          <span className={styles.paddingTwo}>
+                            <Button
+                              className={[
+                                styles.buttonSmall,
+                                styles.buttonRed,
+                              ].join(' ')}
+                              type="button"
+                              onClick={() => onRemoveCustom(s)}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                className={styles.icon}
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                                />
+                              </svg>
+                            </Button>
+                          </span>
+                        </div>
+                      );
+                    })}
+                    {toggleCustom && (
+                      <>
+                        <span
+                          className={[styles.paddingTwo, styles.width100].join(
+                            ' '
+                          )}
+                        >
+                          <Input
+                            id="customName"
+                            className={styles.inp_text}
+                            maxLength={10}
+                            value={tempSizeSetName}
+                            onChange={(e) => setTempSizeSetName(e.target.value)}
+                          />
+                        </span>
+                        <SizeGroup
+                          name="custom"
+                          disabled={false}
+                          sizeSets={sizeSets}
+                          onSelectGroup={(_, value) => {
+                            setTempSizeSetSizes({});
+                            setTempSizeSetGroupId(value);
+                          }}
+                          onSelectSize={(_, value) =>
+                            setTempSizeSetSizes((list) => {
+                              let newList = { ...list };
+                              if (typeof newList[value] !== 'undefined') {
+                                delete newList[value];
+                              } else {
+                                newList = {
+                                  ...list,
+                                  [value]: value,
+                                };
+                              }
+                              return newList;
+                            })
+                          }
+                          selectedSizes={tempSizeSetSizes}
+                          selectedGroup={tempSizeSetGroupId}
+                        />
+                        <span className={styles.paddingTwo}>
+                          <Button
+                            className={styles.buttonSmall}
+                            type="button"
+                            onClick={onNewCustom}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              className={styles.icon}
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
+                            </svg>
+                          </Button>
+                        </span>
+                      </>
+                    )}
+                  </span>
                 </span>
               </div>
             </div>
+            <span>
+              <Button>Cancelar</Button>
+              <Button type="submit">Salvar</Button>
+            </span>
           </form>
         </section>
       </div>
@@ -392,12 +751,16 @@ export async function getServerSideProps() {
   const sections = await getSectionsJSON();
   const sectionList = await JSON.parse(sections);
 
+  const sizeSets = await getSizeSetsJSON();
+  const sizeSetList = await JSON.parse(sizeSets);
+
   return {
     props: {
       user: 'admin',
       categoryList: catList,
       colorList: colorList,
       sectionList: sectionList,
+      sizeSetList: sizeSetList,
     },
   };
 }

@@ -24,6 +24,11 @@ const product = new Schema({
     ref: 'Category',
     required: true,
   },
+  sectionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Section',
+    required: true,
+  },
   price: {
     type: Number,
     required: true,
@@ -44,31 +49,33 @@ const product = new Schema({
     type: String,
     required: true,
   },
-  set: [
+  sets: [
     {
-      sectionId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Section',
-        required: true,
-      },
       colorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Color',
         required: true,
       },
-      sizeCollection: [
+      sizeSets: [
         {
           name: {
             type: String,
             required: true,
           },
-          sizes: [
-            {
-              type: mongoose.Schema.Types.ObjectId,
-              ref: 'SizeSet',
-              required: true,
-            },
-          ],
+          isUnique: {
+            type: Boolean,
+            required: true,
+          },
+          sizeSetId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SizeSet',
+            required: true,
+          },
+          availableSizes: {
+            type: Array,
+            of: String,
+            required: true,
+          },
         },
       ],
       images: [
@@ -101,4 +108,4 @@ const product = new Schema({
   ],
 });
 
-export default mongoose.models.Product || mongoose.model('Notice', product);
+export default mongoose.models.Product || mongoose.model('Product', product);

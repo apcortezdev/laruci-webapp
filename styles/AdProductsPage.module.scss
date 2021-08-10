@@ -2,10 +2,7 @@
 @import '_mixin.scss';
 
 .wrapper {
-  @include display-flex();
   margin-top: 1rem;
-  flex-direction: column;
-  align-items: center;
 
   .warning {
     border-bottom: 1px dotted map-get($map: $colors, $key: light-grey);
@@ -23,6 +20,7 @@
   }
 
   .product {
+    min-width: 30rem;
     width: 50%;
     margin: 2rem 0;
 
@@ -112,6 +110,113 @@
         padding: 1rem;
       }
 
+      .paddingTwo {
+        display: inline-block;
+        padding: 0.5rem 1rem 1rem 1rem;
+      }
+
+      .marginTwo {
+        margin: 0 2rem;
+      }
+
+      .lineBotton {
+        border-bottom: 1px dashed map-get($map: $colors, $key: light-grey);
+      }
+
+      .width100 {
+        width: 100%;
+      }
+
+      .gridLine {
+        display: grid;
+        grid-template-columns: repeat(6, 3rem);
+        gap: 0.3rem;
+      }
+
+      .centeredColumn {
+        @include display-flex();
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .sizeGroup {
+        display: block;
+        border: 1px dashed map-get($map: $colors, $key: light-grey);
+
+        label {
+          @include display-flex();
+          align-items: center;
+          text-transform: capitalize;
+          // justify-content: space-between;
+          padding: 1rem 0.5rem;
+        }
+      }
+
+      .groupCmp {
+        table {
+          margin: auto;
+          tr {
+            width: 100%;
+            padding: 0 0.5rem;
+          }
+        }
+      }
+
+      .noDivision {
+        border-top: none;
+      }
+
+      .division {
+        padding-top: 1rem;
+        border-top: 1px solid map-get($map: $colors, $key: light-grey);
+      }
+
+      .sizeSet {
+        background-color: map-get($map: $colors, $key: lighter-grey);
+      }
+
+      .tag {
+        position: relative;
+        @include display-flex();
+        justify-content: center;
+        align-items: center;
+        height: 3rem;
+        width: 3rem;
+        text-transform: uppercase;
+        color: map-get($map: $colors, $key: grey);
+        cursor: pointer;
+        border: 1px solid map-get($map: $colors, $key: light-grey);
+        margin-right: 0.5rem;
+      }
+
+      .disabled {
+        cursor: initial;
+      }
+
+      .tag_selected {
+        color: map-get($map: $colors, $key: black);
+        border: 1px solid map-get($map: $colors, $key: primary);
+      }
+
+      .tagEdit {
+        &:hover:after {
+          position: absolute;
+          @include display-flex();
+          justify-content: center;
+          align-items: center;
+          content: 'Clicke para adicionar.';
+          font-size: 0.8rem;
+          width: 5rem;
+          height: 1rem;
+          top: -1.5rem;
+          left: 0;
+          text-transform: capitalize;
+          background-color: map-get($map: $colors, $key: yellow-tip);
+          border: 1px solid map-get($map: $colors, $key: dark-yellow-tip);
+          border-radius: 5px;
+        }
+      }
+
       .sets {
         & > span {
           display: block;
@@ -131,6 +236,19 @@
         height: 3rem;
         width: 3rem;
       }
+
+      .buttonRed {
+        background-color: map-get($map: $colors, $key: promo-red);
+        &:hover {
+          background-color: map-get($map: $colors, $key: dark-red);
+        }
+      }
     }
   }
+}
+
+.centeredColumn {
+  @include display-flex();
+  flex-direction: column;
+  align-items: center;
 }
