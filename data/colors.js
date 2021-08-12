@@ -1,6 +1,24 @@
 import Color from '../models/color';
 import dbConnect from '../utils/dbConnect';
 
+export async function getColorById(_id) {
+  let color;
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    color = await Color.findById(_id);
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN002');
+    }
+  }
+  return color;
+}
+
 export async function getColors() {
   let colors = [];
 

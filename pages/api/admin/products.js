@@ -3,13 +3,21 @@ import { postProduct, deleteProduct, putProduct } from '../../../data/products';
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const newProduct = await postProduct(req.body.text);
+      const newProduct = await postProduct(req.body.product);
       res.status(201).json({ statusCode: '201', Product: newProduct });
     } catch (err) {
-      res.status(500).json({
-        statusCode: '500',
-        message: 'ERROR SAVING Product: ' + err.message,
-      });
+      console.log(err);
+      if (err.message === 'INVALID') {
+        res.status(400).json({
+          statusCode: '400',
+          message: 'ERROR SAVING PRODUCT: PRODUCT HAS INVALID INFORMATION',
+        });
+      } else {
+        res.status(500).json({
+          statusCode: '500',
+          message: 'ERROR SAVING PRODUCT: ' + err.message,
+        });
+      }
     }
   }
 

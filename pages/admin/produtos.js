@@ -56,18 +56,16 @@ const SizeGroup = ({
               key={set._id}
             >
               <td>
-                <label
-                  htmlFor={'op' + name + set._id}
-                  onChange={(e) => {
-                    onSelectGroup(name, e.target.value);
-                  }}
-                >
+                <label htmlFor={'op' + name + set._id}>
                   <InputRadio
                     id={'op' + name + set._id}
                     name={name}
                     value={set._id}
                     disabled={disabled}
                     checked={selectedGroup === set._id}
+                    onChange={(e) => {
+                      onSelectGroup(name, e.target.value);
+                    }}
                   />
                 </label>
               </td>
@@ -297,25 +295,38 @@ const AdProductsPage = ({
   };
 
   const onAddOption = () => {
-    if (tempSet.colorId.length > 1) {
-      onChange({ ...tempSet }, fields.SETS);
-      setTempSet({
-        colorId: '',
-        sizeSets: {},
-        images: [],
-        extraOptions: [],
-      });
-      setSelectedColorName('');
-      setToggleUnique(false);
-      setToggleCustom(false);
+    if (
+      productState.product.sets.findIndex(
+        (set) => set.colorId === tempSet.colorId
+      ) < 0
+    ) {
+      if (tempSet.colorId.length > 1) {
+        onChange({ ...tempSet }, fields.SETS);
+        setTempSet({
+          colorId: '',
+          sizeSets: {},
+          images: [],
+          extraOptions: [],
+        });
+        setSelectedColorName('');
+        setToggleUnique(false);
+        setToggleCustom(false);
+        return;
+      } else {
+        setConfirmationMessage(
+          'Por favor, escolha pelo menos a cor desta opção!'
+        );
+      }
     } else {
-      window.scrollTo(0, 0);
       setConfirmationMessage(
-        'Por favor, escolha pelo menos a cor desta opção!'
+        'Esta cor já foi escolhida. Por favor, escolha outra!'
       );
-      setCancelText('');
-      setShowError(true);
     }
+
+    window.scrollTo(0, 0);
+    setCancelText('');
+    setOkText('Ok');
+    setShowError(true);
   };
 
   // Extra options
@@ -416,6 +427,7 @@ const AdProductsPage = ({
     if (!validate()) {
       window.scrollTo(0, 0);
       setCancelText('');
+      setOkText('');
       setShowError(true);
       return;
     }
@@ -425,7 +437,62 @@ const AdProductsPage = ({
     );
     setShowConfirmation(true);
     setCancelText('Cancelar');
+    setOkText('Salvar');
     window.scrollTo(0, 0);
+  };
+
+  // Save New
+  const onSaveProduct = async (event) => {
+    event.preventDefault();
+    // {"code":"tg177","name":"Fionna","limitStock":true,"stockNumber":100,"categoryId":"610be9170c9efc1504511c7a","sectionId":"610be9b30c9efc1504511c92","price":"89.99","discountPercentage":"5","weight":"0.215","shortDescription":"Lindo conjundo Fionna coleção 2006","longDescription":"Lindo conjundo Fionna coleção 2006\n\n-Lindo conjundo Fionna coleção 2006\n-Lindo Fionna coleção 2006\n-Lindo conjundo Fionna 2006\n-Lindo conjundo coleção 2006\n-Lindo conjundo Fionna coleção ","sets":[{"colorId":"610ae56a8075a60e4cfde69b","sizeSets":{"unique":{"name":"unique","isUnique":true,"sizeSetId":"610c411d974ca338dc4b76d9","availableSizes":{"p":"p","g":"g","gg":"gg","m":"m"}}},"images":[],"extraOptions":[{"name":"Bojo","options":["liso","bolha"]},{"name":"strass","options":["com","sem"]}]},{"colorId":"610be94b0c9efc1504511c86","sizeSets":{"unique":{"name":"unique","isUnique":true,"sizeSetId":"610c411d974ca338dc4b76d9","availableSizes":{"p":"p","m":"m","g":"g","xg":"xg","gg":"gg"}}},"images":[],"extraOptions":[{"name":"Bojo","options":["liso","bolha"]}]}]}
+
+    // Transform Objects to Arrays
+    let newProduct = { ...productState.product };
+    let newSets = [];
+    newProduct.sets.forEach((set) => {
+      let arrayOfSizeSetsProps = Object.values(set.sizeSets) || [];
+      let arrayOfSizeSetsPropsAndSymbols = arrayOfSizeSetsProps.concat(
+        Object.getOwnPropertySymbols(set.sizeSets).map((sizeSet) => ({
+          ...set.sizeSets[sizeSet],
+        }))
+      );
+      let finalArray = [];
+      arrayOfSizeSetsPropsAndSymbols.forEach((element) => {
+        finalArray.push({
+          ...element,
+          availableSizes: Object.values(element.availableSizes),
+        });
+      });
+      newSets.push({ ...set, sizeSets: finalArray });
+    });
+
+    newProduct.sets = newSets;
+
+    const createdProduct = await fetch('/api/admin/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product: newProduct }),
+    });
+
+    switch (createdProduct.status) {
+      case 201:
+        const data = await createdProduct.json();
+        break;
+      case 400:
+        window.alert(
+          'Não foi possível salvar o produto pois existem informações erradas no cadastro!'
+        );
+        break;
+      case 401:
+        window.alert(
+          'Você não está autorizado a fazer isso. Por favor, faça o login novamente.'
+        );
+        break;
+      case 500:
+      default:
+        window.alert('Ops, Erro interno! Por favor, contate o Administrador.');
+        break;
+    }
   };
 
   // Validations
@@ -532,10 +599,6 @@ const AdProductsPage = ({
     return true;
   };
 
-  const onConfirmation = (event) => {
-    event.preventDefault();
-  };
-
   const onDismissConfirmation = (event) => {
     event.preventDefault();
     setShowConfirmation(false);
@@ -576,6 +639,8 @@ const AdProductsPage = ({
                     onChange={(e) => onChange(e.target.value, fields.CODE)}
                     value={productState.product.code}
                     valid={codeValidation}
+                    minLength={4}
+                    maxLength={10}
                   />
                   <Button className={styles.button}>Buscar</Button>
                 </span>
@@ -590,6 +655,8 @@ const AdProductsPage = ({
                   onChange={(e) => onChange(e.target.value, fields.NAME)}
                   value={productState.product.name}
                   valid={nameValidation}
+                  minLength={4}
+                  maxLength={15}
                 />
               </label>
             </span>
@@ -729,7 +796,8 @@ const AdProductsPage = ({
                   onChange={(e) =>
                     onChange(e.target.value, fields.SHORT_DESCRIPTION)
                   }
-                  maxLength={60}
+                  minLength={5}
+                  maxLength={30}
                   value={productState.product.shortDescription}
                   valid={shortDescValidation}
                 />
@@ -747,140 +815,152 @@ const AdProductsPage = ({
                   }
                   value={productState.product.longDescription}
                   valid={longDescValidation}
+                  minLength={50}
+                  maxLength={1000}
                 />
               </label>
             </span>
             {productState.product.sets.length > 0 && (
               <span>
                 Opções:
-                <table>
-                  {productState.product.sets.map((set, index) => (
-                    <tbody key={set.colorId}>
-                      <tr>
-                        <td colSpan={2} className={styles.tbodySeparator}></td>
-                      </tr>
-                      <tr>
-                        <td>Cor:</td>
-                        <td className={styles.capitalize}>
-                          {colorList.find((c) => c._id === set.colorId).text}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td colSpan={2}>
-                          {'Tamanhos: '}
-                          {set.sizeSets.unique ||
-                          Object.getOwnPropertySymbols(set.sizeSets).length > 0
-                            ? ''
-                            : 'Sem Tamanho'}
-                        </td>
-                      </tr>
-                      {set.sizeSets.unique && (
-                        <tr>
-                          <td>Único:</td>
-                          <td className={styles.uppercase}>
-                            {(function () {
-                              let text = '';
-                              for (const k in set.sizeSets.unique
-                                .availableSizes) {
-                                if (text.length > 0) text = text + ' - ';
-                                if (
-                                  Object.hasOwnProperty.call(
-                                    set.sizeSets.unique.availableSizes,
-                                    k
-                                  )
-                                ) {
-                                  text = text + k;
-                                }
-                              }
-                              return text;
-                            })()}
-                          </td>
-                        </tr>
+                {productState.product.sets.map((set, index) => (
+                  <div
+                    key={set.colorId}
+                    className={[
+                      styles.marginTop,
+                      styles.padding,
+                      styles.borderAround,
+                    ].join(' ')}
+                  >
+                    <table
+                      className={[styles.borderCollapse, styles.width100].join(
+                        ' '
                       )}
-                      {Object.getOwnPropertySymbols(set.sizeSets).length >
-                        0 && (
+                    >
+                      <tbody>
                         <tr>
-                          <td>Personalizado:</td>
-                          <td>
-                            {Object.getOwnPropertySymbols(set.sizeSets).map(
-                              (size) => (
-                                <span
-                                  key={set.sizeSets[size].name}
-                                  className={styles.block}
-                                >
-                                  {set.sizeSets[size].name}
-                                  {': '}
-                                  {(function () {
-                                    let text = '';
-                                    for (const k in set.sizeSets[size]
-                                      .availableSizes) {
-                                      if (text.length > 0) text = text + ' - ';
-                                      if (
-                                        Object.hasOwnProperty.call(
-                                          set.sizeSets[size].availableSizes,
-                                          k
-                                        )
-                                      ) {
-                                        text = text + k;
-                                      }
-                                    }
-                                    return text.toUpperCase();
-                                  })()}
-                                </span>
-                              )
-                            )}
+                          <td>Cor:</td>
+                          <td className={styles.capitalize}>
+                            {colorList.find((c) => c._id === set.colorId).text}
                           </td>
-                        </tr>
-                      )}
-                      {set.extraOptions.length > 0 && (
-                        <tr>
-                          <td>Opções Extras:</td>
-                          <td>
-                            {set.extraOptions.map((opt) => (
-                              <span
-                                key={opt.name}
-                                className={[
-                                  styles.block,
-                                  styles.capitalize,
-                                ].join(' ')}
-                              >
-                                {opt.name}
-                                {': '}
-                                {opt.options.join(' / ')}
-                              </span>
-                            ))}
-                          </td>
-                        </tr>
-                      )}
-                      <tr>
-                        <td colSpan={2}>
-                          <Button
-                            className={[
-                              styles.buttonSmall,
-                              styles.buttonRed,
-                            ].join(' ')}
-                            type="button"
-                            onClick={() => onRemoveSet(index)}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              className={styles.icon}
-                              viewBox="0 0 16 16"
+                          <td rowSpan={2} className={styles.width3}>
+                            <Button
+                              className={[
+                                styles.buttonSmall,
+                                styles.buttonRed,
+                              ].join(' ')}
+                              type="button"
+                              onClick={() => onRemoveSet(index)}
                             >
-                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                              <path
-                                fillRule="evenodd"
-                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
-                              />
-                            </svg>
-                          </Button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  ))}
-                </table>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                className={styles.icon}
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                                />
+                              </svg>
+                            </Button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan={2}>
+                            {'Tamanhos: '}
+                            {set.sizeSets.unique ||
+                            Object.getOwnPropertySymbols(set.sizeSets).length >
+                              0
+                              ? ''
+                              : 'Sem Tamanho'}
+                          </td>
+                        </tr>
+                        {set.sizeSets.unique && (
+                          <tr className={styles.borderAround}>
+                            <td>Único:</td>
+                            <td className={styles.uppercase} colSpan={2}>
+                              {(function () {
+                                let text = '';
+                                for (const k in set.sizeSets.unique
+                                  .availableSizes) {
+                                  if (text.length > 0) text = text + ' - ';
+                                  if (
+                                    Object.hasOwnProperty.call(
+                                      set.sizeSets.unique.availableSizes,
+                                      k
+                                    )
+                                  ) {
+                                    text = text + k;
+                                  }
+                                }
+                                return text;
+                              })()}
+                            </td>
+                          </tr>
+                        )}
+                        {Object.getOwnPropertySymbols(set.sizeSets).length >
+                          0 && (
+                          <tr className={styles.borderAround}>
+                            <td>Personalizado:</td>
+                            <td colSpan={2}>
+                              {Object.getOwnPropertySymbols(set.sizeSets).map(
+                                (size) => (
+                                  <span
+                                    key={set.sizeSets[size].name}
+                                    className={styles.block}
+                                  >
+                                    {set.sizeSets[size].name}
+                                    {': '}
+                                    {(function () {
+                                      let text = '';
+                                      for (const k in set.sizeSets[size]
+                                        .availableSizes) {
+                                        if (text.length > 0)
+                                          text = text + ' - ';
+                                        if (
+                                          Object.hasOwnProperty.call(
+                                            set.sizeSets[size].availableSizes,
+                                            k
+                                          )
+                                        ) {
+                                          text = text + k;
+                                        }
+                                      }
+                                      return text.toUpperCase();
+                                    })()}
+                                  </span>
+                                )
+                              )}
+                            </td>
+                          </tr>
+                        )}
+                        {set.extraOptions.length > 0 && (
+                          <tr className={styles.borderAround}>
+                            <td>Opções Extras:</td>
+                            <td colSpan={2}>
+                              {set.extraOptions.map((opt) => (
+                                <span
+                                  key={opt.name}
+                                  className={[
+                                    styles.block,
+                                    styles.capitalize,
+                                  ].join(' ')}
+                                >
+                                  {opt.name}
+                                  {': '}
+                                  {opt.options.join(' / ')}
+                                </span>
+                              ))}
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
               </span>
             )}
             <span className={styles.sets}>
@@ -901,7 +981,14 @@ const AdProductsPage = ({
                       className={styles.capitalize}
                       onChange={(v) => {
                         setTempSet((list) => ({ ...list, colorId: v }));
-                        setSelectedColorName(colors.find(c => c.id === v).text);
+                        let color = colors.find((c) => c.id === v);
+                        if (color) {
+                          setSelectedColorName(
+                            colors.find((c) => c.id === v).text
+                          );
+                        } else {
+                          setSelectedColorName('Selecione');
+                        }
                       }}
                       colors={colors}
                       value={selectedColorName}
@@ -980,6 +1067,7 @@ const AdProductsPage = ({
                           <span
                             className={[
                               styles.paddingTwo,
+                              styles.capitalize,
                               styles.width100,
                             ].join(' ')}
                           >
@@ -1046,7 +1134,8 @@ const AdProductsPage = ({
                           <Input
                             id="customName"
                             className={styles.inp_text}
-                            maxLength={10}
+                            minLength={2}
+                            maxLength={15}
                             value={tempSizeSetName}
                             onChange={(e) => setTempSizeSetName(e.target.value)}
                           />
@@ -1138,6 +1227,8 @@ const AdProductsPage = ({
                         className={styles.inp_text}
                         value={tempExtraOptName}
                         onChange={(e) => setTempExtraOptName(e.target.value)}
+                        minLength={2}
+                        maxLength={5}
                       />
                     </span>
                     <span>
@@ -1176,6 +1267,8 @@ const AdProductsPage = ({
                         className={styles.inp_text}
                         value={tempExtraOptOption}
                         onChange={(e) => setTempExtraOptOption(e.target.value)}
+                        minLength={2}
+                        maxLength={10}
                       />
                       <Button
                         className={[styles.button, styles.buttonSmall].join(
@@ -1235,7 +1328,7 @@ const AdProductsPage = ({
       <ConfirmationDialog
         show={showConfirmation}
         onCancel={onDismissConfirmation}
-        onConfirm={onConfirmation}
+        onConfirm={onSaveProduct}
         message={confirmationMessage}
         cancelText={cancelText}
         okText={okText}

@@ -115,6 +115,10 @@
         border: 1px solid map-get($map: $colors, $key: light-grey);
       }
 
+      .borderCollapse {
+        border-collapse: collapse;
+      }
+
       .padding {
         padding: 1rem;
       }

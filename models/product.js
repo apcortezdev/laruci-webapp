@@ -90,18 +90,11 @@ const product = new Schema({
             type: String,
             required: true,
           },
-          options: [
-            {
-              name: {
-                type: String,
-                required: true,
-              },
-              available: {
-                type: String,
-                required: true,
-              },
-            },
-          ],
+          options: {
+            type: Array,
+            of: String,
+            required: true,
+          },
         },
       ],
     },

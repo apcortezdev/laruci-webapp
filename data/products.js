@@ -1,4 +1,5 @@
 import Product from '../models/product';
+import { validateProduct } from '../helpers/validation';
 import dbConnect from '../utils/dbConnect';
 
 const dummy = {
@@ -65,7 +66,7 @@ const dummy = {
         images: [
           'https://images.unsplash.com/photo-1590474176361-3360c446dd02?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=771&q=80',
           'https://images.unsplash.com/photo-1592318291025-35d8b8e42ed1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1954&q=80',
-          'https://images.unsplash.com/photo-1575186083127-03641b958f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2002&q=80'
+          'https://images.unsplash.com/photo-1575186083127-03641b958f61?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2002&q=80',
         ],
         extraOptions: [
           {
@@ -505,13 +506,11 @@ export async function getBareProductListByCategory(category) {
 export async function getProductImageThumb(productId) {
   // returns tumb image for BagPage so it won't have to save link in cookie
   const res = {
-    abcde: 'https://images.unsplash.com/photo-1590474176361-3360c446dd02?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=771&q=80',
+    abcde:
+      'https://images.unsplash.com/photo-1590474176361-3360c446dd02?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=771&q=80',
   };
-  return res;  
+  return res;
 }
-
-
-
 
 // export async function getCategories() {
 //   let categories = [];
@@ -537,22 +536,46 @@ export async function getProductImageThumb(productId) {
 //   return JSON.stringify(categories);
 // }
 
-export async function postProduct(product) {
-  // let name = text;
+export async function postProduct(postProduct) {
 
-  // name = name
-  //   .replace(/[ã|á|à]/gi, 'a')
-  //   .replace(/[é|è]/gi, 'e')
-  //   .replace(/[í|ì]/gi, 'i')
-  //   .replace(/[õ|ó|ò]/gi, 'o')
-  //   .replace(/[ú|ù]/gi, 'u')
-  //   .replace(/[ç]/gi, 'c')
-  //   .replace(/[-|_]/, '')
-  //   .replace(/[ ]+/g, '');
+  let product = {
+    ...postProduct,
+    code: postProduct.code.trim(),
+    name: postProduct.name.trim(),
+    shortDescription: postProduct.shortDescription.trim(),
+    longDescription: postProduct.longDescription.trim(),
+  };
+  let sets = postProduct.sets.map((set) => ({
+    ...set,
+    sizeSets:
+      set.sizeSets.length > 0
+        ? set.sizeSets.map((size) => ({
+            ...size,
+            name: size.name.trim(),
+          }))
+        : [],
+    extraOptions:
+      set.extraOptions.length > 0
+        ? set.extraOptions.map((opt) => ({
+            name: opt.name.trim(),
+            options: opt.options.map((o) => o.trim()),
+          }))
+        : [],
+  }));
 
-  const newCategory = new Category({
-    name: name.toLowerCase(),
-    text: text.toLowerCase(),
+  product.sets = sets;
+
+  const isValid = await validateProduct(product);
+  
+  if (!isValid) {
+    throw new Error('INVALID');
+  }
+  
+  const newProduct = new Product({
+    ...product,
+    sets: [
+      ...product.sets
+    ]
   });
 
   try {
@@ -562,7 +585,7 @@ export async function postProduct(product) {
   }
 
   try {
-    const created = newCategory.save();
+    const created = newProduct.save();
     return created;
   } catch (err) {
     if (err) {
@@ -624,4 +647,3 @@ export async function postProduct(product) {
 //     }
 //   }
 // }
-

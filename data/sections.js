@@ -1,6 +1,25 @@
 import Section from '../models/section';
 import dbConnect from '../utils/dbConnect';
 
+export async function getSectionById(_id) {
+  let section;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    section = await Section.findById(_id);
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN002');
+    }
+  }
+  return section;
+}
+
 export async function getSections() {
   let sections = [];
 

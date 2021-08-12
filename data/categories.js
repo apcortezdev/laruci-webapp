@@ -1,6 +1,27 @@
 import Category from '../models/category';
 import dbConnect from '../utils/dbConnect';
 
+export async function getCategoryById(_id) {
+
+  let category;
+  
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    category = await Category.findById(_id);
+  } catch (err) {
+    console.log(err)
+    if (err) {
+      throw new Error('ERN002');
+    }
+  }
+  return category;
+}
+
 export async function getCategories() {
   let categories = [];
 

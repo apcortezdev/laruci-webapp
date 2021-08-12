@@ -1,6 +1,25 @@
 import SizeSet from '../models/sizeSet';
 import dbConnect from '../utils/dbConnect';
 
+export async function getSizeSetById(_id) {
+  let sizeSet;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    sizeSet = await SizeSet.findById(_id);
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN002');
+    }
+  }
+  return sizeSet;
+}
+
 export async function getSizeSets() {
   let sizeSets = [];
 
