@@ -20,10 +20,12 @@ const ItemList = ({ item, onEdit, onDelete }) => {
 
   const onAddToSet = (event) => {
     event.preventDefault();
-    if (!sizes.find((s) => s === size)) {
-      const sz = size;
-      setSizes((list) => [...list, sz]);
-      setSize('');
+    if (size.length > 0) {
+      if (!sizes.find((s) => s === size)) {
+        const sz = size;
+        setSizes((list) => [...list, sz]);
+        setSize('');
+      }
     }
   };
 

@@ -11,7 +11,6 @@ import {
   SelectColor,
   Textarea,
   InputCheck,
-  InputMask,
 } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import { getCategoriesJSON } from '../../data/categories';
@@ -19,29 +18,12 @@ import { getColorsJSON } from '../../data/colors';
 import { getSectionsJSON } from '../../data/sections';
 import { getSizeSetsJSON } from '../../data/sizeSets';
 
-/* LEMBRETE: VALIDE OS VALORES DE PREÇO, PESO E DISCONTO PARA APENAS UM PONTO DECIMAL CONTANDO O NÚMERO DE PONTOS:
-
-var temp = "This is a string.";
-var count = (temp. match(/is/g) || []). ...
-console. log(count);
-​
-Output: 2.
-​
-Explaination : The g in the regular expression (short for global) says to search the whole string rather than just find the first occurrence.
-
-*/
-
-const types = {
-  ADD_TO_FIELD: 'ADD_TO_FIELD',
-  ADD_SET: 'ADD_SET',
-};
-
 const fields = {
   CODE: 'code',
   NAME: 'name',
   LIMIT_STOCK: 'limitStock',
   STOCK_NUMBER: 'stockNumber',
-  CATEGORY: 'category',
+  CATEGORY: 'categoryId',
   SECTION: 'sectionId',
   COLOR: 'color',
   PRICE: 'price',
@@ -50,7 +32,6 @@ const fields = {
   SHORT_DESCRIPTION: 'shortDescription',
   LONG_DESCRIPTION: 'longDescription',
   SETS: 'sets',
-  COLORID: 'colorId',
 };
 
 // SizeGroup: group of selection of SizeSets in 'Único' and 'Personalizados'
@@ -58,10 +39,8 @@ const SizeGroup = ({
   name,
   disabled,
   sizeSets,
-
   selectedGroup,
   onSelectGroup,
-
   selectedSizes,
   onSelectSize,
 }) => {
@@ -87,11 +66,8 @@ const SizeGroup = ({
                     id={'op' + name + set._id}
                     name={name}
                     value={set._id}
-                    defaultChecked={() => {
-                      if (selectedGroup === set._id) return true;
-                      else return false;
-                    }}
                     disabled={disabled}
+                    checked={selectedGroup === set._id}
                   />
                 </label>
               </td>
@@ -132,39 +108,29 @@ const SizeGroup = ({
 const productReducer = (state, action) => {
   let product = state.product;
 
-  const fieldOne = action.fieldOne;
-  const fieldTwo = action.fieldTwo || false;
-  let value = action.value;
-
-  if (action.type === types.ADD_TO_FIELD) {
-    switch (action.fieldOne) {
+  if (action.type === 'REMOVE_SET') {
+    product.sets.splice(action.index, 1);
+  } else {
+    const field = action.field;
+    let value = action.value;
+    switch (action.field) {
       case fields.LIMIT_STOCK:
-        value = action.value === 'UNLIMITED';
-        product = {
-          ...product,
-          [fieldOne]: value,
-        };
+        if (value === 'false') value = false;
+        else value = true;
         break;
-
       case fields.STOCK_NUMBER:
         value = state.product.stockNumber + action.value;
-        product = {
-          ...product,
-          [fieldOne]: value,
-        };
         break;
-
       case fields.SETS:
-        product = {
-          ...product,
-          [fieldOne]: {
-            ...product[fieldOne],
-            [fieldTwo]: value,
-          },
-        };
+        value = [...state.product.sets, action.value];
         break;
     }
+    product = {
+      ...product,
+      [field]: value,
+    };
   }
+
   return { product };
 };
 
@@ -175,6 +141,7 @@ const AdProductsPage = ({
   sectionList,
   sizeSetList,
 }) => {
+  const router = useRouter();
   if (user !== 'admin') {
     return <p>Esta página no ecxiste!</p>;
   }
@@ -194,41 +161,28 @@ const AdProductsPage = ({
   const [sections, setSections] = useState([]);
   const [sizeSets, setSizeSets] = useState([]);
 
-  const onChange = (value, fieldOne, fieldTwo, type = types.ADD_TO_FIELD) => {
+  const onChange = (value, field) => {
     dispatchProductState({
       value: value,
-      fieldOne: fieldOne,
-      fieldTwo: fieldTwo,
-      type: type,
+      field: field,
+      type: 'FIELD',
     });
-  };
-
-  const onAddSet = (event) => {
-    event.preventDefault();
-    console.log('CRICK');
   };
 
   const [productState, dispatchProductState] = useReducer(productReducer, {
     product: {
       code: '',
       name: '',
-      limitStock: true,
+      limitStock: false,
       stockNumber: 0,
-      category: '',
+      categoryId: '',
       sectionId: '',
       price: '',
       discountPercentage: '',
       weight: '',
       shortDescription: '',
       longDescription: '',
-      sets: {},
-      //  {
-      //    colorId: '',
-      //    sizeSetsCollection: {},
-      //    images: [],
-      //    extraOptions: [],
-      //  },
-      // }
+      sets: [],
     },
   });
 
@@ -246,10 +200,22 @@ const AdProductsPage = ({
   const [toggleUnique, setToggleUnique] = useState(false);
   const [toggleCustom, setToggleCustom] = useState(false);
 
-  // Options info
-  const [selectedColor, setSelectedColor] = useState('');
+  // Temporary Options info
+  const [tempSet, setTempSet] = useState({
+    colorId: '',
+    sizeSets: {},
+    images: [],
+    extraOptions: [],
+  });
+  const [selectedColorName, setSelectedColorName] = useState('');
 
-  const [selectedSizeSets, setSelectedSizeSets] = useState({});
+  const onRemoveSet = (index) => {
+    dispatchProductState({
+      index: index,
+      type: 'REMOVE_SET',
+    });
+  };
+
   const onSelectGroup = (name, value, list) => {
     list((list) => ({
       ...list,
@@ -289,6 +255,13 @@ const AdProductsPage = ({
   const [tempSizeSetGroupId, setTempSizeSetGroupId] = useState();
   const [tempSizeSetSizes, setTempSizeSetSizes] = useState({});
 
+  const setSelectedSizeSets = (callback) => {
+    setTempSet((list) => ({
+      ...list,
+      sizeSets: callback(list.sizeSets),
+    }));
+  };
+
   const onNewCustom = () => {
     if (tempSizeSetName.length > 0) {
       const name = tempSizeSetName;
@@ -305,7 +278,7 @@ const AdProductsPage = ({
         },
       }));
       setTempSizeSetName('');
-      setTempSizeSetGroupId('');
+      // setTempSizeSetGroupId('');
       setTempSizeSetSizes({});
     }
   };
@@ -323,9 +296,258 @@ const AdProductsPage = ({
     });
   };
 
+  const onAddOption = () => {
+    if (tempSet.colorId.length > 1) {
+      onChange({ ...tempSet }, fields.SETS);
+      setTempSet({
+        colorId: '',
+        sizeSets: {},
+        images: [],
+        extraOptions: [],
+      });
+      setSelectedColorName('');
+      setToggleUnique(false);
+      setToggleCustom(false);
+    } else {
+      window.scrollTo(0, 0);
+      setConfirmationMessage(
+        'Por favor, escolha pelo menos a cor desta opção!'
+      );
+      setCancelText('');
+      setShowError(true);
+    }
+  };
+
+  // Extra options
+  const [tempExtraOptName, setTempExtraOptName] = useState('');
+  const [tempExtraOptOption, setTempExtraOptOption] = useState('');
+  const [tempExtraOptOptions, setTempExtraOptOptions] = useState([]);
+
+  const onAddExtraOpt = () => {
+    const name = tempExtraOptName;
+    const opts = [...tempExtraOptOptions];
+
+    setConfirmationMessage(
+      'Opção extra precisa de um nome e no mínimo 2 opções!'
+    );
+    if (name.length > 0 && opts.length > 1) {
+      if (
+        tempSet.extraOptions.findIndex(
+          (opt) => opt.name.toLowerCase().trim() === name.toLowerCase().trim()
+        ) >= 0
+      ) {
+        setConfirmationMessage('Esta opção extra já existe!');
+      } else {
+        setTempSet((list) => ({
+          ...list,
+          extraOptions: [
+            ...list.extraOptions,
+            {
+              name: name,
+              options: opts,
+            },
+          ],
+        }));
+        setTempExtraOptOptions([]);
+        setTempExtraOptName('');
+        return;
+      }
+    }
+    window.scrollTo(0, 0);
+    setCancelText('');
+    setShowError(true);
+  };
+
+  const onDeleteExtraOpt = (name) => {
+    setTempSet((list) => {
+      let newList = { ...list };
+      let extras = [...list.extraOptions];
+      console.log(extras.findIndex((opt) => opt.name === name));
+      extras.splice(
+        extras.findIndex((opt) => opt.name === name),
+        1
+      );
+      newList.extraOptions = extras;
+      return newList;
+    });
+  };
+
+  const onAddExtraOptOption = () => {
+    const name = tempExtraOptOption;
+    if (
+      tempExtraOptOptions.findIndex(
+        (opt) => opt.toLowerCase().trim() === name.toLowerCase().trim()
+      ) >= 0
+    ) {
+      window.scrollTo(0, 0);
+      setCancelText('');
+      setShowError(true);
+      setConfirmationMessage('Esta opção extra já existe!');
+      return;
+    }
+    setTempExtraOptOptions((values) => [...values, name]);
+    setTempExtraOptOption('');
+  };
+
+  const onDeleteExtraOptOption = (index) => {
+    setTempExtraOptOptions((values) => {
+      let newValues = [...values];
+      newValues.splice(index, 1);
+      return newValues;
+    });
+  };
+
+  const onCancel = () => {
+    router.replace({
+      pathname: '/admin',
+    });
+  };
+
+  // Dialog
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [cancelText, setCancelText] = useState('');
+  const [okText, setOkText] = useState('');
+
+  const onSave = (event) => {
+    event.preventDefault();
+
+    if (!validate()) {
+      window.scrollTo(0, 0);
+      setCancelText('');
+      setShowError(true);
+      return;
+    }
+
+    setConfirmationMessage(
+      'Por favor, confira o novo produto antes de salvar:'
+    );
+    setShowConfirmation(true);
+    setCancelText('Cancelar');
+    window.scrollTo(0, 0);
+  };
+
+  // Validations
+  const [codeValidation, setCodeValidation] = useState(true);
+  const [nameValidation, setNameValidation] = useState(true);
+  const [categoryValidation, setCategoryValidation] = useState(true);
+  const [sectionValidation, setSectionValidation] = useState(true);
+  const [stockValidation, setStockValidation] = useState(true);
+  const [priceValidation, setPriceValidation] = useState(true);
+  const [weightValidation, setWeightValidation] = useState(true);
+  const [shortDescValidation, setShortDescValidation] = useState(true);
+  const [longDescValidation, setLongDescValidation] = useState(true);
+
+  const validate = () => {
+    setCodeValidation(true);
+    if (!productState.product.code.length > 0) {
+      setCodeValidation(false);
+      setConfirmationMessage('O campo Código não pode estar em branco!');
+      return false;
+    }
+
+    setNameValidation(true);
+    if (!productState.product.name.length > 0) {
+      setNameValidation(false);
+      setConfirmationMessage('O campo Nome não pode estar em branco!');
+      return false;
+    }
+
+    setCategoryValidation(true);
+    if (!productState.product.categoryId.length > 0) {
+      setCategoryValidation(false);
+      setConfirmationMessage('Escolha uma Categoria!');
+      return false;
+    }
+
+    setSectionValidation(true);
+    if (!productState.product.sectionId.length > 0) {
+      setSectionValidation(false);
+      setConfirmationMessage('Escolha uma Seção!');
+      return false;
+    }
+
+    setStockValidation(true);
+    if (
+      productState.product.limitStock &&
+      productState.product.stockNumber === 0
+    ) {
+      setStockValidation(false);
+      setConfirmationMessage('Estoque não pode ser limitado à 0!');
+      return false;
+    }
+
+    setPriceValidation(true);
+    if (!productState.product.price.length > 0) {
+      setPriceValidation(false);
+      setConfirmationMessage('Digite um preço!');
+      return false;
+    }
+
+    setPriceValidation(true);
+    if (productState.product.price.match(/\./g).length > 1) {
+      setPriceValidation(false);
+      setConfirmationMessage('Preço precitar ter somente um ponto!');
+      return false;
+    }
+
+    setWeightValidation(true);
+    if (!productState.product.weight.length > 0) {
+      setWeightValidation(false);
+      setConfirmationMessage(
+        'Digite um peso! Isso será importante para calcular fretes!'
+      );
+      return false;
+    }
+
+    setWeightValidation(true);
+    if (productState.product.weight.match(/\./g).length > 1) {
+      setWeightValidation(false);
+      setConfirmationMessage('Peso precitar ter somente um ponto!');
+      return false;
+    }
+
+    setShortDescValidation(true);
+    if (!productState.product.shortDescription.length > 0) {
+      setShortDescValidation(false);
+      setConfirmationMessage('Digite uma descrição curta!');
+      return false;
+    }
+
+    setLongDescValidation(true);
+    if (!productState.product.longDescription.length > 0) {
+      setLongDescValidation(false);
+      setConfirmationMessage('Digite uma descrição Longa!');
+      return false;
+    }
+
+    if (!productState.product.sets.length > 0) {
+      setConfirmationMessage(
+        'Este produto precisa de pelo menos um grupo de Opções!'
+      );
+      return false;
+    }
+
+    return true;
+  };
+
+  const onConfirmation = (event) => {
+    event.preventDefault();
+  };
+
+  const onDismissConfirmation = (event) => {
+    event.preventDefault();
+    setShowConfirmation(false);
+    setShowError(false);
+  };
+
   return (
     <Admin>
-      <div className={[styles.wrapper, styles.centeredColumn].join(' ')}>
+      <div
+        id="top"
+        className={[styles.wrapper, styles.centeredColumn].join(' ')}
+      >
         <section className={styles.warning}>
           <h1>Produtos</h1>
           <div>
@@ -343,7 +565,7 @@ const AdProductsPage = ({
           </div>
         </section>
         <section className={styles.product}>
-          <form className={styles.form} onSubmit={onAddSet}>
+          <form className={styles.form} onSubmit={onSave}>
             <span>
               <label htmlFor="code">
                 Código:
@@ -353,6 +575,7 @@ const AdProductsPage = ({
                     className={[styles.inp_text, styles.uppercase].join(' ')}
                     onChange={(e) => onChange(e.target.value, fields.CODE)}
                     value={productState.product.code}
+                    valid={codeValidation}
                   />
                   <Button className={styles.button}>Buscar</Button>
                 </span>
@@ -366,6 +589,7 @@ const AdProductsPage = ({
                   className={styles.inp_text}
                   onChange={(e) => onChange(e.target.value, fields.NAME)}
                   value={productState.product.name}
+                  valid={nameValidation}
                 />
               </label>
             </span>
@@ -378,6 +602,7 @@ const AdProductsPage = ({
                   className={styles.capitalize}
                   onChange={(v) => onChange(v, fields.CATEGORY)}
                   options={categories}
+                  valid={categoryValidation}
                 />
               </label>
             </span>
@@ -390,6 +615,7 @@ const AdProductsPage = ({
                   className={styles.capitalize}
                   onChange={(v) => onChange(v, fields.SECTION)}
                   options={sections}
+                  valid={sectionValidation}
                 />
               </label>
             </span>
@@ -409,7 +635,7 @@ const AdProductsPage = ({
                       id="prod_limitStock_nolimit"
                       name={'limitStock'}
                       defaultChecked={true}
-                      value="UNLIMITED"
+                      value={false}
                     />
                     Sem Limite
                   </label>
@@ -424,7 +650,7 @@ const AdProductsPage = ({
                     <InputRadio
                       id="prod_limitStock_limit"
                       name="limitStock"
-                      value="LIMITED"
+                      value={true}
                     />
                     Limitado à
                   </label>
@@ -435,8 +661,9 @@ const AdProductsPage = ({
                     className={styles.inp_number}
                     onChange={(value) => onChange(value, fields.STOCK_NUMBER)}
                     minValue={0}
-                    disabled={productState.product.limitStock}
+                    disabled={!productState.product.limitStock}
                     value={productState.product.stockNumber}
+                    valid={stockValidation}
                   />
                 </span>
               </span>
@@ -455,6 +682,7 @@ const AdProductsPage = ({
                       onChange(value, fields.PRICE);
                     }}
                     value={productState.product.price}
+                    valid={priceValidation}
                   />
                 </span>
               </label>
@@ -486,6 +714,7 @@ const AdProductsPage = ({
                       onChange(value, fields.WEIGHT);
                     }}
                     value={productState.product.weight}
+                    valid={weightValidation}
                   />
                   Kg
                 </span>
@@ -502,6 +731,7 @@ const AdProductsPage = ({
                   }
                   maxLength={60}
                   value={productState.product.shortDescription}
+                  valid={shortDescValidation}
                 />
               </label>
             </span>
@@ -516,10 +746,144 @@ const AdProductsPage = ({
                     onChange(e.target.value, fields.LONG_DESCRIPTION)
                   }
                   value={productState.product.longDescription}
+                  valid={longDescValidation}
                 />
               </label>
             </span>
-            <div className={styles.sets}>
+            {productState.product.sets.length > 0 && (
+              <span>
+                Opções:
+                <table>
+                  {productState.product.sets.map((set, index) => (
+                    <tbody key={set.colorId}>
+                      <tr>
+                        <td colSpan={2} className={styles.tbodySeparator}></td>
+                      </tr>
+                      <tr>
+                        <td>Cor:</td>
+                        <td className={styles.capitalize}>
+                          {colorList.find((c) => c._id === set.colorId).text}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan={2}>
+                          {'Tamanhos: '}
+                          {set.sizeSets.unique ||
+                          Object.getOwnPropertySymbols(set.sizeSets).length > 0
+                            ? ''
+                            : 'Sem Tamanho'}
+                        </td>
+                      </tr>
+                      {set.sizeSets.unique && (
+                        <tr>
+                          <td>Único:</td>
+                          <td className={styles.uppercase}>
+                            {(function () {
+                              let text = '';
+                              for (const k in set.sizeSets.unique
+                                .availableSizes) {
+                                if (text.length > 0) text = text + ' - ';
+                                if (
+                                  Object.hasOwnProperty.call(
+                                    set.sizeSets.unique.availableSizes,
+                                    k
+                                  )
+                                ) {
+                                  text = text + k;
+                                }
+                              }
+                              return text;
+                            })()}
+                          </td>
+                        </tr>
+                      )}
+                      {Object.getOwnPropertySymbols(set.sizeSets).length >
+                        0 && (
+                        <tr>
+                          <td>Personalizado:</td>
+                          <td>
+                            {Object.getOwnPropertySymbols(set.sizeSets).map(
+                              (size) => (
+                                <span
+                                  key={set.sizeSets[size].name}
+                                  className={styles.block}
+                                >
+                                  {set.sizeSets[size].name}
+                                  {': '}
+                                  {(function () {
+                                    let text = '';
+                                    for (const k in set.sizeSets[size]
+                                      .availableSizes) {
+                                      if (text.length > 0) text = text + ' - ';
+                                      if (
+                                        Object.hasOwnProperty.call(
+                                          set.sizeSets[size].availableSizes,
+                                          k
+                                        )
+                                      ) {
+                                        text = text + k;
+                                      }
+                                    }
+                                    return text.toUpperCase();
+                                  })()}
+                                </span>
+                              )
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                      {set.extraOptions.length > 0 && (
+                        <tr>
+                          <td>Opções Extras:</td>
+                          <td>
+                            {set.extraOptions.map((opt) => (
+                              <span
+                                key={opt.name}
+                                className={[
+                                  styles.block,
+                                  styles.capitalize,
+                                ].join(' ')}
+                              >
+                                {opt.name}
+                                {': '}
+                                {opt.options.join(' / ')}
+                              </span>
+                            ))}
+                          </td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td colSpan={2}>
+                          <Button
+                            className={[
+                              styles.buttonSmall,
+                              styles.buttonRed,
+                            ].join(' ')}
+                            type="button"
+                            onClick={() => onRemoveSet(index)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              className={styles.icon}
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                              <path
+                                fillRule="evenodd"
+                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                              />
+                            </svg>
+                          </Button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  ))}
+                </table>
+              </span>
+            )}
+            <span className={styles.sets}>
               Opções:
               <div
                 className={[
@@ -535,8 +899,12 @@ const AdProductsPage = ({
                       id="color"
                       placeholder="Selecione"
                       className={styles.capitalize}
-                      onChange={(v) => setSelectedColor(v)}
+                      onChange={(v) => {
+                        setTempSet((list) => ({ ...list, colorId: v }));
+                        setSelectedColorName(colors.find(c => c.id === v).text);
+                      }}
                       colors={colors}
+                      value={selectedColorName}
                     />
                   </label>
                 </span>
@@ -548,6 +916,7 @@ const AdProductsPage = ({
                         <InputCheck
                           id="unique"
                           onChange={() => setToggleUnique((t) => !t)}
+                          checked={toggleUnique}
                         />
                       </span>
                       Único
@@ -563,14 +932,14 @@ const AdProductsPage = ({
                         onSelectSize(a, b, setSelectedSizeSets)
                       }
                       selectedSizes={
-                        typeof selectedSizeSets.unique === 'undefined'
+                        typeof tempSet.sizeSets.unique === 'undefined'
                           ? {}
-                          : selectedSizeSets.unique.availableSizes
+                          : tempSet.sizeSets.unique.availableSizes
                       }
                       selectedGroup={
-                        typeof selectedSizeSets.unique === 'undefined'
+                        typeof tempSet.sizeSets.unique === 'undefined'
                           ? {}
-                          : selectedSizeSets.unique.sizeSetId
+                          : tempSet.sizeSets.unique.sizeSetId
                       }
                     />
                   </span>
@@ -585,18 +954,19 @@ const AdProductsPage = ({
                             if (toggleCustom) {
                               onNoCustom();
                               setTempSizeSetName('');
-                              setTempSizeSetGroupId('');
+                              // setTempSizeSetGroupId('');
                               setTempSizeSetSizes({});
                               setToggleCustom(false);
                             } else {
                               setToggleCustom(true);
                             }
                           }}
+                          checked={toggleCustom}
                         />
                       </span>
                       Personalizados
                     </label>
-                    {Object.getOwnPropertySymbols(selectedSizeSets).map((s) => {
+                    {Object.getOwnPropertySymbols(tempSet.sizeSets).map((s) => {
                       return (
                         <div
                           className={[
@@ -605,7 +975,7 @@ const AdProductsPage = ({
                             styles.marginTwo,
                             styles.lineBotton,
                           ].join(' ')}
-                          key={selectedSizeSets[s].name}
+                          key={tempSet.sizeSets[s].name}
                         >
                           <span
                             className={[
@@ -613,20 +983,20 @@ const AdProductsPage = ({
                               styles.width100,
                             ].join(' ')}
                           >
-                            {selectedSizeSets[s].name}
+                            {tempSet.sizeSets[s].name}
                           </span>
 
                           <span className={styles.gridLine}>
                             {sizeSets
                               .find(
-                                (si) => si._id === selectedSizeSets[s].sizeSetId
+                                (si) => si._id === tempSet.sizeSets[s].sizeSetId
                               )
                               .sizes.map((size) => (
                                 <span
-                                  key={selectedSizeSets[s].name + size}
+                                  key={tempSet.sizeSets[s].name + size}
                                   className={[
                                     styles.tag,
-                                    typeof selectedSizeSets[s].availableSizes[
+                                    typeof tempSet.sizeSets[s].availableSizes[
                                       size
                                     ] !== 'undefined'
                                       ? styles.tag_selected
@@ -727,16 +1097,330 @@ const AdProductsPage = ({
                     )}
                   </span>
                 </span>
+                <span>
+                  Opções Extras:
+                  <div className={[styles.sizeGroup, styles.padding].join(' ')}>
+                    {tempSet.extraOptions.map((opt) => (
+                      <span key={'extraOpts_' + opt.name}>
+                        <table className={styles.width100}>
+                          <tbody>
+                            <tr className={styles.capitalize}>
+                              <td>
+                                {opt.name}
+                                <ol>
+                                  {opt.options.map((op) => (
+                                    <li key={'op_' + op}>{op}</li>
+                                  ))}
+                                </ol>
+                              </td>
+                              <td className={styles.width3}>
+                                <Button
+                                  className={[
+                                    styles.button,
+                                    styles.buttonSmall,
+                                    styles.buttonRed,
+                                  ].join(' ')}
+                                  type="button"
+                                  onClick={() => onDeleteExtraOpt(opt.name)}
+                                >
+                                  {'-'}
+                                </Button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </span>
+                    ))}
+                    <span>
+                      <Input
+                        id="extraOptName"
+                        placeholder="Nome"
+                        className={styles.inp_text}
+                        value={tempExtraOptName}
+                        onChange={(e) => setTempExtraOptName(e.target.value)}
+                      />
+                    </span>
+                    <span>
+                      <table className={styles.width100}>
+                        <tbody>
+                          {tempExtraOptOptions.map((opt, index) => (
+                            <tr key={opt} className={styles.width100}>
+                              <td className={styles.width3}>{index + 1}.</td>
+                              <td className={styles.capitalize}>{opt}</td>
+                              <td className={styles.width3}>
+                                <Button
+                                  className={[
+                                    styles.button,
+                                    styles.buttonSmall,
+                                    styles.buttonRed,
+                                  ].join(' ')}
+                                  type="button"
+                                  onClick={() => onDeleteExtraOptOption(index)}
+                                >
+                                  {'-'}
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </span>
+                    <span
+                      className={[styles.inpwbutton, styles.marginTop].join(
+                        ' '
+                      )}
+                    >
+                      <Input
+                        id="extraOpt"
+                        placeholder="Opção"
+                        className={styles.inp_text}
+                        value={tempExtraOptOption}
+                        onChange={(e) => setTempExtraOptOption(e.target.value)}
+                      />
+                      <Button
+                        className={[styles.button, styles.buttonSmall].join(
+                          ' '
+                        )}
+                        type="button"
+                        onClick={onAddExtraOptOption}
+                      >
+                        +
+                      </Button>
+                    </span>
+                    <span>
+                      <Button
+                        type="button"
+                        onClick={onAddExtraOpt}
+                        className={[styles.button, styles.marginTop].join(' ')}
+                      >
+                        Adicionar Opção Extra
+                      </Button>
+                    </span>
+                  </div>
+                </span>
+                <span>
+                  <Button
+                    className={styles.button}
+                    type="button"
+                    onClick={onAddOption}
+                  >
+                    Adicionar Opção
+                  </Button>
+                </span>
               </div>
-            </div>
+            </span>
             <span>
-              <Button>Cancelar</Button>
-              <Button type="submit">Salvar</Button>
+              <Button
+                className={styles.button}
+                type="button"
+                onClick={onCancel}
+              >
+                Cancelar
+              </Button>
+              <Button className={styles.button} type="submit">
+                Salvar
+              </Button>
             </span>
           </form>
         </section>
       </div>
-      {/* <ConfirmationDialog show={showConfirmation} onCancel={onDismissConfirmation} onConfirm={onConfirmSaveHandler}/> */}
+      <ConfirmationDialog
+        show={showError}
+        onCancel={onDismissConfirmation}
+        onConfirm={onDismissConfirmation}
+        message={confirmationMessage}
+        cancelText={cancelText}
+        okText={okText}
+      />
+      <ConfirmationDialog
+        show={showConfirmation}
+        onCancel={onDismissConfirmation}
+        onConfirm={onConfirmation}
+        message={confirmationMessage}
+        cancelText={cancelText}
+        okText={okText}
+        className={styles.resumeBox}
+      >
+        <div className={styles.resume}>
+          <table>
+            <tbody>
+              <tr>
+                <td>Código:</td>
+                <td className={styles.uppercase}>
+                  {productState.product.code}
+                </td>
+              </tr>
+              <tr>
+                <td>Nome:</td>
+                <td>{productState.product.name}</td>
+              </tr>
+              <tr>
+                <td>Categoria:</td>
+                <td className={styles.capitalize}>
+                  {productState.product.categoryId &&
+                    categoryList.find(
+                      (c) => c._id === productState.product.categoryId
+                    ).text}
+                </td>
+              </tr>
+              <tr>
+                <td>Seção:</td>
+                <td className={styles.capitalize}>
+                  {productState.product.sectionId &&
+                    sectionList.find(
+                      (c) => c._id === productState.product.sectionId
+                    ).text}
+                </td>
+              </tr>
+              <tr>
+                <td>Estoque:</td>
+                <td className={styles.capitalize}>
+                  {productState.product.limitStock
+                    ? 'Limitado à ' +
+                      productState.product.stockNumber +
+                      ' unidades'
+                    : 'Ilimitado'}
+                </td>
+              </tr>
+              <tr>
+                <td>Preço:</td>
+                <td className={styles.capitalize}>
+                  {'R$ '}
+                  {(+productState.product.price).toFixed(2)}
+                </td>
+              </tr>
+              <tr>
+                <td>Desconto:</td>
+                <td className={styles.capitalize}>
+                  {productState.product.discountPercentage
+                    ? (+productState.product.discountPercentage).toFixed(2) +
+                      '%'
+                    : 'Sem desconto'}
+                </td>
+              </tr>
+              <tr>
+                <td>Peso Unitário:</td>
+                <td className={styles.capitalize}>
+                  {productState.product.weight}
+                  {' Kg'}
+                </td>
+              </tr>
+              <tr>
+                <td>Descrição Curta:</td>
+                <td className={styles.capitalize}>
+                  {productState.product.shortDescription}
+                </td>
+              </tr>
+              <tr>
+                <td>Descrição Longa:</td>
+                <td className={styles.textLong}>
+                  {productState.product.longDescription}
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={2}>Opções:</td>
+              </tr>
+            </tbody>
+            {productState.product.sets.map((set) => (
+              <tbody key={set.colorId}>
+                <tr>
+                  <td colSpan={2} className={styles.tbodySeparator}></td>
+                </tr>
+                <tr>
+                  <td>Cor:</td>
+                  <td className={styles.capitalize}>
+                    {colorList.find((c) => c._id === set.colorId).text}
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={2}>
+                    {'Tamanhos: '}
+                    {set.sizeSets.unique ||
+                    Object.getOwnPropertySymbols(set.sizeSets).length > 0
+                      ? ''
+                      : 'Sem Tamanho'}
+                  </td>
+                </tr>
+                {set.sizeSets.unique && (
+                  <tr>
+                    <td>Único:</td>
+                    <td className={styles.uppercase}>
+                      {(function () {
+                        let text = '';
+                        for (const k in set.sizeSets.unique.availableSizes) {
+                          if (text.length > 0) text = text + ' - ';
+                          if (
+                            Object.hasOwnProperty.call(
+                              set.sizeSets.unique.availableSizes,
+                              k
+                            )
+                          ) {
+                            text = text + k;
+                          }
+                        }
+                        return text;
+                      })()}
+                    </td>
+                  </tr>
+                )}
+                {Object.getOwnPropertySymbols(set.sizeSets).length > 0 && (
+                  <tr>
+                    <td>Personalizado:</td>
+                    <td>
+                      {Object.getOwnPropertySymbols(set.sizeSets).map(
+                        (size) => (
+                          <span
+                            key={set.sizeSets[size].name}
+                            className={styles.block}
+                          >
+                            {set.sizeSets[size].name}
+                            {': '}
+                            {(function () {
+                              let text = '';
+                              for (const k in set.sizeSets[size]
+                                .availableSizes) {
+                                if (text.length > 0) text = text + ' - ';
+                                if (
+                                  Object.hasOwnProperty.call(
+                                    set.sizeSets[size].availableSizes,
+                                    k
+                                  )
+                                ) {
+                                  text = text + k;
+                                }
+                              }
+                              return text.toUpperCase();
+                            })()}
+                          </span>
+                        )
+                      )}
+                    </td>
+                  </tr>
+                )}
+                {set.extraOptions.length > 0 && (
+                  <tr>
+                    <td>Opções Extras:</td>
+                    <td>
+                      {set.extraOptions.map((opt) => (
+                        <span
+                          key={opt.name}
+                          className={[styles.block, styles.capitalize].join(
+                            ' '
+                          )}
+                        >
+                          {opt.name}
+                          {': '}
+                          {opt.options.join(' / ')}
+                        </span>
+                      ))}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            ))}
+          </table>
+        </div>
+      </ConfirmationDialog>
     </Admin>
   );
 };

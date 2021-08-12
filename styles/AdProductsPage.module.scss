@@ -42,6 +42,11 @@
         }
       }
 
+      .button {
+        padding: 0 1rem;
+        height: 3rem;
+      }
+
       .inp_text {
         height: 3rem;
       }
@@ -82,6 +87,10 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+      }
+
+      .marginTop {
+        margin-top: 1rem;
       }
 
       .margins {
@@ -125,6 +134,10 @@
 
       .width100 {
         width: 100%;
+      }
+
+      .width3 {
+        width: 3.2rem;
       }
 
       .gridLine {
@@ -251,4 +264,38 @@
   @include display-flex();
   flex-direction: column;
   align-items: center;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.resumeBox {
+  // height: 40rem;
+  width: 40rem;
+}
+
+.resume {
+  table {
+    text-align: left;
+    td {
+      border: 1px solid map-get($map: $colors, $key: light-grey);
+    }
+
+    .tbodySeparator {
+      background-color: map-get($map: $colors, $key: light-grey);
+    }
+  }
+}
+
+.textLong {
+  white-space: pre-line;
+}
+
+.block {
+  display: block;
 }

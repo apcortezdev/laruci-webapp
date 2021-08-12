@@ -37,11 +37,12 @@ const SelectColorItem = (props) => {
 
 export const SelectColor = (props) => {
   const ref = useRef();
-  const [selected, setSelected] = useState(props.placeholder);
+  // const [selected, setSelected] = useState(props.placeholder);
+  // const [selected, setSelected] = useState(props.value || props.placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
   const changeSelected = (id, text) => {
-    setSelected(text);
+    // setSelected(text);
     props.onChange(id);
     setOptionsAsVisible(false);
   };
@@ -88,7 +89,7 @@ export const SelectColor = (props) => {
       onClick={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
-      <span className={styles.selected}>{selected}</span>
+      <span className={styles.selected}>{props.value || props.placeholder}</span>
       <div
         className={[
           styles.options,
@@ -181,7 +182,13 @@ export const SelectText = (props) => {
   return (
     <div
       ref={ref}
-      className={[styles.select, props.className].join(' ').trim()}
+      className={[
+        styles.select,
+        props.className,
+        !props.valid && styles.inputText_invalid,
+      ]
+        .join(' ')
+        .trim()}
       onClick={() => setOptionsAsVisible(true)}
       onTouchMove={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
@@ -203,6 +210,7 @@ SelectText.propTypes = {
   onChange: PropTypes.func,
   className: PropTypes.string,
   options: PropTypes.array,
+  valid: PropTypes.bool,
 };
 
 //Input type text w/ MASK

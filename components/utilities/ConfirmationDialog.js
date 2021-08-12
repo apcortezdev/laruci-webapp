@@ -10,16 +10,21 @@ const ConfirmationDialog = ({
   message,
   cancelText,
   okText,
+  children,
+  className
 }) => {
   if (show) {
     return (
-      <div className={styles.dialog}>
-        <div className={styles.confirmationBox}>
+      <div>
+        <div className={[styles.confirmationBox, className ? className : ''].join(' ').trim()}>
           {message || 'Deseja salvar?'}
+          {children}
           <span>
-            <Button className={styles.formButton} onClick={onCancel}>
-              {cancelText || 'Cancelar'}
-            </Button>
+            {!!cancelText && (
+              <Button className={styles.formButton} onClick={onCancel}>
+                {cancelText}
+              </Button>
+            )}
             <Button className={styles.formButton} onClick={onConfirm}>
               {okText || 'Ok'}
             </Button>
@@ -39,6 +44,7 @@ ConfirmationDialog.propTypes = {
   message: PropTypes.string,
   cancelText: PropTypes.string,
   okText: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default ConfirmationDialog;
