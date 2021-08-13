@@ -71,7 +71,7 @@ export async function postCategory(text) {
   }
 
   try {
-    const created = newCategory.save();
+    const created = await newCategory.save();
     return created;
   } catch (err) {
     if (err) {

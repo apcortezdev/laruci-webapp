@@ -19,6 +19,7 @@ import { getSectionsJSON } from '../../data/sections';
 import { getSizeSetsJSON } from '../../data/sizeSets';
 
 const fields = {
+  ID: 'ID',
   CODE: 'code',
   NAME: 'name',
   LIMIT_STOCK: 'limitStock',
@@ -108,6 +109,49 @@ const productReducer = (state, action) => {
 
   if (action.type === 'REMOVE_SET') {
     product.sets.splice(action.index, 1);
+  }
+  if (action.type === 'POPULATE_ALL') {
+    // Arrays to Objects
+    let sets = action.product.sets.map((set) => {
+      let sizeSetsObj = {};
+      set.sizeSets.forEach((size) => {
+        let name;
+        if (size.isUnique) name = size.name;
+        else name = Symbol(size.name);
+        let availableSizesObj = {};
+        size.availableSizes.forEach((av) => {
+          availableSizesObj[av] = av;
+        });
+        sizeSetsObj[name] = {
+          name: size.name,
+          isUnique: size.isUnique,
+          sizeSetId: size.sizeSetId,
+          availableSizes: availableSizesObj,
+        };
+      });
+      return {
+        colorId: set.colorId,
+        images: set.images,
+        extraOptions: set.extraOptions,
+        sizeSets: sizeSetsObj,
+      };
+    });
+
+    product = {
+      id: action.product._id,
+      code: action.product.code,
+      name: action.product.name,
+      limitStock: action.product.limitStock,
+      stockNumber: action.product.stockNumber || 0,
+      categoryId: action.product.categoryId,
+      sectionId: action.product.sectionId,
+      price: action.product.price,
+      discountPercentage: action.product.discountPercentage,
+      weight: action.product.weight,
+      shortDescription: action.product.shortDescription,
+      longDescription: action.product.longDescription,
+      sets: sets,
+    };
   } else {
     const field = action.field;
     let value = action.value;
@@ -154,10 +198,53 @@ const AdProductsPage = ({
     );
   }
 
+  // Lists of Schemas
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
   const [sections, setSections] = useState([]);
   const [sizeSets, setSizeSets] = useState([]);
+
+  // Extra options
+  const [tempExtraOptName, setTempExtraOptName] = useState('');
+  const [tempExtraOptOption, setTempExtraOptOption] = useState('');
+  const [tempExtraOptOptions, setTempExtraOptOptions] = useState([]);
+
+  //toggles
+  const [toggleUnique, setToggleUnique] = useState(false);
+  const [toggleCustom, setToggleCustom] = useState(false);
+
+  // Temporary Options info
+  const [tempSet, setTempSet] = useState({
+    colorId: '',
+    sizeSets: {},
+    images: [],
+    extraOptions: [],
+  });
+  const [selectedColorName, setSelectedColorName] = useState('');
+  const [selectedCategoryName, setSelectedCategoryName] = useState('');
+  const [selectedSectionName, setSelectedSectionName] = useState('');
+
+  // temp Custom Options info
+  const [tempSizeSetName, setTempSizeSetName] = useState('');
+  const [tempSizeSetGroupId, setTempSizeSetGroupId] = useState();
+  const [tempSizeSetSizes, setTempSizeSetSizes] = useState({});
+
+  // Dialog
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
+  const [cancelText, setCancelText] = useState('');
+  const [okText, setOkText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setCategories(categoryList.map((c) => ({ id: c._id, text: c.text })));
+    setSections(sectionList.map((c) => ({ id: c._id, text: c.text })));
+    setSizeSets(sizeSetList);
+    setColors(
+      colorList.map((c) => ({ id: c._id, text: c.text, code: c.code }))
+    );
+  }, []);
 
   const onChange = (value, field) => {
     dispatchProductState({
@@ -169,6 +256,7 @@ const AdProductsPage = ({
 
   const [productState, dispatchProductState] = useReducer(productReducer, {
     product: {
+      id: '',
       code: '',
       name: '',
       limitStock: false,
@@ -183,29 +271,6 @@ const AdProductsPage = ({
       sets: [],
     },
   });
-
-  useEffect(() => {
-    setCategories(categoryList.map((c) => ({ id: c._id, text: c.text })));
-    setSections(sectionList.map((c) => ({ id: c._id, text: c.text })));
-    setSizeSets(sizeSetList);
-    setColors(
-      colorList.map((c) => ({ id: c._id, text: c.text, code: c.code }))
-    );
-  }, []);
-
-  // Opções
-  //toggles
-  const [toggleUnique, setToggleUnique] = useState(false);
-  const [toggleCustom, setToggleCustom] = useState(false);
-
-  // Temporary Options info
-  const [tempSet, setTempSet] = useState({
-    colorId: '',
-    sizeSets: {},
-    images: [],
-    extraOptions: [],
-  });
-  const [selectedColorName, setSelectedColorName] = useState('');
 
   const onRemoveSet = (index) => {
     dispatchProductState({
@@ -247,11 +312,6 @@ const AdProductsPage = ({
       return newList;
     });
   };
-
-  // temp Custom Options info
-  const [tempSizeSetName, setTempSizeSetName] = useState('');
-  const [tempSizeSetGroupId, setTempSizeSetGroupId] = useState();
-  const [tempSizeSetSizes, setTempSizeSetSizes] = useState({});
 
   const setSelectedSizeSets = (callback) => {
     setTempSet((list) => ({
@@ -326,13 +386,8 @@ const AdProductsPage = ({
     window.scrollTo(0, 0);
     setCancelText('');
     setOkText('Ok');
-    setShowError(true);
+    setShowDialog(true);
   };
-
-  // Extra options
-  const [tempExtraOptName, setTempExtraOptName] = useState('');
-  const [tempExtraOptOption, setTempExtraOptOption] = useState('');
-  const [tempExtraOptOptions, setTempExtraOptOptions] = useState([]);
 
   const onAddExtraOpt = () => {
     const name = tempExtraOptName;
@@ -366,7 +421,7 @@ const AdProductsPage = ({
     }
     window.scrollTo(0, 0);
     setCancelText('');
-    setShowError(true);
+    setShowDialog(true);
   };
 
   const onDeleteExtraOpt = (name) => {
@@ -385,19 +440,21 @@ const AdProductsPage = ({
 
   const onAddExtraOptOption = () => {
     const name = tempExtraOptOption;
-    if (
-      tempExtraOptOptions.findIndex(
-        (opt) => opt.toLowerCase().trim() === name.toLowerCase().trim()
-      ) >= 0
-    ) {
-      window.scrollTo(0, 0);
-      setCancelText('');
-      setShowError(true);
-      setConfirmationMessage('Esta opção extra já existe!');
-      return;
+    if (name.length > 0) {
+      if (
+        tempExtraOptOptions.findIndex(
+          (opt) => opt.toLowerCase().trim() === name.toLowerCase().trim()
+        ) >= 0
+      ) {
+        window.scrollTo(0, 0);
+        setCancelText('');
+        setShowDialog(true);
+        setConfirmationMessage('Esta opção extra já existe!');
+        return;
+      }
+      setTempExtraOptOptions((values) => [...values, name]);
+      setTempExtraOptOption('');
     }
-    setTempExtraOptOptions((values) => [...values, name]);
-    setTempExtraOptOption('');
   };
 
   const onDeleteExtraOptOption = (index) => {
@@ -414,13 +471,6 @@ const AdProductsPage = ({
     });
   };
 
-  // Dialog
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [confirmationMessage, setConfirmationMessage] = useState('');
-  const [cancelText, setCancelText] = useState('');
-  const [okText, setOkText] = useState('');
-
   const onSave = (event) => {
     event.preventDefault();
 
@@ -428,23 +478,29 @@ const AdProductsPage = ({
       window.scrollTo(0, 0);
       setCancelText('');
       setOkText('');
-      setShowError(true);
+      setShowDialog(true);
       return;
     }
 
-    setConfirmationMessage(
-      'Por favor, confira o novo produto antes de salvar:'
-    );
+    if (productState.product.id.length > 0) {
+      setConfirmationMessage(
+        'Por favor, confira as alterações no produto antes de salvar:'
+      );
+    } else {
+      setConfirmationMessage(
+        'Por favor, confira o novo produto antes de salvar:'
+      );
+    }
+
     setShowConfirmation(true);
     setCancelText('Cancelar');
     setOkText('Salvar');
     window.scrollTo(0, 0);
   };
 
-  // Save New
+  // Save New Product
   const onSaveProduct = async (event) => {
     event.preventDefault();
-    // {"code":"tg177","name":"Fionna","limitStock":true,"stockNumber":100,"categoryId":"610be9170c9efc1504511c7a","sectionId":"610be9b30c9efc1504511c92","price":"89.99","discountPercentage":"5","weight":"0.215","shortDescription":"Lindo conjundo Fionna coleção 2006","longDescription":"Lindo conjundo Fionna coleção 2006\n\n-Lindo conjundo Fionna coleção 2006\n-Lindo Fionna coleção 2006\n-Lindo conjundo Fionna 2006\n-Lindo conjundo coleção 2006\n-Lindo conjundo Fionna coleção ","sets":[{"colorId":"610ae56a8075a60e4cfde69b","sizeSets":{"unique":{"name":"unique","isUnique":true,"sizeSetId":"610c411d974ca338dc4b76d9","availableSizes":{"p":"p","g":"g","gg":"gg","m":"m"}}},"images":[],"extraOptions":[{"name":"Bojo","options":["liso","bolha"]},{"name":"strass","options":["com","sem"]}]},{"colorId":"610be94b0c9efc1504511c86","sizeSets":{"unique":{"name":"unique","isUnique":true,"sizeSetId":"610c411d974ca338dc4b76d9","availableSizes":{"p":"p","m":"m","g":"g","xg":"xg","gg":"gg"}}},"images":[],"extraOptions":[{"name":"Bojo","options":["liso","bolha"]}]}]}
 
     // Transform Objects to Arrays
     let newProduct = { ...productState.product };
@@ -467,20 +523,44 @@ const AdProductsPage = ({
     });
 
     newProduct.sets = newSets;
+    delete newProduct.id;
+
+    let method = '';
+    let body;
+    if (productState.product.id.length > 0) {
+      method = 'PUT';
+      body = JSON.stringify({
+        id: productState.product.id,
+        product: newProduct,
+      });
+    } else {
+      method = 'POST';
+      body = JSON.stringify({ product: newProduct });
+    }
 
     const createdProduct = await fetch('/api/admin/products', {
-      method: 'POST',
+      method: method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product: newProduct }),
+      body: body,
     });
+
+    const data = await createdProduct.json();
 
     switch (createdProduct.status) {
       case 201:
-        const data = await createdProduct.json();
+        window.scrollTo(0, 0);
+        setShowConfirmation(false);
+        setShowDialog(true);
+        setCancelText('');
+        setOkText('');
+        setConfirmationMessage('Salvo com sucesso!');
+        console.log(data);
+        onChange(data.product._id, fields.ID);
         break;
       case 400:
         window.alert(
-          'Não foi possível salvar o produto pois existem informações erradas no cadastro!'
+          'Não foi possível salvar o produto pois existem informações erradas no cadastro: ' +
+            data.message
         );
         break;
       case 401:
@@ -495,6 +575,59 @@ const AdProductsPage = ({
     }
   };
 
+  // Search Product
+  const onSearchByCode = async (event) => {
+    event.preventDefault();
+    const code = productState.product.code;
+
+    if (!!code) {
+      setIsLoading(true);
+      setConfirmationMessage('Carregando...');
+      setShowDialog(true);
+      const product = await fetch(`/api/admin/products?code=${code}`);
+      setShowDialog(false);
+      setIsLoading(false);
+
+      const data = await product.json();
+
+      switch (product.status) {
+        case 200:
+          window.scrollTo(0, 0);
+          populateForm(data.product[0]);
+          break;
+        case 404:
+          window.scrollTo(0, 0);
+          setConfirmationMessage('Não Encontrado');
+          setShowDialog(true);
+          break;
+        case 400:
+          window.alert(data.message);
+          break;
+        case 401:
+          window.alert(
+            'Você não está autorizado a fazer isso. Por favor, faça o login novamente.'
+          );
+          break;
+        case 500:
+        default:
+          window.alert(
+            'Ops, Erro interno! Por favor, contate o Administrador.'
+          );
+          break;
+      }
+    }
+  };
+
+  const populateForm = (product) => {
+    dispatchProductState({ type: 'POPULATE_ALL', product: product });
+    setSelectedSectionName(
+      sections.find((s) => s.id === product.sectionId).text || ''
+    );
+    setSelectedCategoryName(
+      categories.find((c) => c.id === product.categoryId).text || ''
+    );
+  };
+
   // Validations
   const [codeValidation, setCodeValidation] = useState(true);
   const [nameValidation, setNameValidation] = useState(true);
@@ -502,6 +635,8 @@ const AdProductsPage = ({
   const [sectionValidation, setSectionValidation] = useState(true);
   const [stockValidation, setStockValidation] = useState(true);
   const [priceValidation, setPriceValidation] = useState(true);
+  const [discountPercentageValidation, setDiscountPercentageValidation] =
+    useState(true);
   const [weightValidation, setWeightValidation] = useState(true);
   const [shortDescValidation, setShortDescValidation] = useState(true);
   const [longDescValidation, setLongDescValidation] = useState(true);
@@ -546,21 +681,32 @@ const AdProductsPage = ({
     }
 
     setPriceValidation(true);
-    if (!productState.product.price.length > 0) {
+    if (!productState.product.price.toString().length > 0) {
       setPriceValidation(false);
       setConfirmationMessage('Digite um preço!');
       return false;
     }
 
     setPriceValidation(true);
-    if (productState.product.price.match(/\./g).length > 1) {
+    if (productState.product.price.toString().match(/\./g).length > 1) {
       setPriceValidation(false);
       setConfirmationMessage('Preço precitar ter somente um ponto!');
       return false;
     }
 
+    setDiscountPercentageValidation(true);
+    if (
+      productState.product.discountPercentage.length > 0 &&
+      (+productState.product.discountPercentage < 0 ||
+        +productState.product.discountPercentage > 100)
+    ) {
+      setDiscountPercentageValidation(false);
+      setConfirmationMessage('Valor para desconto inválido!');
+      return false;
+    }
+
     setWeightValidation(true);
-    if (!productState.product.weight.length > 0) {
+    if (productState.product.weight.toString().length <= 0) {
       setWeightValidation(false);
       setConfirmationMessage(
         'Digite um peso! Isso será importante para calcular fretes!'
@@ -569,27 +715,27 @@ const AdProductsPage = ({
     }
 
     setWeightValidation(true);
-    if (productState.product.weight.match(/\./g).length > 1) {
+    if (productState.product.weight.toString().match(/\./g).length > 1) {
       setWeightValidation(false);
       setConfirmationMessage('Peso precitar ter somente um ponto!');
       return false;
     }
 
     setShortDescValidation(true);
-    if (!productState.product.shortDescription.length > 0) {
+    if (productState.product.shortDescription.length <= 0) {
       setShortDescValidation(false);
       setConfirmationMessage('Digite uma descrição curta!');
       return false;
     }
 
     setLongDescValidation(true);
-    if (!productState.product.longDescription.length > 0) {
+    if (productState.product.longDescription.length <= 0) {
       setLongDescValidation(false);
       setConfirmationMessage('Digite uma descrição Longa!');
       return false;
     }
 
-    if (!productState.product.sets.length > 0) {
+    if (productState.product.sets.length <= 0) {
       setConfirmationMessage(
         'Este produto precisa de pelo menos um grupo de Opções!'
       );
@@ -602,7 +748,7 @@ const AdProductsPage = ({
   const onDismissConfirmation = (event) => {
     event.preventDefault();
     setShowConfirmation(false);
-    setShowError(false);
+    setShowDialog(false);
   };
 
   return (
@@ -642,7 +788,13 @@ const AdProductsPage = ({
                     minLength={4}
                     maxLength={10}
                   />
-                  <Button className={styles.button}>Buscar</Button>
+                  <Button
+                    className={styles.button}
+                    type="button"
+                    onClick={onSearchByCode}
+                  >
+                    Buscar
+                  </Button>
                 </span>
               </label>
             </span>
@@ -653,10 +805,11 @@ const AdProductsPage = ({
                   id="name"
                   className={styles.inp_text}
                   onChange={(e) => onChange(e.target.value, fields.NAME)}
+                  placeholder="Limite de 25 caracteres"
                   value={productState.product.name}
                   valid={nameValidation}
                   minLength={4}
-                  maxLength={15}
+                  maxLength={25}
                 />
               </label>
             </span>
@@ -667,9 +820,17 @@ const AdProductsPage = ({
                   id="category"
                   placeholder="Selecione"
                   className={styles.capitalize}
-                  onChange={(v) => onChange(v, fields.CATEGORY)}
                   options={categories}
                   valid={categoryValidation}
+                  onChange={(v) => {
+                    onChange(v, fields.CATEGORY);
+                    setSelectedCategoryName((_) => {
+                      let category = categories.find((c) => c.id === v);
+                      if (category) return category.text;
+                      else return 'Selecione';
+                    });
+                  }}
+                  value={selectedCategoryName}
                 />
               </label>
             </span>
@@ -680,9 +841,17 @@ const AdProductsPage = ({
                   id="section"
                   placeholder="Selecione"
                   className={styles.capitalize}
-                  onChange={(v) => onChange(v, fields.SECTION)}
                   options={sections}
                   valid={sectionValidation}
+                  onChange={(v) => {
+                    onChange(v, fields.SECTION);
+                    setSelectedSectionName((_) => {
+                      let section = sections.find((s) => s.id === v);
+                      if (section) return section.text;
+                      else return 'Selecione';
+                    });
+                  }}
+                  value={selectedSectionName}
                 />
               </label>
             </span>
@@ -692,32 +861,29 @@ const AdProductsPage = ({
                 className={[styles.inp_check_line, styles.group_line].join(' ')}
               >
                 <span>
-                  <label
-                    htmlFor="prod_limitStock_nolimit"
-                    onChange={(e) =>
-                      onChange(e.target.value, fields.LIMIT_STOCK)
-                    }
-                  >
+                  <label htmlFor="prod_limitStock_nolimit">
                     <InputRadio
                       id="prod_limitStock_nolimit"
                       name={'limitStock'}
-                      defaultChecked={true}
                       value={false}
+                      checked={!productState.product.limitStock}
+                      onChange={(e) =>
+                        onChange(e.target.value, fields.LIMIT_STOCK)
+                      }
                     />
                     Sem Limite
                   </label>
                 </span>
                 <span>
-                  <label
-                    htmlFor="prod_limitStock_limit"
-                    onChange={(e) =>
-                      onChange(e.target.value, fields.LIMIT_STOCK)
-                    }
-                  >
+                  <label htmlFor="prod_limitStock_limit">
                     <InputRadio
                       id="prod_limitStock_limit"
                       name="limitStock"
                       value={true}
+                      checked={productState.product.limitStock}
+                      onChange={(e) =>
+                        onChange(e.target.value, fields.LIMIT_STOCK)
+                      }
                     />
                     Limitado à
                   </label>
@@ -765,6 +931,7 @@ const AdProductsPage = ({
                       onChange(value, fields.DISCOUNT_PERCENTAGE);
                     }}
                     value={productState.product.discountPercentage}
+                    valid={discountPercentageValidation}
                   />
                   %
                 </span>
@@ -797,7 +964,8 @@ const AdProductsPage = ({
                     onChange(e.target.value, fields.SHORT_DESCRIPTION)
                   }
                   minLength={5}
-                  maxLength={30}
+                  maxLength={40}
+                  placeholder="Limite de 40 caracteres"
                   value={productState.product.shortDescription}
                   valid={shortDescValidation}
                 />
@@ -1228,7 +1396,7 @@ const AdProductsPage = ({
                         value={tempExtraOptName}
                         onChange={(e) => setTempExtraOptName(e.target.value)}
                         minLength={2}
-                        maxLength={5}
+                        maxLength={15}
                       />
                     </span>
                     <span>
@@ -1318,12 +1486,13 @@ const AdProductsPage = ({
         </section>
       </div>
       <ConfirmationDialog
-        show={showError}
+        show={showDialog}
         onCancel={onDismissConfirmation}
         onConfirm={onDismissConfirmation}
         message={confirmationMessage}
         cancelText={cancelText}
         okText={okText}
+        noButtons={isLoading}
       />
       <ConfirmationDialog
         show={showConfirmation}
@@ -1350,7 +1519,7 @@ const AdProductsPage = ({
               <tr>
                 <td>Categoria:</td>
                 <td className={styles.capitalize}>
-                  {productState.product.categoryId &&
+                  {productState.product.categoryId.length > 1 &&
                     categoryList.find(
                       (c) => c._id === productState.product.categoryId
                     ).text}
@@ -1359,7 +1528,7 @@ const AdProductsPage = ({
               <tr>
                 <td>Seção:</td>
                 <td className={styles.capitalize}>
-                  {productState.product.sectionId &&
+                  {productState.product.sectionId.length > 1 &&
                     sectionList.find(
                       (c) => c._id === productState.product.sectionId
                     ).text}

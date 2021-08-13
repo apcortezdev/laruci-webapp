@@ -57,7 +57,7 @@ export async function postSizeSet(name, sizes) {
   }
 
   try {
-    const created = newSizeSet.save();
+    const created = await newSizeSet.save();
     return created;
   } catch (err) {
     if (err) {

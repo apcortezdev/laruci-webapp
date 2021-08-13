@@ -6,6 +6,7 @@ const product = new Schema({
   code: {
     type: String,
     required: true,
+    index: true,
   },
   name: {
     type: String,
@@ -100,5 +101,9 @@ const product = new Schema({
     },
   ],
 });
+
+product.query.byCode = function(code) {
+  return this.where({ code: new RegExp(code, 'i')});
+}
 
 export default mongoose.models.Product || mongoose.model('Product', product);

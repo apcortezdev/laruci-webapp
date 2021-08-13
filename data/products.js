@@ -536,64 +536,6 @@ export async function getProductImageThumb(productId) {
 //   return JSON.stringify(categories);
 // }
 
-export async function postProduct(postProduct) {
-
-  let product = {
-    ...postProduct,
-    code: postProduct.code.trim(),
-    name: postProduct.name.trim(),
-    shortDescription: postProduct.shortDescription.trim(),
-    longDescription: postProduct.longDescription.trim(),
-  };
-  let sets = postProduct.sets.map((set) => ({
-    ...set,
-    sizeSets:
-      set.sizeSets.length > 0
-        ? set.sizeSets.map((size) => ({
-            ...size,
-            name: size.name.trim(),
-          }))
-        : [],
-    extraOptions:
-      set.extraOptions.length > 0
-        ? set.extraOptions.map((opt) => ({
-            name: opt.name.trim(),
-            options: opt.options.map((o) => o.trim()),
-          }))
-        : [],
-  }));
-
-  product.sets = sets;
-
-  const isValid = await validateProduct(product);
-  
-  if (!isValid) {
-    throw new Error('INVALID');
-  }
-  
-  const newProduct = new Product({
-    ...product,
-    sets: [
-      ...product.sets
-    ]
-  });
-
-  try {
-    await dbConnect();
-  } catch (err) {
-    throw new Error('ERN001');
-  }
-
-  try {
-    const created = newProduct.save();
-    return created;
-  } catch (err) {
-    if (err) {
-      throw new Error('ERN003');
-    }
-  }
-}
-
 // export async function deleteCategory(_id) {
 //   try {
 //     await dbConnect();
@@ -612,38 +554,124 @@ export async function postProduct(postProduct) {
 //   }
 // }
 
-// export async function putCategory(_id, text) {
-//   let name = text;
+const prepareProduct = (product) => {
+  let newProduct = {
+    code: product.code.trim(),
+    name: product.name.trim(),
+    limitStock: product.limitStock,
+    stockNumber:product.stockNumber,
+    categoryId: product.categoryId,
+    sectionId: product.sectionId,
+    price:
+      typeof product.price === 'number' ? product.price : product.price.trim(),
+    discountPercentage:
+      typeof product.discountPercentage === 'number'
+        ? product.discountPercentage
+        : product.discountPercentage.trim() || 0,
+    weight:
+      typeof product.weight === 'number'
+        ? product.weight
+        : product.weight.trim(),
+    shortDescription: product.shortDescription.trim(),
+    longDescription: product.longDescription.trim(),
+  };
+  let sets = product.sets.map((set) => ({
+    ...set,
+    sizeSets:
+      set.sizeSets.length > 0
+        ? set.sizeSets.map((size) => ({
+            ...size,
+            name: size.name.trim(),
+          }))
+        : [],
+    extraOptions:
+      set.extraOptions.length > 0
+        ? set.extraOptions.map((opt) => ({
+            name: opt.name.trim(),
+            options: opt.options.map((o) => o.trim()),
+          }))
+        : [],
+  }));
+  newProduct.sets = sets;
+  return newProduct;
+};
 
-//   name = name
-//     .replace(/[ã|á|à]/gi, 'a')
-//     .replace(/[é|è]/gi, 'e')
-//     .replace(/[í|ì]/gi, 'i')
-//     .replace(/[õ|ó|ò]/gi, 'o')
-//     .replace(/[ú|ù]/gi, 'u')
-//     .replace(/[ç]/gi, 'c')
-//     .replace(/[-|_]/, '')
-//     .replace(/[ ]+/g, '');
+export async function getProductByCode(code) {
+  let product;
 
-//   try {
-//     await dbConnect();
-//   } catch (err) {
-//     throw new Error('ERN001');
-//   }
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
 
-//   try {
-//     const updated = await Category.findByIdAndUpdate(
-//       _id,
-//       { name: name.toLowerCase(), text: text.toLowerCase() },
-//       {
-//         new: true,
-//         lean: true,
-//       }
-//     );
-//     return updated;
-//   } catch (err) {
-//     if (err) {
-//       throw new Error('ERN005');
-//     }
-//   }
-// }
+  try {
+    product = await Product.find().byCode(code).exec();
+  } catch (err) {
+    console.log(err);
+    if (err) {
+      throw new Error('ERN002');
+    }
+  }
+  return product;
+}
+
+export async function postProduct(postProduct) {
+  let product = prepareProduct(postProduct);
+  const isValid = await validateProduct(product);
+
+  if (isValid === 'OK') {
+    throw new Error('INVALID');
+  }
+
+  const newProduct = new Product({
+    ...product,
+    sets: [...product.sets],
+  });
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    const created = await newProduct.save();
+    return created;
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN003');
+    }
+  }
+}
+
+export async function putProduct(id, putProduct) {
+  let product = prepareProduct(putProduct);
+  const isValid = await validateProduct(product);
+
+  if (isValid === 'OK') {
+    throw new Error('INVALID');
+  }
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    const updated = await Product.findByIdAndUpdate(
+      id,
+      { ...product, sets: [...product.sets] },
+      {
+        new: true,
+        lean: true,
+      }
+    );
+    return updated;
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN003');
+    }
+  }
+}

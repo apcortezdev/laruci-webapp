@@ -11,24 +11,31 @@ const ConfirmationDialog = ({
   cancelText,
   okText,
   children,
-  className
+  className,
+  noButtons = false,
 }) => {
   if (show) {
     return (
       <div>
-        <div className={[styles.confirmationBox, className ? className : ''].join(' ').trim()}>
+        <div
+          className={[styles.confirmationBox, className ? className : '']
+            .join(' ')
+            .trim()}
+        >
           {message || 'Deseja salvar?'}
           {children}
-          <span>
-            {!!cancelText && (
-              <Button className={styles.formButton} onClick={onCancel}>
-                {cancelText}
+          {noButtons || (
+            <span>
+              {!!cancelText && (
+                <Button className={styles.formButton} onClick={onCancel}>
+                  {cancelText}
+                </Button>
+              )}
+              <Button className={styles.formButton} onClick={onConfirm}>
+                {okText || 'Ok'}
               </Button>
-            )}
-            <Button className={styles.formButton} onClick={onConfirm}>
-              {okText || 'Ok'}
-            </Button>
-          </span>
+            </span>
+          )}
         </div>
         <Backdrop />
       </div>
@@ -45,6 +52,7 @@ ConfirmationDialog.propTypes = {
   cancelText: PropTypes.string,
   okText: PropTypes.string,
   className: PropTypes.string,
+  noButtons: PropTypes.bool,
 };
 
 export default ConfirmationDialog;

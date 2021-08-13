@@ -2,6 +2,7 @@ import { getCategoryById } from '../data/categories';
 import { getSectionById } from '../data/sections';
 import { getColorById } from '../data/colors';
 import { getSizeSetById } from '../data/sizeSets';
+import { getProductByCode } from '../data/products';
 
 const validateNameSlur = (name) => {
   const p =
@@ -186,30 +187,42 @@ const validateProduct = async (product) => {
 
   // code
   if (product.code.trim().length < 4 || product.code.trim().length > 10)
-    return false;
-  if (!validateNameSlur(product.code)) return false;
+    return 'INVALID CODE: OUT OF RANGE';
+  if (!validateNameSlur(product.code)) 
+    return 'INVALID CODE: SLUR';
+  let prods;
+  try {
+    prods = await getProductByCode(product.code);
+    if (prods == null || prods == false) 
+      return 'INVALID CODE: DUPLICATED';
+  } catch (err) {
+    return 'INVALID CODE: DUPLICATED';
+  }
+
 
   // name
   if (product.name.trim().length < 4 || product.name.trim().length > 15)
-    return false;
-  if (!validateNameSlur(product.name)) return false;
+    return 'INVALID NAME: OUT OF RANGE';
+  if (!validateNameSlur(product.name)) 
+    return 'INVALID NAME: SLUR';
 
   // limitStock / stockNumber
   if (
     typeof product.limitStock !== 'boolean' &&
     typeof product.limitStock !== 'Boolean'
   )
-    return false;
+    return 'INVALID LIMIT-STOCK: NOT BOOL';
   if (
     product.limitStock &&
     product.stockNumber.toString().match(/[^0-9]/gi) != null
   )
-    return false;
-  if (product.limitStock && product.stockNumber < 1) return false;
+    return 'INVALID STOCK-NUMBER: NOT A NUMBER';
+  if (product.limitStock && product.stockNumber < 1)
+    return 'STOCK-NUMBER LESS THAN 1';
 
   // price
   if (product.price.match(/[^0-9\.]/gi) != null || +product.price < 0)
-    return false;
+    return 'INVALID PRICE: NOT A NUMBER';
 
   // discountPercentage
   if (
@@ -217,66 +230,73 @@ const validateProduct = async (product) => {
     +product.discountPercentage < 0 ||
     +product.discountPercentage > 100
   )
-    return false;
+    return 'INVALID DISCOUNT PERCENTAGE';
 
   // weight
   if (product.weight.match(/[^0-9\.]/gi) != null || +product.weight < 0)
-    return false;
+    return 'INVALID WEIGHT: NOT A NUMBER';
 
   // shortDescription
   if (
     product.shortDescription.trim().length < 5 ||
     product.shortDescription.trim().length > 40
   )
-    return false;
-  if (!validateNameSlur(product.shortDescription)) return false;
+    return 'INVALID SHORT-DESCRIPTION: OUT OF RANGE';
+  if (!validateNameSlur(product.shortDescription))
+    return 'INVALID SHORT-DESCRIPTION: SLUR';
 
   // longDescription
   if (
     product.longDescription.trim().length < 50 ||
     product.longDescription.trim().length > 1000
   )
-    return false;
-  if (!validateNameSlur(product.longDescription)) return false;
+    return 'INVALID LONG-DESCRIPTION: OUT OF RANGE';
+  if (!validateNameSlur(product.longDescription))
+    return 'INVALID LONG-DESCRIPTION: SLUR';
 
   // categoryId
-  if (product.categoryId.trim().length <= 0) return false;
+  if (product.categoryId.trim().length <= 0) 
+    return 'INVALID CATEGORY: NO CATEGORY';
   let category;
   try {
     category = await getCategoryById(product.categoryId);
-    if (category == null || category == false) return false;
+    if (category == null || category == false) 
+      return 'INVALID CATEGORY';
   } catch (err) {
-    return false;
+    return 'INVALID CATEGORY';
   }
 
   // sectionId
-  if (product.sectionId.trim().length <= 0) return false;
+  if (product.sectionId.trim().length <= 0) 
+    return 'INVALID SECTION: NO SECTION';
   let section;
   try {
     section = await getSectionById(product.sectionId);
-    if (section == null || section == false) return false;
+    if (section == null || section == false) 
+      return 'INVALID SECTION';
   } catch (err) {
-    return false;
+    return 'INVALID SECTION';
   }
 
   // sets
-  if (product.sets.length <= 0) return false;
-  let isValid = true;
+  if (product.sets.length <= 0) 
+    return 'INVALID SET: NO SETS';
+  let isValid = 'OK';
   for (const set of product.sets) {
     //colorId
     if (set.colorId.trim().length <= 0) {
-      isValid = false;
+      isValid = 'INVALID SET: NO COLOR';
       break;
     }
     let color;
     try {
       color = await getColorById(set.colorId);
       if (color == null || color == false) {
-        isValid = false;
+        isValid = 'INVALID SET: INVALID COLOR';
         break;
       }
     } catch (err) {
-      isValid = false;
+      isValid = 'INVALID SET: INVALID COLOR';
       break;
     }
 
@@ -285,11 +305,11 @@ const validateProduct = async (product) => {
       for (const sizeSet of set.sizeSets) {
         // name
         if (sizeSet.name.trim().length < 2 || sizeSet.name.trim().length > 15) {
-          isValid = false;
+          isValid = 'INVALID SIZE-SET NAME: OUT OF RANGE';
           break;
         }
         if (!validateNameSlur(sizeSet.name)) {
-          isValid = false;
+          isValid = 'INVALID SIZE-SET NAME: SLUR';
           break;
         }
 
@@ -298,45 +318,45 @@ const validateProduct = async (product) => {
           typeof sizeSet.isUnique !== 'boolean' &&
           typeof sizeSet.isUnique !== 'Boolean'
         ) {
-          isValid = false;
+          isValid = 'INVALID SIZE-SET IS-UNIQUE: NOT BOOL';
           break;
         }
 
         // sizeSetId
         if (sizeSet.sizeSetId.trim().length <= 0) {
-          isValid = false;
+          isValid = 'INVALID SIZE-SET SET-ID: NO SET-ID';
           break;
         }
         let sizeSetFromDb;
         try {
           sizeSetFromDb = await getSizeSetById(sizeSet.sizeSetId);
           if (sizeSetFromDb == null || sizeSetFromDb == false) {
-            isValid = false;
+            isValid = 'INVALID SIZE-SET SET-ID';
             break;
           }
         } catch (err) {
-          isValid = false;
+          isValid = 'INVALID SIZE-SET SET-ID';
           break;
         }
 
         // availableSizes
         if (sizeSet.availableSizes.length <= 0) {
-          isValid = false;
+          isValid = 'INVALID SIZE-SET AVAILABLE-SIZES: NO AVAILABLE-SIZES';
           break;
         }
         for (const size of sizeSet.availableSizes) {
           if (sizeSetFromDb.sizes.findIndex((s) => s === size) < 0) {
-            isValid = false;
+            isValid = 'INVALID SIZE-SET AVAILABLE-SIZES: INVALID AVAILABLE-SIZES';
             break;
           }
         }
-        if (!isValid) return;
+        if (isValid !== 'OK') return;
       }
     }
 
     // images
     // if (set.images.length <= 0) {
-    //   isValid = false;
+    //   isValid = 'INVALID SIZE-SET IMAGE: NO IMAGE';
     //   break;
     // }
 
@@ -345,33 +365,33 @@ const validateProduct = async (product) => {
       for (const opt of set.extraOptions) {
         // name
         if (opt.name.trim().length < 2 || opt.name.trim().length > 15) {
-          isValid = false;
+          isValid = 'INVALID EXTRA-OPTION NAME: OUT OF RANGE';
           break;
         }
         if (!validateNameSlur(opt.name)) {
-          isValid = false;
+          isValid = 'INVALID EXTRA-OPTION NAME: SLUR';
           break;
         }
 
         // options
         if (opt.options.length < 2) {
-          isValid = false;
+          isValid = 'INVALID EXTRA-OPTION OPTIONS: LESS THAN 2';
           break;
         }
         for (const op of opt.options) {
           if (op.trim().length < 2 || op.trim().length > 10) {
-            isValid = false;
+            isValid = 'INVALID EXTRA-OPTION OPT NAME: OUT OF RANGE';
             break;
           }
           if (!validateNameSlur(op)) {
-            isValid = false;
+            isValid = 'INVALID EXTRA-OPTION OPT NAME: SLUR';
             break;
           }
         }
       }
     }
 
-    if (!isValid) return;
+    if (isValid !== 'OK') return;
   }
 
   return isValid;

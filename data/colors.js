@@ -68,7 +68,7 @@ export async function postColor(text, code) {
   }
 
   try {
-    const created = newColor.save();
+    const created = await newColor.save();
     return created;
   } catch (err) {
     if (err) {

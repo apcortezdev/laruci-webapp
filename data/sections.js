@@ -69,7 +69,7 @@ export async function postSection(text) {
   }
 
   try {
-    const created = newSection.save();
+    const created = await newSection.save();
     return created;
   } catch (err) {
     if (err) {

@@ -37,12 +37,11 @@ const SelectColorItem = (props) => {
 
 export const SelectColor = (props) => {
   const ref = useRef();
-  // const [selected, setSelected] = useState(props.placeholder);
-  // const [selected, setSelected] = useState(props.value || props.placeholder);
+  const [selected, setSelected] = useState(props.placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
   const changeSelected = (id, text) => {
-    // setSelected(text);
+    setSelected(text);
     props.onChange(id);
     setOptionsAsVisible(false);
   };
@@ -57,8 +56,8 @@ export const SelectColor = (props) => {
     let array = [
       <SelectColorItem
         key={props.placeholder}
-        onSelect={() => changeSelected(props.placeholder, props.placeholder)}
-        optionId={props.placeholder}
+        onSelect={() => changeSelected(0, props.placeholder)}
+        optionId={0}
         optionText={props.placeholder}
         palette={false}
       />,
@@ -89,7 +88,7 @@ export const SelectColor = (props) => {
       onClick={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
-      <span className={styles.selected}>{props.value || props.placeholder}</span>
+      <span className={styles.selected}>{props.value || selected}</span>
       <div
         className={[
           styles.options,
@@ -158,8 +157,8 @@ export const SelectText = (props) => {
     let array = [
       <SelectTextItem
         key={props.placeholder}
-        onSelect={() => changeSelected(props.placeholder, props.placeholder)}
-        optionId={props.placeholder}
+        onSelect={() => changeSelected(0, props.placeholder)}
+        optionId={0}
         optionText={props.placeholder}
       />,
     ];
@@ -193,7 +192,7 @@ export const SelectText = (props) => {
       onTouchMove={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
-      <span className={styles.selected}>{selected}</span>
+      <span className={styles.selected}>{props.value || selected}</span>
       {areOptionsVisible && (
         <span
           className={[styles.options, styles.options_visible].join(' ').trim()}

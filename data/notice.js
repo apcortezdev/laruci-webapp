@@ -61,7 +61,7 @@ export async function postNotice(notice) {
   });
 
   try {
-    var created = newNotice.save();
+    var created = await newNotice.save();
     return created;
   } catch (err) {
     console.log(err);
