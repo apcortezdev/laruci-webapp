@@ -453,7 +453,6 @@ export const Input = (props) => {
           .trim()}
         id={id}
         {...rest}
-        type="text"
       />
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
@@ -470,6 +469,36 @@ Input.propTypes = {
   id: PropTypes.string,
   type: PropTypes.string,
   tip: PropTypes.string,
+};
+
+// Input type file
+export const InputFile = (props) => {
+  const { className, valid, validationMessage, id, type, tip, ...rest } = props;
+  const isValid = valid != null ? valid : true;
+
+  return (
+    <span id={`IPF_${id}`} className={styles.inputLine}>
+      <input
+        className={[
+          styles.inputFile,
+          className || '',
+          !isValid && styles.inputText_invalid,
+        ]
+          .join(' ')
+          .trim()}
+        id={id}
+        {...rest}
+        type="file"
+      />
+    </span>
+  );
+};
+
+Input.propTypes = {
+  className: PropTypes.string,
+  valid: PropTypes.bool,
+  id: PropTypes.string,
+  type: PropTypes.string,
 };
 
 // Input type radio

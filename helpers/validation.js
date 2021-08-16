@@ -354,11 +354,11 @@ const validateProduct = async (product) => {
       }
     }
 
-    // images
-    // if (set.images.length <= 0) {
-    //   isValid = 'INVALID SIZE-SET IMAGE: NO IMAGE';
-    //   break;
-    // }
+    //images
+    if (set.images.length <= 0) {
+      isValid = 'INVALID SIZE-SET IMAGE: NO IMAGE';
+      break;
+    }
 
     // extraOptions
     if (set.extraOptions.length > 0) {

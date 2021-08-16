@@ -11,6 +11,7 @@ import {
   SelectColor,
   Textarea,
   InputCheck,
+  InputFile,
 } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import { getCategoriesJSON } from '../../data/categories';
@@ -290,6 +291,7 @@ const AdProductsPage = ({
       },
     }));
   };
+
   const onSelectSize = (name, value, list) => {
     list((list) => {
       let newList = { ...list };
@@ -358,35 +360,50 @@ const AdProductsPage = ({
     if (
       productState.product.sets.findIndex(
         (set) => set.colorId === tempSet.colorId
-      ) < 0
+      ) >= 0
     ) {
-      if (tempSet.colorId.length > 1) {
-        onChange({ ...tempSet }, fields.SETS);
-        setTempSet({
-          colorId: '',
-          sizeSets: {},
-          images: [],
-          extraOptions: [],
-        });
-        setSelectedColorName('');
-        setToggleUnique(false);
-        setToggleCustom(false);
-        return;
-      } else {
-        setConfirmationMessage(
-          'Por favor, escolha pelo menos a cor desta opção!'
-        );
-      }
-    } else {
       setConfirmationMessage(
         'Esta cor já foi escolhida. Por favor, escolha outra!'
       );
+      window.scrollTo(0, 0);
+      setCancelText('');
+      setOkText('Ok');
+      setShowDialog(true);
+      return;
     }
 
-    window.scrollTo(0, 0);
-    setCancelText('');
-    setOkText('Ok');
-    setShowDialog(true);
+    if (tempSet.colorId.length < 1) {
+      setConfirmationMessage(
+        'Por favor, escolha pelo menos a cor desta opção!'
+      );
+      window.scrollTo(0, 0);
+      setCancelText('');
+      setOkText('Ok');
+      setShowDialog(true);
+      return;
+    }
+
+    if (tempSet.images.length < 1) {
+      setConfirmationMessage(
+        'Por favor, Adicione pelo menos uma fotodo produto!'
+      );
+      window.scrollTo(0, 0);
+      setCancelText('');
+      setOkText('Ok');
+      setShowDialog(true);
+      return;
+    }
+
+    onChange({ ...tempSet }, fields.SETS);
+    setTempSet({
+      colorId: '',
+      sizeSets: {},
+      images: [],
+      extraOptions: [],
+    });
+    setSelectedColorName('');
+    setToggleUnique(false);
+    setToggleCustom(false);
   };
 
   const onAddExtraOpt = () => {
@@ -540,7 +557,8 @@ const AdProductsPage = ({
 
     const createdProduct = await fetch('/api/admin/products', {
       method: method,
-      headers: { 'Content-Type': 'application/json' },
+      // headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'multipart/form-data' },
       body: body,
     });
 
@@ -555,7 +573,7 @@ const AdProductsPage = ({
         setOkText('');
         setConfirmationMessage('Salvo com sucesso!');
         console.log(data);
-        onChange(data.product._id, fields.ID);
+        // onChange(data.product._id, fields.ID);
         break;
       case 400:
         window.alert(
@@ -626,6 +644,15 @@ const AdProductsPage = ({
     setSelectedCategoryName(
       categories.find((c) => c.id === product.categoryId).text || ''
     );
+  };
+
+  const onSetImages = (event) => {
+    event.preventDefault();
+    console.log(event.target.files);
+    setTempSet((temp) => ({
+      ...temp,
+      images: Object.values(event.target.files),
+    }));
   };
 
   // Validations
@@ -1125,6 +1152,22 @@ const AdProductsPage = ({
                             </td>
                           </tr>
                         )}
+                        <tr>
+                          <td>Fotos:</td>
+                          <td colSpan={2}>
+                            {set.images.map((img) => (
+                              <span
+                                key={img.name}
+                                className={[
+                                  styles.block,
+                                  styles.capitalize,
+                                ].join(' ')}
+                              >
+                                {img.name}
+                              </span>
+                            ))}
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -1460,6 +1503,19 @@ const AdProductsPage = ({
                   </div>
                 </span>
                 <span>
+                  <label htmlFor="images">
+                    Fotos:
+                    <InputFile
+                      id="images"
+                      name="images"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={onSetImages}
+                    />
+                  </label>
+                </span>
+                <span>
                   <Button
                     className={styles.button}
                     type="button"
@@ -1678,6 +1734,19 @@ const AdProductsPage = ({
                     </td>
                   </tr>
                 )}
+                <tr>
+                  <td>Fotos:</td>
+                  <td colSpan={2}>
+                    {set.images.map((img) => (
+                      <span
+                        key={img.name}
+                        className={[styles.block, styles.capitalize].join(' ')}
+                      >
+                        {img.name}
+                      </span>
+                    ))}
+                  </td>
+                </tr>
               </tbody>
             ))}
           </table>

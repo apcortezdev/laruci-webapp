@@ -9,8 +9,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const newProduct = await postProduct(req.body.product);
-      res.status(201).json({ statusCode: '201', product: newProduct });
+      // const newProduct = await postProduct(req.body.product);
+      console.log(req.body.product);
+      // res.status(201).json({ statusCode: '201', product: newProduct });
+      res.status(201).json({ statusCode: '201' });
     } catch (err) {
       if (err.message.startsWith('INVALID')) {
         res.status(400).json({
