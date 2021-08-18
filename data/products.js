@@ -1,5 +1,4 @@
 import Product from '../models/product';
-import { validateProduct } from '../helpers/validation';
 import dbConnect from '../utils/dbConnect';
 
 const dummy = {
@@ -554,47 +553,7 @@ export async function getProductImageThumb(productId) {
 //   }
 // }
 
-const prepareProduct = (product) => {
-  let newProduct = {
-    code: product.code.trim(),
-    name: product.name.trim(),
-    limitStock: product.limitStock,
-    stockNumber:product.stockNumber,
-    categoryId: product.categoryId,
-    sectionId: product.sectionId,
-    price:
-      typeof product.price === 'number' ? product.price : product.price.trim(),
-    discountPercentage:
-      typeof product.discountPercentage === 'number'
-        ? product.discountPercentage
-        : product.discountPercentage.trim() || 0,
-    weight:
-      typeof product.weight === 'number'
-        ? product.weight
-        : product.weight.trim(),
-    shortDescription: product.shortDescription.trim(),
-    longDescription: product.longDescription.trim(),
-  };
-  let sets = product.sets.map((set) => ({
-    ...set,
-    sizeSets:
-      set.sizeSets.length > 0
-        ? set.sizeSets.map((size) => ({
-            ...size,
-            name: size.name.trim(),
-          }))
-        : [],
-    extraOptions:
-      set.extraOptions.length > 0
-        ? set.extraOptions.map((opt) => ({
-            name: opt.name.trim(),
-            options: opt.options.map((o) => o.trim()),
-          }))
-        : [],
-  }));
-  newProduct.sets = sets;
-  return newProduct;
-};
+
 
 export async function getProductByCode(code) {
   let product;
@@ -616,14 +575,7 @@ export async function getProductByCode(code) {
   return product;
 }
 
-export async function postProduct(postProduct) {
-  let product = prepareProduct(postProduct);
-  const isValid = await validateProduct(product);
-
-  if (isValid === 'OK') {
-    throw new Error('INVALID');
-  }
-
+export async function postProduct(product) {
   const newProduct = new Product({
     ...product,
     sets: [...product.sets],
@@ -640,12 +592,31 @@ export async function postProduct(postProduct) {
     return created;
   } catch (err) {
     if (err) {
+      console.log(err);
       throw new Error('ERN003');
     }
   }
 }
 
-export async function putProduct(id, putProduct) {
+export async function deleteProduct(_id) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    const deleted = await Product.findByIdAndDelete(_id);
+    return deleted;
+  } catch (err) {
+    if (err) {
+      console.log(err);
+      throw new Error('ERN004');
+    }
+  }
+}
+
+async function putProduct(id, putProduct) {
   let product = prepareProduct(putProduct);
   const isValid = await validateProduct(product);
 

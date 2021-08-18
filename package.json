@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "formidable": "^1.2.2",
     "mongodb": "^4.0.1",
     "mongoose": "^5.13.5",
     "next": "10.2.3",

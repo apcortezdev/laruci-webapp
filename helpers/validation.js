@@ -188,23 +188,19 @@ const validateProduct = async (product) => {
   // code
   if (product.code.trim().length < 4 || product.code.trim().length > 10)
     return 'INVALID CODE: OUT OF RANGE';
-  if (!validateNameSlur(product.code)) 
-    return 'INVALID CODE: SLUR';
+  if (!validateNameSlur(product.code)) return 'INVALID CODE: SLUR';
   let prods;
   try {
     prods = await getProductByCode(product.code);
-    if (prods == null || prods == false) 
-      return 'INVALID CODE: DUPLICATED';
+    if (prods.length > 0) return 'INVALID CODE: DUPLICATED';
   } catch (err) {
     return 'INVALID CODE: DUPLICATED';
   }
 
-
   // name
-  if (product.name.trim().length < 4 || product.name.trim().length > 15)
+  if (product.name.trim().length < 4 || product.name.trim().length > 25)
     return 'INVALID NAME: OUT OF RANGE';
-  if (!validateNameSlur(product.name)) 
-    return 'INVALID NAME: SLUR';
+  if (!validateNameSlur(product.name)) return 'INVALID NAME: SLUR';
 
   // limitStock / stockNumber
   if (
@@ -217,24 +213,36 @@ const validateProduct = async (product) => {
     product.stockNumber.toString().match(/[^0-9]/gi) != null
   )
     return 'INVALID STOCK-NUMBER: NOT A NUMBER';
-  if (product.limitStock && product.stockNumber < 1)
+  if (product.limitStock && +product.stockNumber < 1)
     return 'STOCK-NUMBER LESS THAN 1';
 
   // price
-  if (product.price.match(/[^0-9\.]/gi) != null || +product.price < 0)
-    return 'INVALID PRICE: NOT A NUMBER';
+  if (
+    product.price.toString().match(/[^0-9\.]/gi) != null ||
+    (product.price.toString().match(/\./g) != null &&
+    product.price.toString().match(/\./g).length > 1) ||
+    +product.price <= 0
+  )
+    return 'INVALID PRICE';
 
   // discountPercentage
   if (
-    product.discountPercentage.match(/[^0-9\.]/gi) != null ||
+    product.discountPercentage.toString().match(/[^0-9\.]/gi) != null ||
+    (product.discountPercentage.toString().match(/\./g) != null &&
+    product.discountPercentage.toString().match(/\./g).length > 1) ||
     +product.discountPercentage < 0 ||
     +product.discountPercentage > 100
   )
     return 'INVALID DISCOUNT PERCENTAGE';
 
   // weight
-  if (product.weight.match(/[^0-9\.]/gi) != null || +product.weight < 0)
-    return 'INVALID WEIGHT: NOT A NUMBER';
+  if (
+    product.weight.toString().match(/[^0-9\.]/gi) != null ||
+    (product.weight.toString().match(/\./g) != null &&
+    product.weight.toString().match(/\./g).length > 1) ||
+    +product.weight <= 0
+  )
+    return 'INVALID WEIGHT';
 
   // shortDescription
   if (
@@ -255,32 +263,29 @@ const validateProduct = async (product) => {
     return 'INVALID LONG-DESCRIPTION: SLUR';
 
   // categoryId
-  if (product.categoryId.trim().length <= 0) 
+  if (product.categoryId.trim().length <= 0)
     return 'INVALID CATEGORY: NO CATEGORY';
   let category;
   try {
     category = await getCategoryById(product.categoryId);
-    if (category == null || category == false) 
-      return 'INVALID CATEGORY';
+    if (category.length <= 0) return 'INVALID CATEGORY';
   } catch (err) {
     return 'INVALID CATEGORY';
   }
 
   // sectionId
-  if (product.sectionId.trim().length <= 0) 
+  if (product.sectionId.trim().length <= 0)
     return 'INVALID SECTION: NO SECTION';
   let section;
   try {
     section = await getSectionById(product.sectionId);
-    if (section == null || section == false) 
-      return 'INVALID SECTION';
+    if (section.length <= 0) return 'INVALID SECTION';
   } catch (err) {
     return 'INVALID SECTION';
   }
 
   // sets
-  if (product.sets.length <= 0) 
-    return 'INVALID SET: NO SETS';
+  if (product.sets.length <= 0) return 'INVALID SET: NO SETS';
   let isValid = 'OK';
   for (const set of product.sets) {
     //colorId
@@ -291,7 +296,7 @@ const validateProduct = async (product) => {
     let color;
     try {
       color = await getColorById(set.colorId);
-      if (color == null || color == false) {
+      if (color.length <= 0) {
         isValid = 'INVALID SET: INVALID COLOR';
         break;
       }
@@ -330,7 +335,7 @@ const validateProduct = async (product) => {
         let sizeSetFromDb;
         try {
           sizeSetFromDb = await getSizeSetById(sizeSet.sizeSetId);
-          if (sizeSetFromDb == null || sizeSetFromDb == false) {
+          if (sizeSetFromDb.length <= 0) {
             isValid = 'INVALID SIZE-SET SET-ID';
             break;
           }
@@ -346,7 +351,8 @@ const validateProduct = async (product) => {
         }
         for (const size of sizeSet.availableSizes) {
           if (sizeSetFromDb.sizes.findIndex((s) => s === size) < 0) {
-            isValid = 'INVALID SIZE-SET AVAILABLE-SIZES: INVALID AVAILABLE-SIZES';
+            isValid =
+              'INVALID SIZE-SET AVAILABLE-SIZES: INVALID AVAILABLE-SIZES';
             break;
           }
         }

@@ -20,7 +20,7 @@ import { getSectionsJSON } from '../../data/sections';
 import { getSizeSetsJSON } from '../../data/sizeSets';
 
 const fields = {
-  ID: 'ID',
+  ID: 'id',
   CODE: 'code',
   NAME: 'name',
   LIMIT_STOCK: 'limitStock',
@@ -110,6 +110,25 @@ const productReducer = (state, action) => {
 
   if (action.type === 'REMOVE_SET') {
     product.sets.splice(action.index, 1);
+  }
+  if (action.type === 'CLEAR_ALL') {
+    return {
+      product: {
+        id: '',
+        code: '',
+        name: '',
+        limitStock: false,
+        stockNumber: 0,
+        categoryId: '',
+        sectionId: '',
+        price: '',
+        discountPercentage: '',
+        weight: '',
+        shortDescription: '',
+        longDescription: '',
+        sets: [],
+      },
+    };
   }
   if (action.type === 'POPULATE_ALL') {
     // Arrays to Objects
@@ -224,6 +243,7 @@ const AdProductsPage = ({
   const [selectedColorName, setSelectedColorName] = useState('');
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
   const [selectedSectionName, setSelectedSectionName] = useState('');
+  const [imagesData, setImagesData] = useState([]);
 
   // temp Custom Options info
   const [tempSizeSetName, setTempSizeSetName] = useState('');
@@ -232,28 +252,25 @@ const AdProductsPage = ({
 
   // Dialog
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showResume, setShowResume] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [cancelText, setCancelText] = useState('');
   const [okText, setOkText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setCategories(categoryList.map((c) => ({ id: c._id, text: c.text })));
-    setSections(sectionList.map((c) => ({ id: c._id, text: c.text })));
-    setSizeSets(sizeSetList);
-    setColors(
-      colorList.map((c) => ({ id: c._id, text: c.text, code: c.code }))
-    );
-  }, []);
-
-  const onChange = (value, field) => {
-    dispatchProductState({
-      value: value,
-      field: field,
-      type: 'FIELD',
-    });
-  };
+  // Validations
+  const [codeValidation, setCodeValidation] = useState(true);
+  const [nameValidation, setNameValidation] = useState(true);
+  const [categoryValidation, setCategoryValidation] = useState(true);
+  const [sectionValidation, setSectionValidation] = useState(true);
+  const [stockValidation, setStockValidation] = useState(true);
+  const [priceValidation, setPriceValidation] = useState(true);
+  const [discountPercentageValidation, setDiscountPercentageValidation] =
+    useState(true);
+  const [weightValidation, setWeightValidation] = useState(true);
+  const [shortDescValidation, setShortDescValidation] = useState(true);
+  const [longDescValidation, setLongDescValidation] = useState(true);
 
   const [productState, dispatchProductState] = useReducer(productReducer, {
     product: {
@@ -273,13 +290,41 @@ const AdProductsPage = ({
     },
   });
 
+  // Prepare lists
+  useEffect(() => {
+    setCategories(categoryList.map((c) => ({ id: c._id, text: c.text })));
+    setSections(sectionList.map((c) => ({ id: c._id, text: c.text })));
+    setSizeSets(sizeSetList);
+    setColors(
+      colorList.map((c) => ({ id: c._id, text: c.text, code: c.code }))
+    );
+  }, []);
+
+  // Set field to Reducer
+  const onChange = (value, field) => {
+    dispatchProductState({
+      value: value,
+      field: field,
+      type: 'FIELD',
+    });
+  };
+
+  // Remove Set
   const onRemoveSet = (index) => {
+    const prodImages = productState.product.sets[index].images;
     dispatchProductState({
       index: index,
       type: 'REMOVE_SET',
     });
+    setImagesData((oldArray) => {
+      let newArray = oldArray.filter(
+        (item) => prodImages.findIndex((i) => i === item.uniId) < 0
+      );
+      return [...newArray];
+    });
   };
 
+  // Add new Set
   const onSelectGroup = (name, value, list) => {
     list((list) => ({
       ...list,
@@ -292,6 +337,7 @@ const AdProductsPage = ({
     }));
   };
 
+  // Set selected size from Size Group
   const onSelectSize = (name, value, list) => {
     list((list) => {
       let newList = { ...list };
@@ -315,6 +361,7 @@ const AdProductsPage = ({
     });
   };
 
+  // Set Size Group
   const setSelectedSizeSets = (callback) => {
     setTempSet((list) => ({
       ...list,
@@ -322,6 +369,7 @@ const AdProductsPage = ({
     }));
   };
 
+  // Add new Custom Sizes Group
   const onNewCustom = () => {
     if (tempSizeSetName.length > 0) {
       const name = tempSizeSetName;
@@ -338,16 +386,16 @@ const AdProductsPage = ({
         },
       }));
       setTempSizeSetName('');
-      // setTempSizeSetGroupId('');
       setTempSizeSetSizes({});
     }
   };
 
+  // Removes all Symbol() from SizeSets obj
   const onNoCustom = () => {
-    //removes all Symbol() from obj
     setSelectedSizeSets((list) => JSON.parse(JSON.stringify(list)));
   };
 
+  // Delete Custom Size Group
   const onRemoveCustom = (symbol) => {
     setSelectedSizeSets((list) => {
       let newList = { ...list };
@@ -356,6 +404,7 @@ const AdProductsPage = ({
     });
   };
 
+  // Add Option Group
   const onAddOption = () => {
     if (
       productState.product.sets.findIndex(
@@ -385,7 +434,7 @@ const AdProductsPage = ({
 
     if (tempSet.images.length < 1) {
       setConfirmationMessage(
-        'Por favor, Adicione pelo menos uma fotodo produto!'
+        'Por favor, Adicione pelo menos uma foto do produto!'
       );
       window.scrollTo(0, 0);
       setCancelText('');
@@ -401,11 +450,13 @@ const AdProductsPage = ({
       images: [],
       extraOptions: [],
     });
-    setSelectedColorName('');
+
+    setSelectedColorName('Selecione');
     setToggleUnique(false);
     setToggleCustom(false);
   };
 
+  // Add Extra Option Group
   const onAddExtraOpt = () => {
     const name = tempExtraOptName;
     const opts = [...tempExtraOptOptions];
@@ -441,6 +492,7 @@ const AdProductsPage = ({
     setShowDialog(true);
   };
 
+  // Delete Extra Option Group
   const onDeleteExtraOpt = (name) => {
     setTempSet((list) => {
       let newList = { ...list };
@@ -455,6 +507,7 @@ const AdProductsPage = ({
     });
   };
 
+  // Add item to Extra Options
   const onAddExtraOptOption = () => {
     const name = tempExtraOptOption;
     if (name.length > 0) {
@@ -474,6 +527,7 @@ const AdProductsPage = ({
     }
   };
 
+  // Delete item from Extra Options
   const onDeleteExtraOptOption = (index) => {
     setTempExtraOptOptions((values) => {
       let newValues = [...values];
@@ -482,160 +536,14 @@ const AdProductsPage = ({
     });
   };
 
+  // Cancel Save and redirect to main page
   const onCancel = () => {
     router.replace({
       pathname: '/admin',
     });
   };
 
-  const onSave = (event) => {
-    event.preventDefault();
-
-    if (!validate()) {
-      window.scrollTo(0, 0);
-      setCancelText('');
-      setOkText('');
-      setShowDialog(true);
-      return;
-    }
-
-    if (productState.product.id.length > 0) {
-      setConfirmationMessage(
-        'Por favor, confira as alterações no produto antes de salvar:'
-      );
-    } else {
-      setConfirmationMessage(
-        'Por favor, confira o novo produto antes de salvar:'
-      );
-    }
-
-    setShowConfirmation(true);
-    setCancelText('Cancelar');
-    setOkText('Salvar');
-    window.scrollTo(0, 0);
-  };
-
-  // Save New Product
-  const onSaveProduct = async (event) => {
-    event.preventDefault();
-
-    // Transform Objects to Arrays
-    let newProduct = { ...productState.product };
-    let newSets = [];
-    newProduct.sets.forEach((set) => {
-      let arrayOfSizeSetsProps = Object.values(set.sizeSets) || [];
-      let arrayOfSizeSetsPropsAndSymbols = arrayOfSizeSetsProps.concat(
-        Object.getOwnPropertySymbols(set.sizeSets).map((sizeSet) => ({
-          ...set.sizeSets[sizeSet],
-        }))
-      );
-      let finalArray = [];
-      arrayOfSizeSetsPropsAndSymbols.forEach((element) => {
-        finalArray.push({
-          ...element,
-          availableSizes: Object.values(element.availableSizes),
-        });
-      });
-      newSets.push({ ...set, sizeSets: finalArray });
-    });
-
-    newProduct.sets = newSets;
-    delete newProduct.id;
-
-    let method = '';
-    let body;
-    if (productState.product.id.length > 0) {
-      method = 'PUT';
-      body = JSON.stringify({
-        id: productState.product.id,
-        product: newProduct,
-      });
-    } else {
-      method = 'POST';
-      body = JSON.stringify({ product: newProduct });
-    }
-
-    const createdProduct = await fetch('/api/admin/products', {
-      method: method,
-      // headers: { 'Content-Type': 'application/json' },
-      headers: { 'Content-Type': 'multipart/form-data' },
-      body: body,
-    });
-
-    const data = await createdProduct.json();
-
-    switch (createdProduct.status) {
-      case 201:
-        window.scrollTo(0, 0);
-        setShowConfirmation(false);
-        setShowDialog(true);
-        setCancelText('');
-        setOkText('');
-        setConfirmationMessage('Salvo com sucesso!');
-        console.log(data);
-        // onChange(data.product._id, fields.ID);
-        break;
-      case 400:
-        window.alert(
-          'Não foi possível salvar o produto pois existem informações erradas no cadastro: ' +
-            data.message
-        );
-        break;
-      case 401:
-        window.alert(
-          'Você não está autorizado a fazer isso. Por favor, faça o login novamente.'
-        );
-        break;
-      case 500:
-      default:
-        window.alert('Ops, Erro interno! Por favor, contate o Administrador.');
-        break;
-    }
-  };
-
-  // Search Product
-  const onSearchByCode = async (event) => {
-    event.preventDefault();
-    const code = productState.product.code;
-
-    if (!!code) {
-      setIsLoading(true);
-      setConfirmationMessage('Carregando...');
-      setShowDialog(true);
-      const product = await fetch(`/api/admin/products?code=${code}`);
-      setShowDialog(false);
-      setIsLoading(false);
-
-      const data = await product.json();
-
-      switch (product.status) {
-        case 200:
-          window.scrollTo(0, 0);
-          populateForm(data.product[0]);
-          break;
-        case 404:
-          window.scrollTo(0, 0);
-          setConfirmationMessage('Não Encontrado');
-          setShowDialog(true);
-          break;
-        case 400:
-          window.alert(data.message);
-          break;
-        case 401:
-          window.alert(
-            'Você não está autorizado a fazer isso. Por favor, faça o login novamente.'
-          );
-          break;
-        case 500:
-        default:
-          window.alert(
-            'Ops, Erro interno! Por favor, contate o Administrador.'
-          );
-          break;
-      }
-    }
-  };
-
+  // Populate form after search by Code
   const populateForm = (product) => {
     dispatchProductState({ type: 'POPULATE_ALL', product: product });
     setSelectedSectionName(
@@ -646,28 +554,7 @@ const AdProductsPage = ({
     );
   };
 
-  const onSetImages = (event) => {
-    event.preventDefault();
-    console.log(event.target.files);
-    setTempSet((temp) => ({
-      ...temp,
-      images: Object.values(event.target.files),
-    }));
-  };
-
-  // Validations
-  const [codeValidation, setCodeValidation] = useState(true);
-  const [nameValidation, setNameValidation] = useState(true);
-  const [categoryValidation, setCategoryValidation] = useState(true);
-  const [sectionValidation, setSectionValidation] = useState(true);
-  const [stockValidation, setStockValidation] = useState(true);
-  const [priceValidation, setPriceValidation] = useState(true);
-  const [discountPercentageValidation, setDiscountPercentageValidation] =
-    useState(true);
-  const [weightValidation, setWeightValidation] = useState(true);
-  const [shortDescValidation, setShortDescValidation] = useState(true);
-  const [longDescValidation, setLongDescValidation] = useState(true);
-
+  // Validate Form becore Save
   const validate = () => {
     setCodeValidation(true);
     if (!productState.product.code.length > 0) {
@@ -772,10 +659,278 @@ const AdProductsPage = ({
     return true;
   };
 
+  // Dismiss Dialog
   const onDismissConfirmation = (event) => {
     event.preventDefault();
     setShowConfirmation(false);
     setShowDialog(false);
+  };
+
+  // Clear Form
+  const resetForm = () => {
+    dispatchProductState({ type: 'CLEAR_ALL' });
+
+    // Extra options
+    setTempExtraOptName('');
+    setTempExtraOptOption('');
+    setTempExtraOptOptions([]);
+
+    //toggles
+    setToggleUnique(false);
+    setToggleCustom(false);
+
+    // Temporary Options info
+    setTempSet({
+      colorId: '',
+      sizeSets: {},
+      images: [],
+      extraOptions: [],
+    });
+    setSelectedColorName('Selecione');
+    setSelectedCategoryName('Selecione');
+    setSelectedSectionName('Selecione');
+    setImagesData([]);
+
+    // temp Custom Options info
+    setTempSizeSetName('');
+    setTempSizeSetGroupId();
+    setTempSizeSetSizes({});
+
+    // Dialog
+    setShowConfirmation(false);
+    setShowResume(false);
+    setShowDialog(false);
+    setConfirmationMessage('');
+    setCancelText('');
+    setOkText('');
+    setIsLoading(false);
+
+    // Validations
+    setCodeValidation(true);
+    setNameValidation(true);
+    setCategoryValidation(true);
+    setSectionValidation(true);
+    setStockValidation(true);
+    setPriceValidation(true);
+    setDiscountPercentageValidation(true);
+    setWeightValidation(true);
+    setShortDescValidation(true);
+    setLongDescValidation(true);
+  };
+
+  // Save images to image Array
+  const onSetImages = (event) => {
+    event.preventDefault();
+    let names = [];
+    let files = [...event.target.files];
+    files.forEach((file) => {
+      let name = new Date().toISOString();
+      name = name.replace(/[^a-z0-9]/gi, '');
+      file.uniId = name + '_' + file.name;
+      names.push(file.uniId);
+    });
+
+    setImagesData((oldArray) => {
+      let newArray = oldArray.filter(
+        (item) => tempSet.images.findIndex((i) => i === item.uniId) < 0
+      );
+      return [...newArray, ...files];
+    });
+    setTempSet((temp) => ({
+      ...temp,
+      images: names,
+    }));
+  };
+
+  // Search Product by field Code
+  const onSearchByCode = async (event) => {
+    event.preventDefault();
+    const code = productState.product.code;
+
+    if (!!code) {
+      setIsLoading(true);
+      setConfirmationMessage('Carregando...');
+      setShowDialog(true);
+      const product = await fetch(`/api/admin/products?code=${code}`);
+      setShowDialog(false);
+      setIsLoading(false);
+
+      const data = await product.json();
+
+      switch (product.status) {
+        case 200:
+          window.scrollTo(0, 0);
+          populateForm(data.product[0]);
+          break;
+        case 404:
+          window.scrollTo(0, 0);
+          setConfirmationMessage('Não Encontrado');
+          setShowDialog(true);
+          break;
+        case 400:
+          window.alert(data.message);
+          break;
+        case 401:
+          window.alert(
+            'Você não está autorizado a fazer isso. Por favor, faça o login novamente.'
+          );
+          break;
+        case 500:
+        default:
+          window.alert(
+            'Ops, Erro interno! Por favor, contate o Administrador.'
+          );
+          break;
+      }
+    }
+  };
+
+  // Confirm Action
+  const onConfirmForm = (event) => {
+    event.preventDefault();
+
+    if (!validate()) {
+      window.scrollTo(0, 0);
+      setCancelText('');
+      setOkText('');
+      setShowDialog(true);
+      return;
+    }
+
+    if (productState.product.id.length > 0) {
+      setShowResume(false);
+      setConfirmationMessage(
+        'ATENÇÃO: Você está prestes a remover este produto do site. Esta ação não tem volta! Deseja continuar?'
+      );
+      setCancelText('Cancelar');
+      setOkText('Deletar');
+      setShowConfirmation(true);
+    } else {
+      setShowResume(true);
+      setConfirmationMessage(
+        'Por favor, confira o novo produto antes de salvar:'
+      );
+      setShowConfirmation(true);
+      setCancelText('Cancelar');
+      setOkText('Salvar');
+    }
+
+    window.scrollTo(0, 0);
+  };
+
+  // Direct Action to Save or Delete
+  const onDirectAction = async (event) => {
+    event.preventDefault();
+
+    setIsLoading(true);
+    setOkText('');
+    setCancelText('');
+    setShowDialog(true);
+
+    let result;
+    if (productState.product.id.length > 0) {
+      result = await onDeleteProduct();
+    } else {
+      result = await onSaveProduct();
+    }
+
+    const data = await result.json();
+
+    window.scrollTo(0, 0);
+   
+    setShowConfirmation(false);
+    setShowResume(false);
+    setShowDialog(true);
+    setCancelText('');
+    setOkText('');
+
+    switch (result.status) {
+      case 200:
+        resetForm();
+        setConfirmationMessage(
+          'Deletado com sucesso.'
+        );
+        break;
+      case 201:
+        resetForm();
+        setConfirmationMessage('Salvo com sucesso!');
+        // onChange(data.product._id, fields.ID);
+        break;
+      case 400:
+        setConfirmationMessage(data.message);
+        break;
+      case 401:
+        setConfirmationMessage(
+          'Você não está autorizado a fazer isso. Por favor, faça o login novamente.'
+        );
+        break;
+      case 500:
+      default:
+        setConfirmationMessage(
+          'Ops, Erro interno! Por favor, contate o Administrador.'
+        );
+        break;
+    }
+    setIsLoading(false);
+    setShowDialog(true);
+  };
+
+  // Save Product
+  const onSaveProduct = async () => {
+    setConfirmationMessage('Salvando...');
+
+    // Transform Objects to Arrays
+    let newProduct = { ...productState.product };
+    let newSets = [];
+    newProduct.sets.forEach((set) => {
+      let arrayOfSizeSetsProps = Object.values(set.sizeSets) || [];
+      let arrayOfSizeSetsPropsAndSymbols = arrayOfSizeSetsProps.concat(
+        Object.getOwnPropertySymbols(set.sizeSets).map((sizeSet) => ({
+          ...set.sizeSets[sizeSet],
+        }))
+      );
+      let finalArray = [];
+      arrayOfSizeSetsPropsAndSymbols.forEach((element) => {
+        finalArray.push({
+          ...element,
+          availableSizes: Object.values(element.availableSizes),
+        });
+      });
+      newSets.push({ ...set, sizeSets: finalArray });
+    });
+    newProduct.sets = newSets;
+    delete newProduct.id;
+
+    const formData = new FormData();
+    let method = 'POST';
+
+    formData.append('product', JSON.stringify(newProduct));
+    imagesData.forEach((image) => {
+      formData.append(image.uniId, image);
+    });
+
+    const createdProduct = await fetch('/api/admin/products', {
+      method: method,
+      body: formData,
+    });
+
+    return createdProduct;
+  };
+
+  // Delete Product
+  const onDeleteProduct = async () => {
+    const id = productState.product.id;
+    const auth = 'AJSKOFDHJDASD';
+
+    setConfirmationMessage('Deletando...');
+
+    const deletedProduct = await fetch('/api/admin/products', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, auth: auth }),
+    });
+
+    return deletedProduct;
   };
 
   return (
@@ -801,7 +956,12 @@ const AdProductsPage = ({
           </div>
         </section>
         <section className={styles.product}>
-          <form className={styles.form} onSubmit={onSave}>
+          <form
+            method="post"
+            className={styles.form}
+            onSubmit={onConfirmForm}
+            encType="multipart/form-data"
+          >
             <span>
               <label htmlFor="code">
                 Código:
@@ -1020,7 +1180,7 @@ const AdProductsPage = ({
                 Opções:
                 {productState.product.sets.map((set, index) => (
                   <div
-                    key={set.colorId}
+                    key={index + '_' + set.colorId}
                     className={[
                       styles.marginTop,
                       styles.padding,
@@ -1045,7 +1205,7 @@ const AdProductsPage = ({
                                 styles.buttonRed,
                               ].join(' ')}
                               type="button"
-                              onClick={() => onRemoveSet(index)}
+                              onClick={() => onRemoveSet(index, set.colorId)}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -1152,18 +1312,15 @@ const AdProductsPage = ({
                             </td>
                           </tr>
                         )}
-                        <tr>
+                        <tr className={styles.borderAround}>
                           <td>Fotos:</td>
                           <td colSpan={2}>
-                            {set.images.map((img) => (
+                            {set.images.map((img, index) => (
                               <span
-                                key={img.name}
-                                className={[
-                                  styles.block,
-                                  styles.capitalize,
-                                ].join(' ')}
+                                key={index + '_' + img}
+                                className={[styles.block].join(' ')}
                               >
-                                {img.name}
+                                {img.slice(img.indexOf('_') + 1)}
                               </span>
                             ))}
                           </td>
@@ -1252,7 +1409,6 @@ const AdProductsPage = ({
                             if (toggleCustom) {
                               onNoCustom();
                               setTempSizeSetName('');
-                              // setTempSizeSetGroupId('');
                               setTempSizeSetSizes({});
                               setToggleCustom(false);
                             } else {
@@ -1526,17 +1682,31 @@ const AdProductsPage = ({
                 </span>
               </div>
             </span>
-            <span>
-              <Button
-                className={styles.button}
-                type="button"
-                onClick={onCancel}
-              >
-                Cancelar
-              </Button>
-              <Button className={styles.button} type="submit">
-                Salvar
-              </Button>
+            <span className={styles.group_line}>
+              {productState.product.id.length > 0 ? (
+                <Button
+                  className={[styles.button, styles.buttonRed].join(' ')}
+                  type="submit"
+                >
+                  Deletar este Produto
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    className={[styles.button, styles.large].join(' ')}
+                    type="button"
+                    onClick={onCancel}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    className={[styles.button, styles.large].join(' ')}
+                    type="submit"
+                  >
+                    Salvar
+                  </Button>
+                </>
+              )}
             </span>
           </form>
         </section>
@@ -1553,204 +1723,208 @@ const AdProductsPage = ({
       <ConfirmationDialog
         show={showConfirmation}
         onCancel={onDismissConfirmation}
-        onConfirm={onSaveProduct}
+        onConfirm={onDirectAction}
         message={confirmationMessage}
         cancelText={cancelText}
         okText={okText}
         className={styles.resumeBox}
       >
-        <div className={styles.resume}>
-          <table>
-            <tbody>
-              <tr>
-                <td>Código:</td>
-                <td className={styles.uppercase}>
-                  {productState.product.code}
-                </td>
-              </tr>
-              <tr>
-                <td>Nome:</td>
-                <td>{productState.product.name}</td>
-              </tr>
-              <tr>
-                <td>Categoria:</td>
-                <td className={styles.capitalize}>
-                  {productState.product.categoryId.length > 1 &&
-                    categoryList.find(
-                      (c) => c._id === productState.product.categoryId
-                    ).text}
-                </td>
-              </tr>
-              <tr>
-                <td>Seção:</td>
-                <td className={styles.capitalize}>
-                  {productState.product.sectionId.length > 1 &&
-                    sectionList.find(
-                      (c) => c._id === productState.product.sectionId
-                    ).text}
-                </td>
-              </tr>
-              <tr>
-                <td>Estoque:</td>
-                <td className={styles.capitalize}>
-                  {productState.product.limitStock
-                    ? 'Limitado à ' +
-                      productState.product.stockNumber +
-                      ' unidades'
-                    : 'Ilimitado'}
-                </td>
-              </tr>
-              <tr>
-                <td>Preço:</td>
-                <td className={styles.capitalize}>
-                  {'R$ '}
-                  {(+productState.product.price).toFixed(2)}
-                </td>
-              </tr>
-              <tr>
-                <td>Desconto:</td>
-                <td className={styles.capitalize}>
-                  {productState.product.discountPercentage
-                    ? (+productState.product.discountPercentage).toFixed(2) +
-                      '%'
-                    : 'Sem desconto'}
-                </td>
-              </tr>
-              <tr>
-                <td>Peso Unitário:</td>
-                <td className={styles.capitalize}>
-                  {productState.product.weight}
-                  {' Kg'}
-                </td>
-              </tr>
-              <tr>
-                <td>Descrição Curta:</td>
-                <td className={styles.capitalize}>
-                  {productState.product.shortDescription}
-                </td>
-              </tr>
-              <tr>
-                <td>Descrição Longa:</td>
-                <td className={styles.textLong}>
-                  {productState.product.longDescription}
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={2}>Opções:</td>
-              </tr>
-            </tbody>
-            {productState.product.sets.map((set) => (
-              <tbody key={set.colorId}>
+        {showResume && (
+          <div className={styles.resume}>
+            <table>
+              <tbody>
                 <tr>
-                  <td colSpan={2} className={styles.tbodySeparator}></td>
+                  <td>Código:</td>
+                  <td className={styles.uppercase}>
+                    {productState.product.code}
+                  </td>
                 </tr>
                 <tr>
-                  <td>Cor:</td>
+                  <td>Nome:</td>
+                  <td>{productState.product.name}</td>
+                </tr>
+                <tr>
+                  <td>Categoria:</td>
                   <td className={styles.capitalize}>
-                    {colorList.find((c) => c._id === set.colorId).text}
+                    {productState.product.categoryId.length > 1 &&
+                      categoryList.find(
+                        (c) => c._id === productState.product.categoryId
+                      ).text}
                   </td>
                 </tr>
                 <tr>
-                  <td colSpan={2}>
-                    {'Tamanhos: '}
-                    {set.sizeSets.unique ||
-                    Object.getOwnPropertySymbols(set.sizeSets).length > 0
-                      ? ''
-                      : 'Sem Tamanho'}
+                  <td>Seção:</td>
+                  <td className={styles.capitalize}>
+                    {productState.product.sectionId.length > 1 &&
+                      sectionList.find(
+                        (c) => c._id === productState.product.sectionId
+                      ).text}
                   </td>
                 </tr>
-                {set.sizeSets.unique && (
+                <tr>
+                  <td>Estoque:</td>
+                  <td className={styles.capitalize}>
+                    {productState.product.limitStock
+                      ? 'Limitado à ' +
+                        productState.product.stockNumber +
+                        ' unidades'
+                      : 'Ilimitado'}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Preço:</td>
+                  <td className={styles.capitalize}>
+                    {'R$ '}
+                    {(+productState.product.price).toFixed(2)}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Desconto:</td>
+                  <td className={styles.capitalize}>
+                    {productState.product.discountPercentage
+                      ? (+productState.product.discountPercentage).toFixed(2) +
+                        '%'
+                      : 'Sem desconto'}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Peso Unitário:</td>
+                  <td className={styles.capitalize}>
+                    {productState.product.weight}
+                    {' Kg'}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Descrição Curta:</td>
+                  <td className={styles.capitalize}>
+                    {productState.product.shortDescription}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Descrição Longa:</td>
+                  <td className={styles.textLong}>
+                    {productState.product.longDescription}
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={2}>Opções:</td>
+                </tr>
+              </tbody>
+              {productState.product.sets.map((set) => (
+                <tbody key={set.colorId}>
                   <tr>
-                    <td>Único:</td>
-                    <td className={styles.uppercase}>
-                      {(function () {
-                        let text = '';
-                        for (const k in set.sizeSets.unique.availableSizes) {
-                          if (text.length > 0) text = text + ' - ';
-                          if (
-                            Object.hasOwnProperty.call(
-                              set.sizeSets.unique.availableSizes,
-                              k
-                            )
-                          ) {
-                            text = text + k;
+                    <td colSpan={2} className={styles.tbodySeparator}></td>
+                  </tr>
+                  <tr>
+                    <td>Cor:</td>
+                    <td className={styles.capitalize}>
+                      {colorList.find((c) => c._id === set.colorId).text}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={2}>
+                      {'Tamanhos: '}
+                      {set.sizeSets.unique ||
+                      Object.getOwnPropertySymbols(set.sizeSets).length > 0
+                        ? ''
+                        : 'Sem Tamanho'}
+                    </td>
+                  </tr>
+                  {set.sizeSets.unique && (
+                    <tr>
+                      <td>Único:</td>
+                      <td className={styles.uppercase}>
+                        {(function () {
+                          let text = '';
+                          for (const k in set.sizeSets.unique.availableSizes) {
+                            if (text.length > 0) text = text + ' - ';
+                            if (
+                              Object.hasOwnProperty.call(
+                                set.sizeSets.unique.availableSizes,
+                                k
+                              )
+                            ) {
+                              text = text + k;
+                            }
                           }
-                        }
-                        return text;
-                      })()}
-                    </td>
-                  </tr>
-                )}
-                {Object.getOwnPropertySymbols(set.sizeSets).length > 0 && (
-                  <tr>
-                    <td>Personalizado:</td>
-                    <td>
-                      {Object.getOwnPropertySymbols(set.sizeSets).map(
-                        (size) => (
-                          <span
-                            key={set.sizeSets[size].name}
-                            className={styles.block}
-                          >
-                            {set.sizeSets[size].name}
-                            {': '}
-                            {(function () {
-                              let text = '';
-                              for (const k in set.sizeSets[size]
-                                .availableSizes) {
-                                if (text.length > 0) text = text + ' - ';
-                                if (
-                                  Object.hasOwnProperty.call(
-                                    set.sizeSets[size].availableSizes,
-                                    k
-                                  )
-                                ) {
-                                  text = text + k;
+                          return text;
+                        })()}
+                      </td>
+                    </tr>
+                  )}
+                  {Object.getOwnPropertySymbols(set.sizeSets).length > 0 && (
+                    <tr>
+                      <td>Personalizado:</td>
+                      <td>
+                        {Object.getOwnPropertySymbols(set.sizeSets).map(
+                          (size) => (
+                            <span
+                              key={set.sizeSets[size].name}
+                              className={styles.block}
+                            >
+                              {set.sizeSets[size].name}
+                              {': '}
+                              {(function () {
+                                let text = '';
+                                for (const k in set.sizeSets[size]
+                                  .availableSizes) {
+                                  if (text.length > 0) text = text + ' - ';
+                                  if (
+                                    Object.hasOwnProperty.call(
+                                      set.sizeSets[size].availableSizes,
+                                      k
+                                    )
+                                  ) {
+                                    text = text + k;
+                                  }
                                 }
-                              }
-                              return text.toUpperCase();
-                            })()}
+                                return text.toUpperCase();
+                              })()}
+                            </span>
+                          )
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  {set.extraOptions.length > 0 && (
+                    <tr>
+                      <td>Opções Extras:</td>
+                      <td>
+                        {set.extraOptions.map((opt) => (
+                          <span
+                            key={opt.name}
+                            className={[styles.block, styles.capitalize].join(
+                              ' '
+                            )}
+                          >
+                            {opt.name}
+                            {': '}
+                            {opt.options.join(' / ')}
                           </span>
-                        )
-                      )}
-                    </td>
-                  </tr>
-                )}
-                {set.extraOptions.length > 0 && (
+                        ))}
+                      </td>
+                    </tr>
+                  )}
                   <tr>
-                    <td>Opções Extras:</td>
-                    <td>
-                      {set.extraOptions.map((opt) => (
+                    <td>Fotos:</td>
+                    <td colSpan={2}>
+                      {set.images.map((img) => (
                         <span
-                          key={opt.name}
+                          key={img}
                           className={[styles.block, styles.capitalize].join(
                             ' '
                           )}
                         >
-                          {opt.name}
-                          {': '}
-                          {opt.options.join(' / ')}
+                          {img.slice(img.indexOf('_') + 1)}
                         </span>
                       ))}
                     </td>
                   </tr>
-                )}
-                <tr>
-                  <td>Fotos:</td>
-                  <td colSpan={2}>
-                    {set.images.map((img) => (
-                      <span
-                        key={img.name}
-                        className={[styles.block, styles.capitalize].join(' ')}
-                      >
-                        {img.name}
-                      </span>
-                    ))}
-                  </td>
-                </tr>
-              </tbody>
-            ))}
-          </table>
-        </div>
+                </tbody>
+              ))}
+            </table>
+          </div>
+        )}
       </ConfirmationDialog>
     </Admin>
   );
