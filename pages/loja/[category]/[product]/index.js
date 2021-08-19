@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Head from 'next/Head';
 import { useRouter } from 'next/router';
 import BagContext from '../../../../store/bag-context';
@@ -15,15 +15,14 @@ import {
   InputRadio,
   InputNumber,
 } from '../../../../components/utilities/FormComponents';
-import { getSizes } from '../../../../data/sizeSets';
 import { getCategoriesJSON } from '../../../../data/categories';
 import {
   getProductListingByCategoryJSON,
-  getProductById,
-  getBareProductListById,
+  getProductIdsByCategoryJSON,
+  getProductByIdJSON,
 } from '../../../../data/products';
-import { getCurrentNotice } from '../../../data/notice';
-
+import { getCurrentNotice } from '../../../../data/notice';
+import ProductListItemCard from '../../../../components/utilities/ProductListItemCard';
 
 const optSizeNames = {
   u: 'UNIQUE',
@@ -35,46 +34,26 @@ const ProductPage = ({
   title,
   canonical,
   categoryList,
-  // prodId, REMOVE
-  // prodCategory, REMOVE
-  // allSizes, REMOVE
-  data,
+  product,
   relatedProducts,
 }) => {
   const router = useRouter();
-  const product = data;
   const newPrice = !!product.discountPercent
     ? product.price.toFixed(2) * (1 - product.discountPercent / 100)
     : false;
 
   // INPUT OPTIONS FOR PURCHASE: - START
+  // COLOR / SIZES / EXTRAS / QNTY
   // COLOR
-  const [selectedColorSet, setSelectedColorSet] = useState(
-    Object.keys(product.sets)[0]
-  );
+  const [selectedSet, setSelectedSet] = useState(product.sets[0]);
 
-  // SIZE TYPE
-  const [sizeType, setSizeType] = useState(optSizeNames.u);
-  const onChangeSizeType = (event) => {
-    setSizeType(event.target.value);
-  };
+  // SIZES
+  const [selectedSizes, setSelectedSizes] = useState([]);
 
-  // SIZE UNIQUE
-  const [sizeUnique, setSizeUnique] = useState('');
-  const onChangeSizeUnique = (id, name, value) => {
-    setSizeUnique({ [id]: value });
-  };
-
-  // SIZE SPECIAL
-  const [sizeSpecial, setSizeSpecial] = useState();
-  const onChangeSizeSpecial = (id, name, value) => {
-    setSizeSpecial((sizes) => ({ ...sizes, [id]: value }));
-  };
-
-  // EXTRA OPTIONS
-  const [selectedExtraOptions, setSelectedExtraOptions] = useState({});
-  const onSelectedExtraOptionsHandler = (name, value) => {
-    setSelectedExtraOptions((options) => ({ ...options, [name]: value }));
+  // EXTRAS
+  const [selectedExtras, setSelectedExtras] = useState({});
+  const onSelectedExtrasHandler = (name, value) => {
+    setSelectedExtras((options) => ({ ...options, [name]: value }));
   };
 
   // QUANTITY
@@ -84,29 +63,6 @@ const ProductPage = ({
   };
   // INPUT OPTIONS FOR PURCHASE: -END
 
-  const [selectedColorSet_images, setSelectedColorSet_images] = useState(
-    product.sets[selectedColorSet].images
-  );
-
-  function setImagesToSlideShow(color) {
-    setSelectedColorSet(color);
-    setSelectedColorSet_images(product.sets[color].images);
-  }
-
-  const htmlColors = Object.keys(product.sets).map((color) => (
-    <div
-      key={color}
-      className={[
-        styles.color,
-        color === selectedColorSet ? styles.colorSelected : '',
-      ]
-        .join(' ')
-        .trim()}
-      style={{ backgroundColor: color }}
-      onClick={setImagesToSlideShow.bind(this, color)}
-    />
-  ));
-
   function openSizesGuide() {}
 
   const context = useContext(BagContext);
@@ -114,15 +70,10 @@ const ProductPage = ({
   function addToBag(event) {
     event.preventDefault();
     const prodToBag = {
-      prodId: prodId,
-      name: product.name,
-      colorId: product.sets[selectedColorSet].colorId,
-      colorName: product.sets[selectedColorSet].colorName,
-      size: sizeType === optSizeNames.u ? sizeUnique : sizeSpecial,
-      extraOptions: selectedExtraOptions,
-      price: product.price.toFixed(2),
-      discountPercent: product.discountPercent,
-      weight: product.weight,
+      product: product,
+      set: selectedSet,
+      selectedSizes: selectedSizes,
+      extraOptions: selectedExtras,
       quantity: quantity,
     };
     context.addToBag(prodToBag);
@@ -147,14 +98,18 @@ const ProductPage = ({
         </Head>
         <div className={styles.contentbox}>
           <div className={styles.bredcrumb_container}>
-            <Breadcrumb query={[prodCategory, prodId]} current={product.name} />
+            <Breadcrumb
+              query={[product.categoryId.name, product._id]}
+              current={product.name}
+            />
           </div>
           <div className={styles.product_content_side}>
             <div className={styles.imageshow__container}>
-              <ImageShow images={selectedColorSet_images} />
+              <ImageShow productId={product._id} images={selectedSet.images} />
             </div>
             <div className={styles.details}>
               <span className={styles.font_hightlight}>{product.name}</span>
+              <span>Ref: {product.code}</span>
               <section
                 className={[styles.section_details, styles.details__description]
                   .join(' ')
@@ -196,7 +151,25 @@ const ProductPage = ({
                 )}
               >
                 Cores:
-                <div className={styles.imageshow__colors}>{htmlColors}</div>
+                <div className={styles.imageshow__colors}>
+                  {product.sets.map((set) => (
+                    <div
+                      key={set._id}
+                      className={[
+                        styles.color,
+                        set._id === selectedSet._id ? styles.colorSelected : '',
+                      ]
+                        .join(' ')
+                        .trim()}
+                      style={{ backgroundColor: set.colorId.code }}
+                      onClick={() => {
+                        setSelectedSet(set);
+                        setSelectedExtras({});
+                        setSelectedSizes([]);
+                      }}
+                    />
+                  ))}
+                </div>
               </section>
               <section
                 className={[styles.section_details, styles.section_sizes].join(
@@ -207,77 +180,154 @@ const ProductPage = ({
                   Medidas:
                   <span onClick={openSizesGuide}>Guia de medidas aqui!</span>
                 </p>
-                {!!product.sets[selectedColorSet].uniqueSizes && (
-                  <div
-                    className={
-                      sizeType === optSizeNames.u ? styles.selectedSizeSet : ''
-                    }
-                  >
-                    <label htmlFor="unique_size" onChange={onChangeSizeType}>
-                      <InputRadio
-                        id="unique_size"
-                        type="radio"
-                        name="size_type"
-                        value={optSizeNames.u}
-                        defaultChecked={true}
-                      />
-                      <span>Única:</span>
-                    </label>
-                    <span>
-                      <SizeSelector
-                        keyName="uniqueSizes"
-                        availableSizeList={
-                          sizeType === optSizeNames.u
-                            ? product.sets[selectedColorSet].uniqueSizes
-                            : []
-                        }
-                        fullSizeList={allSizes}
-                        name={'único'}
-                        id={optSizeNames.u}
-                        onChange={onChangeSizeUnique}
-                      />
-                    </span>
-                  </div>
-                )}
-                {!!product.sets[selectedColorSet].specialSizes && (
-                  <div
-                    className={
-                      sizeType === optSizeNames.s ? styles.selectedSizeSet : ''
-                    }
-                  >
-                    <label htmlFor="special_size" onChange={onChangeSizeType}>
-                      <InputRadio
-                        id="special_size"
-                        type="radio"
-                        name="size_type"
-                        value={optSizeNames.s}
-                      />
-                      <span>Especial:</span>
-                    </label>
-                    <div>
-                      {product.sets[selectedColorSet].specialSizes.map((op) => (
-                        <div key={op.id} className={styles.specialSizes}>
-                          <span>{op.name}:</span>
+                {selectedSet.sizeSets.length <= 0 ? (
+                  <p>Tamanho único</p>
+                ) : (
+                  <>
+                    {selectedSet.sizeSets
+                      .filter((size) => size.isUnique)
+                      .map((size) => (
+                        <div
+                          key={size._id}
+                          className={
+                            !!selectedSizes[0] &&
+                            selectedSizes[0]._id === size._id
+                              ? styles.selectedSizeSet
+                              : ''
+                          }
+                        >
+                          <label htmlFor="uniqueSize">
+                            <InputRadio
+                              id="uniqueSize"
+                              type="radio"
+                              name="size_type"
+                              value="uniqueSize"
+                              checked={
+                                !!selectedSizes[0] &&
+                                selectedSizes[0]._id === size._id
+                              }
+                              onChange={() => {
+                                setSelectedSizes([
+                                  {
+                                    _id: size._id,
+                                    isUnique: true,
+                                    selected: '',
+                                  },
+                                ]);
+                              }}
+                            />
+                            <span>{size.name}</span>
+                          </label>
                           <span>
                             <SizeSelector
-                              keyName={op.id}
                               availableSizeList={
-                                sizeType === optSizeNames.s ? op.sizes : []
+                                !!selectedSizes[0] &&
+                                selectedSizes[0]._id === size._id
+                                  ? size.availableSizes
+                                  : []
                               }
-                              fullSizeList={allSizes}
-                              id={op.id}
-                              name={op.name}
-                              onChange={onChangeSizeSpecial}
+                              value={
+                                selectedSizes.find(s => s._id === size._id) ? 
+                                selectedSizes.find(s => s._id === size._id).selected 
+                                : ''
+                              }
+                              fullSizeList={size.sizeSetId.sizes}
+                              id={size._id}
+                              onChange={(id, value) => {
+                                setSelectedSizes([
+                                  {
+                                    _id: id,
+                                    isUnique: true,
+                                    selected: value,
+                                  },
+                                ]);
+                              }}
                             />
                           </span>
                         </div>
                       ))}
-                    </div>
-                  </div>
+                    {selectedSet.sizeSets.filter((size) => !size.isUnique)
+                      .length > 0 && (
+                      <div
+                        className={
+                          !!selectedSizes[0] && !selectedSizes[0].isUnique
+                            ? styles.selectedSizeSet
+                            : ''
+                        }
+                      >
+                        <label htmlFor="customSize">
+                          <InputRadio
+                            id="customSize"
+                            type="radio"
+                            name="size_type"
+                            value="customSize"
+                            checked={
+                              !!selectedSizes[0] &&
+                              selectedSizes[0].isUnique === false
+                            }
+                            onChange={() => {
+                              setSelectedSizes(
+                                selectedSet.sizeSets
+                                  .filter((size) => !size.isUnique)
+                                  .map((s) => ({
+                                    _id: s._id,
+                                    isUnique: false,
+                                    selected: '',
+                                  }))
+                              );
+                            }}
+                          />
+                          <span>Personalizado:</span>
+                        </label>
+                        <div>
+                          {selectedSet.sizeSets
+                            .filter((size) => !size.isUnique)
+                            .map((size) => (
+                              <div
+                                key={size._id}
+                                className={styles.specialSizes}
+                              >
+                                <span>{size.name}:</span>
+                                <span>
+                                  <SizeSelector
+                                    availableSizeList={
+                                      selectedSizes.some(
+                                        (s) => s._id === size._id
+                                      )
+                                        ? size.availableSizes
+                                        : []
+                                    }
+                                    value={selectedSizes.find((s) => s._id === size._id) ? 
+                                           selectedSizes.find((s) => s._id === size._id).selected
+                                        : ''
+                                    }
+                                    fullSizeList={size.sizeSetId.sizes}
+                                    id={size._id}
+                                    onChange={(id, value) => {
+                                      let index = selectedSizes.findIndex(
+                                        (s) => s._id === id
+                                      );
+                                      setSelectedSizes((oldArray) => {
+                                        let newArray = [...oldArray];
+                                        newArray[index] = {
+                                          _id: id,
+                                          isUnique: false,
+                                          selected: value,
+                                        };
+                                        return newArray;
+                                      });
+                                    }}
+                                  />
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </section>
-              {(!!product.sets[selectedColorSet].extraOptions &&
-                product.sets[selectedColorSet].extraOptions.length) > 0 && (
+              {selectedSet.extraOptions.length > 0 && (
                 <section
                   className={[
                     styles.section_details,
@@ -285,41 +335,39 @@ const ProductPage = ({
                   ].join(' ')}
                 >
                   <p>Opções:</p>
-                  {product.sets[selectedColorSet].extraOptions.map((op) => (
-                    <div key={`extraOptDiv_${op.name}`}>
+                  {selectedSet.extraOptions.map((op) => (
+                    <div key={`${selectedSet._id}_${op.name}`}>
                       <span>
                         <p>{op.name}:</p>
                       </span>
                       <span>
                         {op.options.map((option) => (
                           <label
-                            htmlFor={`extraOptInpt_${op.name}_${option.name}`}
-                            key={`extraOptLabel_${op.name}_${option.name}`}
-                            onChange={(event) =>
-                              onSelectedExtraOptionsHandler(
-                                op.name,
-                                event.target.value
-                              )
-                            }
+                            htmlFor={`extraOptInpt_${op.name}_${option}`}
+                            key={`extraOptLabel_${op.name}_${option}`}
                           >
                             {option.available ? (
                               <InputRadio
-                                id={`extraOptInpt_${op.name}_${option.name}`}
+                                id={`extraOptInpt_${op.name}_${option}`}
                                 type="radio"
                                 name={`extraOptInpt_${op.name}_${op.name}`}
-                                value={option.name}
+                                value={option}
+                                onChange={() =>
+                                  onSelectedExtrasHandler(op._id, option)
+                                }
                               />
                             ) : (
                               <InputRadio
-                                id={`extraOptInpt_${op.name}_${option.name}`}
+                                id={`extraOptInpt_${op.name}_${option}`}
                                 type="radio"
                                 name={`extraOptInpt_${op.name}_${op.name}`}
-                                value={option.name}
-                                // disabled
-                                tip={'Esgotado'}
+                                value={option}
+                                onChange={() =>
+                                  onSelectedExtrasHandler(op._id, option)
+                                }
                               />
                             )}
-                            <span>{option.name}</span>
+                            <span>{option}</span>
                           </label>
                         ))}
                       </span>
@@ -403,8 +451,8 @@ const ProductPage = ({
             >
               <span className={styles.section_title}>Ofertas Similares:</span>
               <ProductList
-                category={prodCategory}
-                list={relatedProducts}
+                category={product.categoryId}
+                productList={relatedProducts}
                 type="carousel"
               />
             </section>
@@ -417,13 +465,14 @@ const ProductPage = ({
 
 export async function getStaticPaths() {
   const categories = await getCategoriesJSON();
-  const cattegoryList = await JSON.parse(categories);
+  const categoryList = await JSON.parse(categories);
 
   let pathList = [];
 
-  for (const category of cattegoryList) {
-    const products = await getProductListingByCategoryJSON(category._id);
-    products.forEach(prod => {
+  for (const category of categoryList) {
+    const products = await getProductIdsByCategoryJSON(category._id, 1, 100);
+    const prodList = await JSON.parse(products);
+    prodList.forEach((prod) => {
       pathList.push({ params: { category: category.name, product: prod._id } });
     });
   }
@@ -435,12 +484,17 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-
   const category = params.category;
   const productId = params.product;
 
-  const data = await getProductById(productId);
-  // const relatedProducts = await getBareProductListById(data.relatedProducts);
+  const prod = await getProductByIdJSON(productId);
+  const product = await JSON.parse(prod);
+  const related = await getProductListingByCategoryJSON(
+    product.categoryId,
+    1,
+    10
+  );
+  const relatedProducts = await JSON.parse(related);
 
   const categories = await getCategoriesJSON();
   const categoryList = await JSON.parse(categories);
@@ -454,11 +508,8 @@ export async function getStaticProps({ params }) {
       canonical: `http://localhost:3000/${category}/${productId}`,
       notice: noticeText,
       categoryList: categoryList,
-      // prodCategory: category, REMOVE
-      // prodId: productId, REMOVE
-      // allSizes: sizeList, REMOVE
-      data: data,
-      relatedProducts: [],
+      product: product,
+      relatedProducts: relatedProducts,
     },
   };
 }

@@ -20,14 +20,9 @@ const ListingPage = ({
   colorList,
   sizeList,
 }) => {
-
   if (!category || !colorList || !sizeList || !productList) {
     return <p className="center">Loading...</p>;
   }
-
-  useEffect(() => {
-    setProdList(productList);
-  }, [category]);
 
   const router = useRouter();
   const [page, setPage] = useState(1);
@@ -35,18 +30,22 @@ const ListingPage = ({
   const [prodList, setProdList] = useState(productList);
   const [lastPage, setLastPage] = useState(false);
 
+  useEffect(() => {
+    setProdList(productList);
+  }, []);
+
   const loadPage = async () => {
     setIsLoading(true);
     const pag = page;
     const products = await fetch(
-      `/api/admin/products/list/${category._id}/${pag + 1}/10`
+      `/api/admin/products/list/${category._id}/${pag + 1}/20`
     );
 
     const data = await products.json();
 
     switch (products.status) {
       case 200:
-        setProdList((prods) => [...prods, ...data.prodList]);
+        setProdList((prods) => [...prods, ...data.productList]);
         setLastPage(data.lastPage);
         break;
       case 404:
@@ -64,15 +63,14 @@ const ListingPage = ({
     <Main notice={notice} categoryList={categoryList}>
       <Store notice={!!notice} categoryList={categoryList}>
         <ListingPageFilter colors={colorList} sizes={sizeList} />
-        {isLoading ? (
-          <p>{'Carregando...'}</p>
-        ) : prodList.length > 0 ? (
+        {prodList.length > 0 ? (
           <>
             <ProductList
               productList={prodList}
               category={category}
               type="page"
             />
+            {isLoading && <p>{'Carregando...'}</p>}
             {!lastPage && (
               <section>
                 <Button className={styles.loadbutton} onClick={loadPage}>

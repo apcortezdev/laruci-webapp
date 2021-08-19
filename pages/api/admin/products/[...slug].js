@@ -1,10 +1,10 @@
-import { getProductPageByCategory } from '../../../../data/products';
+import { getProductListingByCategory } from '../../../../data/products';
 
 // /api/admin/products/list/[categoryId]/[page]/[nuPerPage]
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const productList = await getProductPageByCategory(
+      const productList = await getProductListingByCategory(
         req.query.slug[1],
         req.query.slug[2],
         req.query.slug[3]

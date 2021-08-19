@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styles from './ImageShow.module.scss';
 import { useEffect, useRef, useState } from 'react';
 
@@ -77,7 +78,7 @@ const ImageShow = (props) => {
           <img
             ref={img_main}
             className={styles.img_main}
-            src={images[slideImgNumber]}
+            src={`/public/images/products/${props.productId}/${images[slideImgNumber]}`}
           />
           {/* <Image
             ref={img_main}
@@ -85,7 +86,7 @@ const ImageShow = (props) => {
             height={400}
             loading="lazy"
             objectFit="cover"
-            src={images[slideImgNumber]}
+            src={`/public/images/products/${props.productId}/${images[slideImgNumber]}`}
           /> */}
           {images.length > 1 && (
             <button

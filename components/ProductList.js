@@ -1,22 +1,25 @@
 import PropTypes from 'prop-types';
 import ProductListItemCard from './utilities/ProductListItemCard';
 import styles from './ProductList.module.scss';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 const ItemsList = ({ items, startIn }) => {
-  let i;
   let start = startIn;
   let products = [];
 
-  for (i in items) {
-    if (start === Object.keys(items).length) start = 0;
-    products[start] = (
-      <div key={'cnt_' + i} className={styles.itemcontainer}>
-        <ProductListItemCard key={'itm_' + i} prodId={i} product={items[i]} />
-      </div>
-    );
-    start++;
+  if (!!items) {
+    items.forEach(item => {
+      if (start === items.length) start = 0;
+      products[start] = (
+        <div key={'carrousel' + item._id} className={styles.itemcontainer}>
+          <ProductListItemCard key={'carrouselItm_' + item._id} prodId={item._id} product={item} />
+        </div>
+      );
+      start++;
+    })
   }
+
+
   return <ol className={styles.carousel}>{products}</ol>;
 };
 
@@ -26,8 +29,8 @@ const ProductList = ({ productList, category, type }) => {
   const slide = (value) => {
     setSlidePosition((v) => {
       let newV = v + value;
-      if (newV === Object.keys(productList).length) return 0;
-      else if (newV < 0) return Object.keys(productList).length - 1;
+      if (newV === productList.length) return 0;
+      else if (newV < 0) return productList.length - 1;
       return newV;
     });
   };
@@ -68,7 +71,6 @@ const ProductList = ({ productList, category, type }) => {
         products.push(
           <ProductListItemCard
             key={element._id}
-            category={category}
             product={element}
           />
         );

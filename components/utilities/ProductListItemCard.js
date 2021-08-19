@@ -3,8 +3,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './ProductListItemCard.module.scss';
 
-const ProductListItemCard = ({ product, category }) => {
+const ProductListItemCard = ({ product }) => {
   const prod = product;
+  console.log(prod)
 
   let discountPrice = 0;
 
@@ -18,7 +19,7 @@ const ProductListItemCard = ({ product, category }) => {
     <li className={styles.item} key={prod._id}>
       <Link
         href={{
-          pathname: `/loja/${category.name}/${prod._id}`,
+          pathname: `/loja/${prod.categoryName}/${prod._id}`,
         }}
       >
         <a>
