@@ -39,6 +39,30 @@ export async function getSizeSets() {
   return sizeSets;
 }
 
+export async function getMainSizeSets() {
+  let sizeSets = [];
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001');
+  }
+
+  try {
+    sizeSets = await SizeSet.find().findMain().exec();;
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN002');
+    }
+  }
+  return sizeSets;
+}
+
+export async function getMainSizeSetsJSON() {
+  let sizeSet = await getMainSizeSets();
+  return JSON.stringify(sizeSet);
+}
+
 export async function getSizeSetsJSON() {
   let sizeSets = await getSizeSets();
   return JSON.stringify(sizeSets);

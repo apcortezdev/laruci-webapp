@@ -8,6 +8,10 @@ const product = new Schema({
     required: true,
     index: true,
   },
+  createdOn: {
+    type: Date,
+    default: new Date(),
+  },
   name: {
     type: String,
     required: true,
@@ -104,6 +108,10 @@ const product = new Schema({
 
 product.query.byCode = function(code) {
   return this.where({ code: new RegExp(code, 'i')});
+}
+
+product.query.byCategory = function(categoryId) {
+  return this.where({ categoryId: categoryId});
 }
 
 export default mongoose.models.Product || mongoose.model('Product', product);

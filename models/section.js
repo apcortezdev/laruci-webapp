@@ -11,6 +11,10 @@ const section = new Schema({
     type: String,
     required: true,
   },
+  createdOn: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
 export default mongoose.models.Section || mongoose.model('Section', section);

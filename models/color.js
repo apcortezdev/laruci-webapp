@@ -15,6 +15,10 @@ const color = new Schema({
     type: String,
     required: true,
   },
+  createdOn: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
 export default mongoose.models.Color || mongoose.model('Color', color);

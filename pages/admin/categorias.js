@@ -145,10 +145,24 @@ const AdCategoriesPage = ({ user, categories }) => {
   const onSaveConfirmation = async (event) => {
     event.preventDefault();
     if (newCategoryName.length > 0) {
-      setConfirmationMessage(`Adicionar "${newCategoryName}" às categorias?`);
-      setConfirmationMethod(METHOD.SAVE);
-      setOkText('Salvar');
-      setShowConfirmation(true);
+      if (
+        categoryList.find(
+          (l) =>
+            l.text.toLowerCase() === newCategoryName.toLowerCase() ||
+            l.name.toLowerCase() === newCategoryName.toLowerCase()
+        )
+      ) {
+        setConfirmationMessage(`A categoria "${newCategoryName}" já existe!`);
+        setConfirmationMethod('');
+        setOkText('Ok');
+        setShowConfirmation(true);
+        return;
+      } else {
+        setConfirmationMessage(`Adicionar "${newCategoryName}" às categorias?`);
+        setConfirmationMethod(METHOD.SAVE);
+        setOkText('Salvar');
+        setShowConfirmation(true);
+      }
     }
   };
 
@@ -158,13 +172,18 @@ const AdCategoriesPage = ({ user, categories }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: name }),
     });
-    if (newCategory.status === 201) {
-      const data = await newCategory.json();
-      setCategoryList((list) => [...list, data.category]);
-    } else {
-      window.alert(
-        'Ops, Algo de errado não está certo! ERRO: ' + newCategory.status
-      );
+    switch (newCategory.status) {
+      case 201:
+        const data = await newCategory.json();
+        setCategoryList((list) => [...list, data.category]);
+        break;
+      case 400:
+        window.alert('Ops: ' + newCategory.status);
+      default:
+        window.alert(
+          'Ops, Algo de errado não está certo! ERRO: ' + newCategory.status
+        );
+        break;
     }
   };
 

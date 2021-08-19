@@ -136,15 +136,22 @@ const SelectTextItem = (props) => {
   );
 };
 
-export const SelectText = (props) => {
+export const SelectText = ({
+  placeholder,
+  onChange,
+  className,
+  valid = true,
+  value,
+  options,
+}) => {
   const ref = useRef();
-  const [selected, setSelected] = useState(props.placeholder);
+  const [selected, setSelected] = useState(placeholder);
   const [areOptionsVisible, setAreOptionsVisible] = useState(false);
 
   const changeSelected = (id, text) => {
     setOptionsAsVisible(false);
     setSelected(text);
-    props.onChange(id);
+    onChange(id);
   };
 
   const setOptionsAsVisible = (visible) => {
@@ -156,10 +163,10 @@ export const SelectText = (props) => {
   const toItemArray = (options) => {
     let array = [
       <SelectTextItem
-        key={props.placeholder}
-        onSelect={() => changeSelected(0, props.placeholder)}
+        key={placeholder}
+        onSelect={() => changeSelected(0, placeholder)}
         optionId={0}
-        optionText={props.placeholder}
+        optionText={placeholder}
       />,
     ];
 
@@ -183,8 +190,8 @@ export const SelectText = (props) => {
       ref={ref}
       className={[
         styles.select,
-        props.className,
-        !props.valid && styles.inputText_invalid,
+        className,
+        !valid && styles.inputText_invalid,
       ]
         .join(' ')
         .trim()}
@@ -192,12 +199,12 @@ export const SelectText = (props) => {
       onTouchMove={() => setOptionsAsVisible(true)}
       onMouseLeave={() => setOptionsAsVisible(false)}
     >
-      <span className={styles.selected}>{props.value || selected}</span>
+      <span className={styles.selected}>{value || selected}</span>
       {areOptionsVisible && (
         <span
           className={[styles.options, styles.options_visible].join(' ').trim()}
         >
-          {toItemArray(props.options)}
+          {toItemArray(options)}
         </span>
       )}
     </div>

@@ -8,7 +8,7 @@ export async function getCategoryById(_id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN001: ' + err.message);
   }
 
   try {
@@ -16,7 +16,49 @@ export async function getCategoryById(_id) {
   } catch (err) {
     console.log(err)
     if (err) {
-      throw new Error('ERN002');
+      throw new Error('ERN002: ' + err.message);
+    }
+  }
+  return category;
+}
+
+export async function getCategoryByName(name) {
+
+  let category;
+  
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001: ' + err.message);
+  }
+
+  try {
+    category = await Category.find().byName(name);
+  } catch (err) {
+    console.log(err)
+    if (err) {
+      throw new Error('ERN002: ' + err.message);
+    }
+  }
+  return category;
+}
+
+export async function getCategoryByText(text) {
+
+  let category;
+  
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001: ' + err.message);
+  }
+
+  try {
+    category = await Category.find().byText(text);
+  } catch (err) {
+    console.log(err)
+    if (err) {
+      throw new Error('ERN002: ' + err.message);
     }
   }
   return category;
@@ -28,14 +70,14 @@ export async function getCategories() {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN001: ' + err.message);
   }
 
   try {
     categories = await Category.find();
   } catch (err) {
     if (err) {
-      throw new Error('ERN002');
+      throw new Error('ERN002: ' + err.message);
     }
   }
   return categories;
@@ -67,15 +109,26 @@ export async function postCategory(text) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN001: ' + err.message);
   }
 
   try {
+    let category = await getCategoryByName(newCategory.name);
+    if (category.length > 0) {
+      throw new Error('DUPLICATED');
+    }
+    category = await getCategoryByText(newCategory.text);
+    if (category.length > 0) {
+      throw new Error('DUPLICATED');
+    }
+
     const created = await newCategory.save();
     return created;
   } catch (err) {
-    if (err) {
-      throw new Error('ERN003');
+    if (err.message.startsWith('DUPLICATED')){
+      throw new Error('DUPLICATED');
+    } else {
+      throw new Error('ERN003: ' + err.message);
     }
   }
 }
@@ -84,7 +137,7 @@ export async function deleteCategory(_id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN001: ' + err.message);
   }
 
   try {
@@ -93,7 +146,7 @@ export async function deleteCategory(_id) {
   } catch (err) {
     if (err) {
       console.log(err);
-      throw new Error('ERN004');
+      throw new Error('ERN004: ' + err.message);
     }
   }
 }
@@ -114,7 +167,7 @@ export async function putCategory(_id, text) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN001: ' + err.message);
   }
 
   try {
@@ -129,7 +182,7 @@ export async function putCategory(_id, text) {
     return updated;
   } catch (err) {
     if (err) {
-      throw new Error('ERN005');
+      throw new Error('ERN005: ' + err.message);
     }
   }
 }

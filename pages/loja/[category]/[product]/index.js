@@ -15,11 +15,11 @@ import {
   InputRadio,
   InputNumber,
 } from '../../../../components/utilities/FormComponents';
-import { getSizes } from '../../../../data/sizes';
+import { getSizes } from '../../../../data/sizeSets';
 import { getCategoriesJSON } from '../../../../data/categories';
 import {
-  getBareProductListByCategory,
-  getCompleteProductById,
+  getProductListingByCategoryJSON,
+  getProductById,
   getBareProductListById,
 } from '../../../../data/products';
 import { getCurrentNotice } from '../../../data/notice';
@@ -32,12 +32,12 @@ const optSizeNames = {
 
 const ProductPage = ({
   notice,
-  categoryList,
   title,
   canonical,
-  prodId,
-  prodCategory,
-  allSizes,
+  categoryList,
+  // prodId, REMOVE
+  // prodCategory, REMOVE
+  // allSizes, REMOVE
   data,
   relatedProducts,
 }) => {
@@ -417,15 +417,15 @@ const ProductPage = ({
 
 export async function getStaticPaths() {
   const categories = await getCategoriesJSON();
-  const catList = await JSON.parse(categories);
+  const cattegoryList = await JSON.parse(categories);
 
   let pathList = [];
 
-  for (const category of catList) {
-    const products = await getBareProductListByCategory(category.name);
-    for (const key in products) {
-      pathList.push({ params: { category: category.name, product: key } });
-    }
+  for (const category of cattegoryList) {
+    const products = await getProductListingByCategoryJSON(category._id);
+    products.forEach(prod => {
+      pathList.push({ params: { category: category.name, product: prod._id } });
+    });
   }
 
   return {
@@ -435,14 +435,15 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+
   const category = params.category;
   const productId = params.product;
-  const sizeList = await getSizes();
-  const data = await getCompleteProductById(productId);
-  const relatedProducts = await getBareProductListById(data.relatedProducts);
+
+  const data = await getProductById(productId);
+  // const relatedProducts = await getBareProductListById(data.relatedProducts);
 
   const categories = await getCategoriesJSON();
-  const catList = await JSON.parse(categories);
+  const categoryList = await JSON.parse(categories);
 
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
@@ -452,12 +453,12 @@ export async function getStaticProps({ params }) {
       title: 'Laruci',
       canonical: `http://localhost:3000/${category}/${productId}`,
       notice: noticeText,
-      categoryList: catList,
-      prodCategory: category,
-      prodId: productId,
-      allSizes: sizeList,
+      categoryList: categoryList,
+      // prodCategory: category, REMOVE
+      // prodId: productId, REMOVE
+      // allSizes: sizeList, REMOVE
       data: data,
-      relatedProducts: relatedProducts,
+      relatedProducts: [],
     },
   };
 }

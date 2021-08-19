@@ -24,7 +24,7 @@ const ListingPageFilter = ({ colors, sizes }) => {
   const [sizeList, setSizeList] = useState([]);
 
   useEffect(() => {
-    setSizeList(sizes.map((s) => ({ id: s._id, text: s.name })));
+    setSizeList(sizes.map((s) => ({ id: s._id, text: s.text.toUpperCase() })));
     setColorList(
       colors.map((c) => ({ id: c._id, text: c.text, code: c.code }))
     );

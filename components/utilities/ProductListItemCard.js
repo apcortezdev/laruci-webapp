@@ -3,28 +3,28 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './ProductListItemCard.module.scss';
 
-const ProductListItemCard = ({ product, prodId }) => {
+const ProductListItemCard = ({ product, category }) => {
   const prod = product;
 
   let discountPrice = 0;
 
-  if (!!prod.discountPercent) {
-    discountPrice = prod.price * (1 - prod.discountPercent / 100);
+  if (!!prod.discountPercentage) {
+    discountPrice = prod.price * (1 - prod.discountPercentage / 100);
   }
 
-  const img = prod.images[0].image;
+  const img = `/images/products/${prod._id}/${prod.image}`;
 
   return (
-    <li className={styles.item} key={prodId}>
+    <li className={styles.item} key={prod._id}>
       <Link
         href={{
-          pathname: `/loja/${product.category}/${prodId}`,
+          pathname: `/loja/${category.name}/${prod._id}`,
         }}
       >
         <a>
           <article className={styles.card}>
-            {!!prod.discountPercent && (
-              <div className={styles.promo}>-{prod.discountPercent}%</div>
+            {!!prod.discountPercentage && (
+              <div className={styles.promo}>-{prod.discountPercentage}%</div>
             )}
             <div className={styles.img_container}>
               {/* <div className={styles.img_ratio}> */}
@@ -41,7 +41,7 @@ const ProductListItemCard = ({ product, prodId }) => {
             <div className={styles.info_container}>
               <span className={styles.name}>{prod.name}</span>
               <span>
-                {!!prod.discountPercent ? (
+                {!!prod.discountPercentage ? (
                   <>
                     <span className={styles.discountText}>
                       De R$ {prod.price.toFixed(2)} por{' '}
@@ -69,7 +69,7 @@ const ProductListItemCard = ({ product, prodId }) => {
 
 ProductListItemCard.propTypes = {
   product: PropTypes.object,
-  prodId: PropTypes.string,
+  category: PropTypes.object,
 };
 
 export default ProductListItemCard;

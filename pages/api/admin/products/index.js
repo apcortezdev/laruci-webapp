@@ -2,11 +2,11 @@ import {
   getProductByCode,
   postProduct,
   deleteProduct,
-} from '../../../data/products';
+} from '../../../../data/products';
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import { validateProduct } from '../../../helpers/validation';
+import { validateProduct } from '../../../../helpers/validation';
 
 export const config = {
   api: {
@@ -16,7 +16,7 @@ export const config = {
 };
 
 const saveFile = async (prodId, file) => {
-  const dir = path.join(process.cwd(), 'public', 'images', prodId);
+  const dir = path.join(process.cwd(), 'public', 'images', 'products', prodId);
   if (!fs.existsSync(dir)) {
     // creates dir if not existent
     fs.mkdirSync(dir, { recursive: true });
@@ -24,7 +24,7 @@ const saveFile = async (prodId, file) => {
 
   const data = fs.readFileSync(file.file.path);
   fs.writeFileSync(
-    path.join(process.cwd(), 'public', 'images', prodId, file.name),
+    path.join(process.cwd(), 'public', 'images', 'products', prodId, file.name),
     data
   );
   // await fs.unlinkSync(file.path);
@@ -148,9 +148,9 @@ const post = async (req, res) => {
   });
 };
 
-/// api/admin/products?code=
+// api/admin/products?code=
 const get = async (req, res) => {
-  const code = req.query.code;
+  const code = req.query.code || '';
 
   try {
     if (typeof code !== 'undefined' || code.length < 0 || !code) {
@@ -214,7 +214,7 @@ const del = async (req, res) => {
 
     try {
       // const deletedProduct = await deleteProduct(id);
-      const dir = path.join(process.cwd(), 'public', 'images', id);
+      const dir = path.join(process.cwd(), 'public', 'images', 'products', id);
       if (fs.existsSync(dir)) {
         // deletes dir if exists
         fs.rmdir(dir, { recursive: true }, (err) => {
@@ -229,7 +229,7 @@ const del = async (req, res) => {
         });
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).json({
         statusCode: '500',
         message: 'ERROR DELETING PRODUCT: ' + err.message,

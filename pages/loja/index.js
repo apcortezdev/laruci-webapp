@@ -54,20 +54,20 @@ export default function Home({ notice, categoryList, info }) {
         />
         <div className={styles.banner_one_web}>
           <Image
-            src={'/web_frontpage_banner_01.png'}
+            src={'/images/banners/web_frontpage_banner_01.png'}
             layout="fill"
             objectFit="cover"
             loading="lazy"
-            alt="Laruci banner promocional"
+            alt="Laruci banner promocional página web"
           />
         </div>
         <div className={styles.banner_one_nav}>
           <Image
-            src={'/mobile_frontpage_banner_01.png'}
+            src={'/images/banners/mobile_frontpage_banner_01.png'}
             layout="fill"
             objectFit="cover"
             loading="lazy"
-            alt="Laruci banner promocional"
+            alt="Laruci banner promocional página mobile"
           />
         </div>
       </section>
