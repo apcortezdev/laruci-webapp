@@ -5,7 +5,6 @@ import styles from './ProductListItemCard.module.scss';
 
 const ProductListItemCard = ({ product }) => {
   const prod = product;
-  console.log(prod)
 
   let discountPrice = 0;
 

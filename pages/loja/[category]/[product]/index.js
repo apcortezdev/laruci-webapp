@@ -104,12 +104,23 @@ const ProductPage = ({
             />
           </div>
           <div className={styles.product_content_side}>
-            <div className={styles.imageshow__container}>
-              <ImageShow productId={product._id} images={selectedSet.images} />
-            </div>
-            <div className={styles.details}>
+            <div className={styles.hidden_web}>
               <span className={styles.font_hightlight}>{product.name}</span>
               <span>Ref: {product.code}</span>
+            </div>
+            <div className={styles.imageshow__container}>
+              <ImageShow
+                images={selectedSet.images.map((image, index) => ({
+                  src: `/images/products/${product._id}/${image}`,
+                  alt: `Foto ${index} de ${product.name} na cor ${selectedSet.colorId.text}`,
+                }))}
+              />
+            </div>
+            <div className={styles.details}>
+              <div className={styles.hidden_mobile}>
+                <span className={styles.font_hightlight}>{product.name}</span>
+                <span>Ref: {product.code}</span>
+              </div>
               <section
                 className={[styles.section_details, styles.details__description]
                   .join(' ')
@@ -227,9 +238,11 @@ const ProductPage = ({
                                   : []
                               }
                               value={
-                                selectedSizes.find(s => s._id === size._id) ? 
-                                selectedSizes.find(s => s._id === size._id).selected 
-                                : ''
+                                selectedSizes.find((s) => s._id === size._id)
+                                  ? selectedSizes.find(
+                                      (s) => s._id === size._id
+                                    ).selected
+                                  : ''
                               }
                               fullSizeList={size.sizeSetId.sizes}
                               id={size._id}
@@ -297,8 +310,13 @@ const ProductPage = ({
                                         ? size.availableSizes
                                         : []
                                     }
-                                    value={selectedSizes.find((s) => s._id === size._id) ? 
-                                           selectedSizes.find((s) => s._id === size._id).selected
+                                    value={
+                                      selectedSizes.find(
+                                        (s) => s._id === size._id
+                                      )
+                                        ? selectedSizes.find(
+                                            (s) => s._id === size._id
+                                          ).selected
                                         : ''
                                     }
                                     fullSizeList={size.sizeSetId.sizes}

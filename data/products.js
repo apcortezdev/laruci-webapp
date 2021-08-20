@@ -78,6 +78,7 @@ export async function getProductListingByCategory(
       .byCategory(categoryId)
       .select('_id name price discountPercentage shortDescription sets')
       .populate('categoryId')
+      .populate('sets.colorId')
       .exec();
     product = result.map((p) => ({
       _id: p._id,
@@ -141,7 +142,6 @@ export async function postProduct(product) {
     return created;
   } catch (err) {
     if (err) {
-      console.log(err);
       throw new Error('ERN003: ' + err.message);
     }
   }
@@ -159,7 +159,6 @@ export async function deleteProduct(_id) {
     return deleted;
   } catch (err) {
     if (err) {
-      console.log(err);
       throw new Error('ERN004: ' + err.message);
     }
   }

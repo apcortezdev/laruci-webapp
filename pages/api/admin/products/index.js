@@ -132,7 +132,6 @@ const post = async (req, res) => {
         }
         res.status(201).json({ statusCode: '201', product: newProduct });
       } catch (err) {
-        console.log(err);
         await deleteProduct(newProduct._id);
         res.status(500).json({
           statusCode: '500',
@@ -229,7 +228,6 @@ const del = async (req, res) => {
         });
       }
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         statusCode: '500',
         message: 'ERROR DELETING PRODUCT: ' + err.message,

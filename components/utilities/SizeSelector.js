@@ -4,38 +4,39 @@ import styles from './SizeSelector.module.scss';
 
 const SizeSelector = ({
   id,
+  className,
   fullSizeList,
   availableSizeList,
   onChange,
   value,
 }) => {
-  let tags = [];
-
-  fullSizeList.forEach((element) => {
-    const isAvailable = availableSizeList.some((size) => size === element);
-    tags.push(
-      <div
-        key={id + element}
-        className={[
-          styles.tag,
-          isAvailable ? styles.abled : styles.disabled,
-          value === element && styles.selected,
-        ]
-          .join(' ')
-          .trim()}
-        onClick={() => {
-          if (isAvailable) onChange(id, element);
-        }}
-      >
-        {element.toUpperCase()}
-      </div>
-    );
-  });
-
   return (
-    <>
-      <div className={styles.tagsContainer}>{tags}</div>
-    </>
+    <div
+      className={[styles.tagsContainer, !!className ? className : ' ']
+        .join(' ')
+        .trim()}
+    >
+      {fullSizeList.map((element) => {
+        const isAvailable = availableSizeList.some((size) => size === element);
+        return (
+          <div
+            key={id + element}
+            className={[
+              styles.tag,
+              isAvailable ? styles.abled : styles.disabled,
+              value === element && styles.selected,
+            ]
+              .join(' ')
+              .trim()}
+            onClick={() => {
+              if (isAvailable) onChange(id, element);
+            }}
+          >
+            {element.toUpperCase()}
+          </div>
+        );
+      })}
+    </div>
   );
 };
 

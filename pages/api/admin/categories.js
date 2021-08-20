@@ -10,7 +10,6 @@ export default async function handler(req, res) {
       const newCategory = await postCategory(req.body.text);
       res.status(201).json({ statusCode: '201', category: newCategory });
     } catch (err) {
-      console.log(err)
       if (err.message.startsWith('DUPLICATED')) {
         res.status(400).json({
           statusCode: '400',

@@ -1,36 +1,12 @@
 import Image from 'next/image';
 import styles from './ImageShow.module.scss';
 import { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 
-const ImageShow = (props) => {
-  const images = props.images;
-
+const ImageShow = ({ images }) => {
   const slideshow__container = useRef();
   const img_main = useRef();
   const ratio = 2;
-  const [slideImgNumber, setSlideImgNumber] = useState(0);
-
-  useEffect(() => {
-    setSlideImgNumber(0);
-  }, [images]);
-
-  const nextImage = () => {
-    setSlideImgNumber((i) => {
-      if (i === images.length - 1) {
-        return 0;
-      }
-      return i + 1;
-    });
-  };
-
-  const previousImage = () => {
-    setSlideImgNumber((i) => {
-      if (i === 0) {
-        return images.length - 1;
-      }
-      return i - 1;
-    });
-  };
 
   const imageZoomOff = () => {
     img_main.current.style.transform = `scale(1)`;
@@ -55,53 +31,86 @@ const ImageShow = (props) => {
     return { x: x, y: y };
   };
 
+  const thumbLinsRef = useRef();
+  const [thumbsPosition, setThumbsPosition] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(images[0]);
+
+  const slide = (value) => {
+    let width = thumbLinsRef.current.getBoundingClientRect().width;
+    if (width > images.length * 110) return;
+    let limit = images.length * 110 - width;
+    setThumbsPosition((v) => {
+      let newV = v + value;
+      if (newV > 0) return 0;
+      if (newV < -limit) return -limit;
+      return newV;
+    });
+  };
+
+  useEffect(() => {
+    setSelectedImage(images[0]);
+  }, [images]);
+
   return (
-    <div className={styles.slideshow__wrapper}>
-      <div className={styles.slideshow__ratio}>
-        <div
-          ref={slideshow__container}
-          className={styles.slideshow__container}
-          onMouseMove={moveAction}
-          onTouchMove={moveAction}
-          onMouseLeave={imageZoomOff}
-        >
-          {images.length > 1 && (
-            <button
-              className={[styles.sideshowbtn, styles.sidebtnleft]
-                .join(' ')
-                .trim()}
-              onClick={nextImage}
-            >
-              &#10094;
-            </button>
-          )}
-          <img
-            ref={img_main}
-            className={styles.img_main}
-            src={`/public/images/products/${props.productId}/${images[slideImgNumber]}`}
-          />
-          {/* <Image
-            ref={img_main}
-            width={400}
-            height={400}
+    <div className={styles.content}>
+      <div
+        className={styles.imageRatio}
+        ref={slideshow__container}
+        onMouseMove={moveAction}
+        onTouchMove={moveAction}
+        onMouseLeave={imageZoomOff}
+      >
+        <div ref={img_main} className={styles.imageWrapper}>
+          <Image
+            src={selectedImage.src}
+            alt={selectedImage.alt}
             loading="lazy"
             objectFit="cover"
-            src={`/public/images/products/${props.productId}/${images[slideImgNumber]}`}
-          /> */}
-          {images.length > 1 && (
-            <button
-              className={[styles.sideshowbtn, styles.sidebtnright]
-                .join(' ')
-                .trim()}
-              onClick={previousImage}
-            >
-              &#10095;
-            </button>
-          )}
+            layout="fill"
+          />
         </div>
+      </div>
+      <div className={styles.thumbsWrapper}>
+        <button
+          className={[styles.sideshowbtn, styles.sidebtnleft].join(' ').trim()}
+          onClick={() => slide(+100)}
+        >
+          &#10094;
+        </button>
+        <div
+          className={styles.imagesThumb}
+          style={{ transform: `translateX(${thumbsPosition}px)` }}
+          ref={thumbLinsRef}
+        >
+          {images.map((image) => (
+            <div
+              key={image.src.split('/').pop()}
+              className={styles.imageThumb}
+              onClick={() => setSelectedImage(image)}
+            >
+              <Image
+                src={image.src}
+                alt={image.alt}
+                loading="eager"
+                objectFit="cover"
+                layout="fill"
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          className={[styles.sideshowbtn, styles.sidebtnright].join(' ').trim()}
+          onClick={() => slide(-100)}
+        >
+          &#10095;
+        </button>
       </div>
     </div>
   );
+};
+
+ImageShow.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default ImageShow;

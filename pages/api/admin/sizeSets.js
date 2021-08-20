@@ -6,7 +6,6 @@ export default async function handler(req, res) {
       const newSizeSet = await postSizeSet(req.body.name, req.body.sizes);
       res.status(201).json({ statusCode: '201', sizeSet: newSizeSet });
     } catch (err) {
-      console.log(err);
       res.status(500).json({
         statusCode: '500',
         message: 'ERROR SAVING SIZE SET: ' + err.message,
