@@ -3,81 +3,51 @@ import { useCookies } from 'react-cookie';
 
 const BagContext = createContext({
   bag: {
-    loaded: false,
-    products: {},
-    qtyItemsInBag: 0,
-    totalWeight: 0,
-    totalDiscounts: 0,
-    totalFullPrice: 0,
-    totalFinalPrice: 0,
+    products: [],
   },
   addToBag: function (product) {},
   removeFromBag: function (product) {},
 });
 
-function objToString(obj) {
-  let text = '';
-  for (const key in obj) {
-    if (Object.hasOwnProperty.call(obj, key)) {
-      text = text + key + obj[key];
-    }
-  }
-  return text;
-}
-
 export function BagContextProvider(props) {
   const [cookies, setCookie, removeCookie] = useCookies(['laruciBag']);
-
-  const [loaded, setLoadded] = useState(false);
-  const [productList, setProductList] = useState({});
-  const [qtyItemsInBag, setQtyItemsInBag] = useState(0);
-  const [totalWeight, setTotalWeight] = useState(0);
-  const [totalDiscounts, setTotalDiscounts] = useState(0);
-  const [totalFullPrice, setTotalFullPrice] = useState(0);
-  const [totalFinalPrice, setTotalFinalPrice] = useState(0);
+  const [productList, setProductList] = useState([]);
 
   useEffect(() => {
     //recover cookie
-    setLoadded(true);
 
     const cookie = cookies.laruciBag;
 
     console.log(cookie);
-
-    // let qtyItemsInBag;
-    // let totalWeight;
-    // let totalDiscounts;
-    // let totalFullPrice;
-    // let totalFinalPrice;
 
     // for (const iterator of cookie) {
     // }
 
     // if (cookie) {
     //   setProductList(cookie.p);
-    //   setQtyItemsInBag(cookie.q);
-    //   setTotalDiscounts(cookie.d);
-    //   setTotalWeight(cookie.w);
-    //   setTotalFullPrice(cookie.f);
-    //   setTotalFinalPrice(cookie.t);
     // }
   }, []);
 
-  function saveCookie(products) {
+  function saveCookie(bag) {
     let cookie = [];
-
-    for (const key in products) {
-      if (Object.hasOwnProperty.call(products, key)) {
-        const element = products[key];
-        cookie.push({
-          id: element.prodId,
-          cl: element.colorId,
-          sz: element.size,
-          ex: element.extraOptions,
-          qt: element.quantity,
-        });
-      }
-    }
+    bag.forEach((prodToBag) => {
+      const sz =
+      prodToBag.selectedSizes.length > 0
+          ? prodToBag.selectedSizes.map((size) => ({
+              i: size._id,
+              u: size.isUnique ? 1 : 0,
+              v: size.selected,
+            }))
+          : [];
+      const p = {
+        id: prodToBag.id,
+        st: prodToBag.selectedSet,
+        sz: sz,
+        ex: prodToBag.selectedExtras,
+        qt: prodToBag.quantity,
+      };
+      cookie.push(p);
+    });
 
     let expiration = new Date();
     setCookie('laruciBag', cookie, {
@@ -87,57 +57,43 @@ export function BagContextProvider(props) {
     });
   }
 
-  function addToBagHandler(product) {
-    // Create string w/ prod options as key
-    const key =
-      product.prodId +
-      product.colorId +
-      objToString(product.size) +
-      objToString(product.extraOptions);
+  function addToBagHandler(prodToBag) {
+    // look for prod in the bag
+    const bag = [...productList];
+    const index = bag.find(
+      (product) =>
+        product.id === prodToBag.productId &&
+        product.selectedSet === prodToBag.selectedSet &&
+        product.selectedSizes === prodToBag.selectedSizes &&
+        product.selectedExtras === prodToBag.selectedExtras &&
+        product.quantity === prodToBag.quantity
+    );
 
-    const discount = product.price * (product.discountPercent / 100);
-    const subtotalDiscounts = discount * product.quantity;
-    const subtotalFullPrice = product.price * product.quantity;
-    const subtotalFinalPrice = subtotalFullPrice - subtotalDiscounts;
-    const subtotalWeight = product.weight * product.quantity;
-
-    let products = {};
-
-    if (!!productList[key]) {
-      products = {
-        ...productList,
-        [key]: {
-          ...productList[key],
-          quantity: productList[key].quantity + product.quantity,
-          subtotalDiscounts:
-            productList[key].subtotalDiscounts + subtotalDiscounts,
-          subtotalFullPrice:
-            productList[key].subtotalFullPrice + subtotalFullPrice,
-          subtotalFinalPrice:
-            productList[key].subtotalFinalPrice + subtotalFinalPrice,
-          subtotalWeight: productList[key].subtotalWeight + subtotalWeight,
-        },
-      };
+    if (index >= 0) {
+      // add quantity to existing prod in bag
+      bag[index] ===
+        {
+          id: newList[index].productId,
+          selectedSet: newList[index].selectedSet,
+          selectedSizes: newList[index].selectedSizes,
+          selectedExtras: newList[index].selectedExtras,
+          quantity: newList[index].quantity + prodToBag.quantity,
+        };
     } else {
-      const newProduct = {
-        subtotalDiscounts: subtotalDiscounts,
-        subtotalFullPrice: subtotalFullPrice,
-        subtotalFinalPrice: subtotalFinalPrice,
-        subtotalWeight: subtotalWeight,
-        ...product,
-      };
-      products = { ...productList, [key]: newProduct };
+      // add new prod to bag
+      bag.push(
+        {
+          id: prodToBag.productId,
+          selectedSet: prodToBag.selectedSet,
+          selectedSizes: prodToBag.selectedSizes,
+          selectedExtras: prodToBag.selectedExtras,
+          quantity: prodToBag.quantity,
+        },
+      )
     }
 
-    setLoadded(true);
-    setProductList(products);
-    setQtyItemsInBag((v) => v + product.quantity);
-    setTotalDiscounts((v) => v + subtotalDiscounts);
-    setTotalWeight((v) => v + subtotalWeight);
-    setTotalFullPrice((v) => v + subtotalFullPrice);
-    setTotalFinalPrice((v) => v + subtotalFinalPrice);
-
-    saveCookie(products);
+    setProductList(bag);
+    saveCookie(bag);
   }
 
   function removeFromBagHandler(key) {
@@ -151,13 +107,7 @@ export function BagContextProvider(props) {
 
   const context = {
     bag: {
-      loaded: loaded,
       products: productList,
-      qtyItemsInBag: qtyItemsInBag,
-      totalWeight: totalWeight,
-      totalDiscounts: totalDiscounts.toFixed(2),
-      totalFullPrice: totalFullPrice.toFixed(2),
-      totalFinalPrice: totalFinalPrice.toFixed(2),
     },
     addToBag: addToBagHandler,
     removeFromBag: removeFromBagHandler,

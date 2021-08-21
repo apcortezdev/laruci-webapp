@@ -120,7 +120,7 @@ const ProductPage = ({
       return false;
     }
     const prodToBag = {
-      product: product,
+      productId: product._id,
       selectedSet: selectedSet._id,
       selectedSizes: selectedSizes,
       selectedExtras: selectedExtras,
