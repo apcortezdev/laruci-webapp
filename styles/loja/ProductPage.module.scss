@@ -33,11 +33,11 @@
 
 .imageshow__container {
   width: 100%;
-  margin-top: 2rem;
+  margin: 2rem 0;
 
   @include media-min-width(40rem) {
-    margin-top: 0;
-    width: 48%;
+    margin: 0;
+    width: 49%;
   }
 }
 
@@ -105,7 +105,11 @@
 .details {
   width: 100%;
   @include media-min-width(40rem) {
-    width: 48%;
+    width: 49%;
+  }
+
+  .capitalize {
+    text-transform: capitalize;
   }
 
   .center_spaced_line {
@@ -152,10 +156,18 @@
 }
 
 .section_details {
-  margin-top: 1rem;
-  padding-top: 1rem;
+  background-color: transparent;
+  padding: 1rem .3rem;
   border-top: 1px solid map-get($map: $colors, $key: light-grey);
+  border-bottom: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
   width: 100%;
+}
+
+.section_validation {
+  border: 1px solid map-get($map: $colors, $key: promo-red);
+  box-shadow: 0px 0px 10px map-get($map: $colors, $key: promo-red);
 }
 
 .section_details__buybtn {
@@ -304,7 +316,6 @@
 
 .details__description {
   white-space: pre-line;
-  margin: 1rem 0;
 }
 
 .section_btnline {

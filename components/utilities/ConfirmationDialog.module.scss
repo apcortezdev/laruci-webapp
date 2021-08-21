@@ -2,7 +2,7 @@
 @import '../../styles/_mixin.scss';
 
 .confirmationBox {
-  position: absolute;
+  position: fixed;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -10,13 +10,17 @@
   top: 30%;
   left: 0;
   right: 0;
-  width: 35rem;
+  width: 20rem;
   min-height: 15rem;
   background-color: map-get($map: $colors, $key: white);
   color: map-get($map: $colors, $key: black);
   font-family: inherit;
   font-size: inherit;
   z-index: 12;
+
+  @include media-min-width(40rem) {
+    width: 35rem;
+  }
 
   @include display-flex();
   justify-content: space-around;
@@ -34,4 +38,8 @@
       width: 7rem;
     }
   }
+}
+
+.longDialog {
+  position: absolute;
 }

@@ -10,11 +10,13 @@ import Button from '../../../../components/utilities/Button';
 import ImageShow from '../../../../components/utilities/ImageShow';
 import SizeSelector from '../../../../components/utilities/SizeSelector';
 import ProductList from '../../../../components/ProductList';
-import styles from '../../../../styles/loja/ProductPage.module.scss';
+import ConfirmationDialog from '../../../../components/utilities/ConfirmationDialog';
 import {
   InputRadio,
   InputNumber,
 } from '../../../../components/utilities/FormComponents';
+
+import styles from '../../../../styles/loja/ProductPage.module.scss';
 import { getCategoriesJSON } from '../../../../data/categories';
 import {
   getProductListingByCategoryJSON,
@@ -22,12 +24,6 @@ import {
   getProductByIdJSON,
 } from '../../../../data/products';
 import { getCurrentNotice } from '../../../../data/notice';
-import ProductListItemCard from '../../../../components/utilities/ProductListItemCard';
-
-const optSizeNames = {
-  u: 'UNIQUE',
-  s: 'SPECIAL',
-};
 
 const ProductPage = ({
   notice,
@@ -38,28 +34,38 @@ const ProductPage = ({
   relatedProducts,
 }) => {
   const router = useRouter();
-  const newPrice = !!product.discountPercent
-    ? product.price.toFixed(2) * (1 - product.discountPercent / 100)
+  const newPrice = !!product.discountPercentage
+    ? product.price.toFixed(2) * (1 - product.discountPercentage / 100)
     : false;
 
+  // Dialog
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   // INPUT OPTIONS FOR PURCHASE: - START
-  // COLOR / SIZES / EXTRAS / QNTY
   // COLOR
   const [selectedSet, setSelectedSet] = useState(product.sets[0]);
+  const [selectedSetValidator, setSelectedSetValidator] = useState(true);
 
   // SIZES
   const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedSizesValidator, setSelectedSizesValidator] = useState(true);
 
   // EXTRAS
   const [selectedExtras, setSelectedExtras] = useState({});
+  const [selectedExtrasValidator, setSelectedExtrasValidator] = useState(true);
   const onSelectedExtrasHandler = (name, value) => {
     setSelectedExtras((options) => ({ ...options, [name]: value }));
+    setSelectedExtrasValidator(true);
   };
 
   // QUANTITY
   const [quantity, setQuantity] = useState(1);
+  const [quantityValidator, setQuantityValidator] = useState(true);
   const onChangeQuantity = (v) => {
     setQuantity((q) => q + v);
+    setQuantityValidator(true);
   };
   // INPUT OPTIONS FOR PURCHASE: -END
 
@@ -69,20 +75,64 @@ const ProductPage = ({
 
   function addToBag(event) {
     event.preventDefault();
+
+    // Validations
+    if (!selectedSet) {
+      setSelectedSetValidator(false);
+      setDialogMessage('Por favor, escolha uma cor.');
+      setShowDialog(true);
+      return false;
+    }
+
+    if (
+      (selectedSet.sizeSets.length > 0 && selectedSizes.length < 1) ||
+      !selectedSizes[0]
+    ) {
+      setSelectedSizesValidator(false);
+      setDialogMessage('Por favor, escolha uma das medidas disponíveis.');
+      setShowDialog(true);
+      return false;
+    }
+
+    if (
+      selectedSet.sizeSets.filter(
+        (size) => size.isUnique === selectedSizes[0].isUnique
+      ).length != selectedSizes.length 
+      || selectedSizes.some(size => size.selected.length === 0)
+    ) {
+      setSelectedSizesValidator(false);
+      setDialogMessage('Por favor, escolha uma medida de cada opção disponível para personalização.');
+      setShowDialog(true);
+      return false;
+    }
+
+    if (selectedSet.extraOptions.length != Object.keys(selectedExtras).length) {
+      setSelectedExtrasValidator(false);
+      setDialogMessage('Por favor, selecione as opções desejadas.');
+      setShowDialog(true);
+      return false;
+    }
+
+    if (+quantity < 1) {
+      setQuantityValidator(true);
+      setDialogMessage('Por favor, escolha a quantidade.');
+      setShowDialog(true);
+      return false;
+    }
     const prodToBag = {
       product: product,
-      set: selectedSet,
+      selectedSet: selectedSet._id,
       selectedSizes: selectedSizes,
-      extraOptions: selectedExtras,
+      selectedExtras: selectedExtras,
       quantity: quantity,
     };
     context.addToBag(prodToBag);
+    return true;
   }
 
   function buyHandler(event) {
     event.preventDefault();
-    addToBag(event);
-    router.push({ pathname: '/loja/sacola' });
+    if (addToBag(event)) router.push({ pathname: '/loja/sacola' });
   }
 
   return (
@@ -119,7 +169,7 @@ const ProductPage = ({
             <div className={styles.details}>
               <div className={styles.hidden_mobile}>
                 <span className={styles.font_hightlight}>{product.name}</span>
-                <span>Ref: {product.code}</span>
+                <span>Ref: {product.code.toUpperCase()}</span>
               </div>
               <section
                 className={[styles.section_details, styles.details__description]
@@ -127,39 +177,44 @@ const ProductPage = ({
                   .trim()}
               >
                 {product.shortDescription}
-              </section>
-              <span className={styles.center_spaced_line}>
-                <span className={styles.price_side}>
-                  {!!newPrice ? (
-                    <>
-                      de R$ {product.price.toFixed(2)} por{' '}
-                      <span className={styles.font_price__price}>
-                        R$ {newPrice.toFixed(2)}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      por somente{' '}
-                      <span className={styles.font_price__price}>
-                        R$ {product.price.toFixed(2)}
-                      </span>
-                    </>
+                <span className={styles.center_spaced_line}>
+                  <span className={styles.price_side}>
+                    {!!newPrice ? (
+                      <>
+                        de R$ {product.price.toFixed(2)} por{' '}
+                        <span className={styles.font_price__price}>
+                          R$ {newPrice.toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        por somente{' '}
+                        <span className={styles.font_price__price}>
+                          R$ {product.price.toFixed(2)}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                  {!!newPrice && (
+                    <span
+                      className={[
+                        styles.font_price__price,
+                        styles.font_discount,
+                      ]
+                        .join(' ')
+                        .trim()}
+                    >
+                      -{product.discountPercentage}%
+                    </span>
                   )}
                 </span>
-                {!!newPrice && (
-                  <span
-                    className={[styles.font_price__price, styles.font_discount]
-                      .join(' ')
-                      .trim()}
-                  >
-                    -{product.discountPercent}%
-                  </span>
-                )}
-              </span>
+              </section>
               <section
-                className={[styles.section_details, styles.section_colors].join(
-                  ' '
-                )}
+                className={[
+                  styles.section_details,
+                  styles.section_colors,
+                  !selectedSetValidator ? styles.section_validation : '',
+                ].join(' ')}
               >
                 Cores:
                 <div className={styles.imageshow__colors}>
@@ -175,6 +230,9 @@ const ProductPage = ({
                       style={{ backgroundColor: set.colorId.code }}
                       onClick={() => {
                         setSelectedSet(set);
+                        setSelectedSetValidator(true);
+                        setSelectedSizesValidator(true);
+                        setSelectedExtrasValidator(true);
                         setSelectedExtras({});
                         setSelectedSizes([]);
                       }}
@@ -183,9 +241,11 @@ const ProductPage = ({
                 </div>
               </section>
               <section
-                className={[styles.section_details, styles.section_sizes].join(
-                  ' '
-                )}
+                className={[
+                  styles.section_details,
+                  styles.section_sizes,
+                  !selectedSizesValidator ? styles.section_validation : '',
+                ].join(' ')}
               >
                 <p>
                   Medidas:
@@ -225,9 +285,12 @@ const ProductPage = ({
                                     selected: '',
                                   },
                                 ]);
+                                setSelectedSizesValidator(true);
                               }}
                             />
-                            <span>{size.name}</span>
+                            <span className={styles.capitalize}>
+                              {size.name}
+                            </span>
                           </label>
                           <span>
                             <SizeSelector
@@ -254,6 +317,7 @@ const ProductPage = ({
                                     selected: value,
                                   },
                                 ]);
+                                setSelectedSizesValidator(true);
                               }}
                             />
                           </span>
@@ -288,6 +352,7 @@ const ProductPage = ({
                                     selected: '',
                                   }))
                               );
+                              setSelectedSizesValidator(true);
                             }}
                           />
                           <span>Personalizado:</span>
@@ -300,7 +365,9 @@ const ProductPage = ({
                                 key={size._id}
                                 className={styles.specialSizes}
                               >
-                                <span>{size.name}:</span>
+                                <span className={styles.capitalize}>
+                                  {size.name}:
+                                </span>
                                 <span>
                                   <SizeSelector
                                     availableSizeList={
@@ -332,6 +399,7 @@ const ProductPage = ({
                                           isUnique: false,
                                           selected: value,
                                         };
+                                        setSelectedSizesValidator(true);
                                         return newArray;
                                       });
                                     }}
@@ -350,6 +418,7 @@ const ProductPage = ({
                   className={[
                     styles.section_details,
                     styles.section_extras,
+                    !selectedExtrasValidator ? styles.section_validation : '',
                   ].join(' ')}
                 >
                   <p>Opções:</p>
@@ -394,7 +463,11 @@ const ProductPage = ({
                 </section>
               )}
               <section
-                className={[styles.section_details, styles.center_spaced_line]
+                className={[
+                  styles.section_details,
+                  styles.center_spaced_line,
+                  !quantityValidator ? styles.section_validation : '',
+                ]
                   .join(' ')
                   .trim()}
               >
@@ -477,6 +550,15 @@ const ProductPage = ({
           </div>
         </div>
       </Store>
+      <ConfirmationDialog
+        show={showDialog}
+        onCancel={() => setShowDialog(false)}
+        onConfirm={() => setShowDialog(false)}
+        message={dialogMessage}
+        cancelText={''}
+        okText={'Ok'}
+        noButtons={false}
+      />
     </Main>
   );
 };

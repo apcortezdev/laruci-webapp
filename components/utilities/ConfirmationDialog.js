@@ -18,7 +18,7 @@ const ConfirmationDialog = ({
     return (
       <div>
         <div
-          className={[styles.confirmationBox, className ? className : '']
+          className={[styles.confirmationBox, children ? styles.longDialog : '', className ? className : '']
             .join(' ')
             .trim()}
         >
@@ -41,7 +41,7 @@ const ConfirmationDialog = ({
       </div>
     );
   }
-  return <div></div>;
+  return <></>;
 };
 
 ConfirmationDialog.propTypes = {
