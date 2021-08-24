@@ -3,96 +3,102 @@ import { useCookies } from 'react-cookie';
 
 const BagContext = createContext({
   bag: {
-    products: [],
+    bagId: '',
+    qtyItemsInBag: 0,
   },
+  user: {},
   addToBag: function (product) {},
   removeFromBag: function (product) {},
 });
 
 export function BagContextProvider(props) {
-  const [cookies, setCookie, removeCookie] = useCookies(['laruciBag']);
-  const [productList, setProductList] = useState([]);
+  const [cookies, setCookie, removeCookie] = useCookies(['@laruci/bag']);
+  const [bagId, setBagId] = useState('');
+  const [qtyItemsInBag, setQtyItemsInBag] = useState(0);
 
   useEffect(() => {
-    //recover cookie
+    // recover cookie
+    const cookie = cookies['@laruci/bag'];
 
-    const cookie = cookies.laruciBag;
-
-    console.log(cookie);
-
-    // for (const iterator of cookie) {
-    // }
-
-    // if (cookie) {
-    //   setProductList(cookie.p);
-    // }
+    if (cookie) {
+      setBagId(cookie.bag.bagId);
+      setQtyItemsInBag(cookie.bag.qty);
+    }
   }, []);
 
   function saveCookie(bag) {
-    let cookie = [];
-    bag.forEach((prodToBag) => {
-      const sz =
-      prodToBag.selectedSizes.length > 0
-          ? prodToBag.selectedSizes.map((size) => ({
-              i: size._id,
-              u: size.isUnique ? 1 : 0,
-              v: size.selected,
-            }))
-          : [];
-      const p = {
-        id: prodToBag.id,
-        st: prodToBag.selectedSet,
-        sz: sz,
-        ex: prodToBag.selectedExtras,
-        qt: prodToBag.quantity,
-      };
-      cookie.push(p);
+    let qty = 0;
+    bag.items.forEach((item) => {
+      qty = qty + item.quantity;
     });
+    let cookie = {
+      bag: {
+        id: bag._id,
+        qty: qty,
+      },
+      // userId: bag.userId,
+    };
 
     let expiration = new Date();
-    setCookie('laruciBag', cookie, {
+    setCookie('@laruci/bag', cookie, {
       expires: new Date(expiration.setTime(expiration.getTime() + 3 * 3600000)),
       path: '/loja',
       sameSite: 'strict',
     });
   }
 
-  function addToBagHandler(prodToBag) {
-    // look for prod in the bag
-    const bag = [...productList];
-    const index = bag.find(
-      (product) =>
-        product.id === prodToBag.productId &&
-        product.selectedSet === prodToBag.selectedSet &&
-        product.selectedSizes === prodToBag.selectedSizes &&
-        product.selectedExtras === prodToBag.selectedExtras &&
-        product.quantity === prodToBag.quantity
-    );
+  const createNewBag = async (bag) => {
+    const local = await fetch('https://geolocation-db.com/json/');
+    const location = await local.json();
+    const sendBag = {
+      location: location,
+      items: bag,
+    };
+    const response = await fetch('/api/loja/bag', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bag: sendBag }),
+    });
+    switch (response.status) {
+      case 201:
+        const data = await response.json();
+        return data.bag;
+      default:
+        window.alert(
+          'Ops, Algo de errado não está certo! ERRO: ' + response.status
+        );
+        break;
+    }
+  };
 
-    if (index >= 0) {
-      // add quantity to existing prod in bag
-      bag[index] ===
-        {
-          id: newList[index].productId,
-          selectedSet: newList[index].selectedSet,
-          selectedSizes: newList[index].selectedSizes,
-          selectedExtras: newList[index].selectedExtras,
-          quantity: newList[index].quantity + prodToBag.quantity,
-        };
+  const saveBag = async (bag) => {
+    const response = await fetch('/api/loja/bag', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: bagId, item: bag }),
+    });
+    switch (response.status) {
+      case 200:
+        const data = await response.json();
+        return data.bag;
+      default:
+        window.alert(
+          'Ops, Algo de errado não está certo! ERRO: ' + response.status
+        );
+        break;
+    }
+  };
+
+  async function addToBagHandler(newToBag) {
+    let bag;
+    if (bagId) {
+      bag = await saveBag(newToBag);
     } else {
-      // add new prod to bag
-      bag.push(
-        {
-          id: prodToBag.productId,
-          selectedSet: prodToBag.selectedSet,
-          selectedSizes: prodToBag.selectedSizes,
-          selectedExtras: prodToBag.selectedExtras,
-          quantity: prodToBag.quantity,
-        },
-      )
+      bag = await createNewBag(newToBag);
+      setBagId(bag._id);
     }
 
-    setProductList(bag);
+    setQtyItemsInBag((v) => v + newToBag.quantity);
     saveCookie(bag);
   }
 
@@ -107,8 +113,10 @@ export function BagContextProvider(props) {
 
   const context = {
     bag: {
-      products: productList,
+      bagId: bagId,
+      qtyItemsInBag: qtyItemsInBag,
     },
+    user: {},
     addToBag: addToBagHandler,
     removeFromBag: removeFromBagHandler,
   };

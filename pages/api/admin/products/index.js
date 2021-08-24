@@ -139,6 +139,11 @@ const post = async (req, res) => {
         });
       }
     } catch (err) {
+      if (err.message === 'DUPLICATED CODE')
+        res.status(400).json({
+          statusCode: '500',
+          message: 'ERROR SAVING PRODUCT: ' + err.message,
+        });
       res.status(500).json({
         statusCode: '500',
         message: 'ERROR SAVING PRODUCT: ' + err.message,

@@ -1,20 +1,21 @@
 import SizeSet from '../models/sizeSet';
 import dbConnect from '../utils/dbConnect';
 
+// ERROR TYPE: ERN0SXX
 export async function getSizeSetById(_id) {
   let sizeSet;
 
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN0S1');
   }
 
   try {
     sizeSet = await SizeSet.findById(_id);
   } catch (err) {
     if (err) {
-      throw new Error('ERN002');
+      throw new Error('ERN0S2');
     }
   }
   return sizeSet;
@@ -26,14 +27,14 @@ export async function getSizeSets() {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN0S3');
   }
 
   try {
     sizeSets = await SizeSet.find();
   } catch (err) {
     if (err) {
-      throw new Error('ERN002');
+      throw new Error('ERN0S4');
     }
   }
   return sizeSets;
@@ -45,14 +46,14 @@ export async function getMainSizeSets() {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN0S5');
   }
 
   try {
     sizeSets = await SizeSet.find().findMain().exec();;
   } catch (err) {
     if (err) {
-      throw new Error('ERN002');
+      throw new Error('ERN0S6');
     }
   }
   return sizeSets;
@@ -69,23 +70,22 @@ export async function getSizeSetsJSON() {
 }
 
 export async function postSizeSet(name, sizes) {
-  const newSizeSet = new SizeSet({
-    name: name.toLowerCase(),
-    sizes: sizes,
-  });
-
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN0S7');
   }
 
-  try {
+  try {;
+    const newSizeSet = new SizeSet({
+      name: name.toLowerCase(),
+      sizes: sizes,
+    });
     const created = await newSizeSet.save();
     return created;
   } catch (err) {
     if (err) {
-      throw new Error('ERN003');
+      throw new Error('ERN0S9');
     }
   }
 }
@@ -94,7 +94,7 @@ export async function deleteSizeSet(_id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN0S10');
   }
 
   try {
@@ -103,7 +103,7 @@ export async function deleteSizeSet(_id) {
   } catch (err) {
     if (err) {
       console.log(err);
-      throw new Error('ERN004');
+      throw new Error('ERN0S11');
     }
   }
 }
@@ -112,7 +112,7 @@ export async function putSizeSet(_id, name, sizes) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001');
+    throw new Error('ERN0S12');
   }
 
   try {
@@ -127,7 +127,7 @@ export async function putSizeSet(_id, name, sizes) {
     return updated;
   } catch (err) {
     if (err) {
-      throw new Error('ERN005');
+      throw new Error('ERN0S13');
     }
   }
 }

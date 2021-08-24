@@ -10,14 +10,14 @@ export async function getProductIdsByCategory(categoryId, page, numPerPage) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P1: ' + err.message);
   }
 
   try {
     product = await Product.find().byCategory(categoryId).select('_id').exec();
   } catch (err) {
     if (err) {
-      throw new Error('ERN002: ' + err.message);
+      throw new Error('ERN0P2: ' + err.message);
     }
   }
   return product;
@@ -38,7 +38,7 @@ export async function getProductById(id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P3: ' + err.message);
   }
 
   try {
@@ -49,7 +49,7 @@ export async function getProductById(id) {
       .populate({ path: 'sets.sizeSets.sizeSetId', model: sizeSet });
   } catch (err) {
     if (err) {
-      throw new Error('ERN002: ' + err.message);
+      throw new Error('ERN0P4: ' + err.message);
     }
   }
   return product;
@@ -70,7 +70,7 @@ export async function getProductListingByCategory(
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P5: ' + err.message);
   }
 
   try {
@@ -91,7 +91,7 @@ export async function getProductListingByCategory(
     }));
   } catch (err) {
     if (err) {
-      throw new Error('ERN002: ' + err.message);
+      throw new Error('ERN0P6: ' + err.message);
     }
   }
   return product;
@@ -112,20 +112,21 @@ export async function getProductByCode(code) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P7: ' + err.message);
   }
 
   try {
     product = await Product.find().byCode(code).exec();
   } catch (err) {
     if (err) {
-      throw new Error('ERN002: ' + err.message);
+      throw new Error('ERN0P8: ' + err.message);
     }
   }
   return product;
 }
 
 export async function postProduct(product) {
+
   const newProduct = new Product({
     ...product,
     sets: [...product.sets],
@@ -134,7 +135,15 @@ export async function postProduct(product) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P9: ' + err.message);
+  }
+
+  try {
+    const prods = await getProductByCode(product.code);
+    if (prods.length > 0) throw new Error('DUPLICATED CODE');
+  } catch (err) {
+    if (err.message === 'DUPLICATED CODE') throw new Error('DUPLICATED CODE');
+    throw new Error('ERN0P10: ' + err.message);
   }
 
   try {
@@ -142,7 +151,7 @@ export async function postProduct(product) {
     return created;
   } catch (err) {
     if (err) {
-      throw new Error('ERN003: ' + err.message);
+      throw new Error('ERN0P11: ' + err.message);
     }
   }
 }
@@ -151,7 +160,7 @@ export async function deleteProduct(_id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P12: ' + err.message);
   }
 
   try {
@@ -159,7 +168,7 @@ export async function deleteProduct(_id) {
     return deleted;
   } catch (err) {
     if (err) {
-      throw new Error('ERN004: ' + err.message);
+      throw new Error('ERN0P13: ' + err.message);
     }
   }
 }
@@ -175,7 +184,7 @@ async function putProduct(id, putProduct) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0P14: ' + err.message);
   }
 
   try {
@@ -190,7 +199,7 @@ async function putProduct(id, putProduct) {
     return updated;
   } catch (err) {
     if (err) {
-      throw new Error('ERN003: ' + err.message);
+      throw new Error('ERN0P15: ' + err.message);
     }
   }
 }
