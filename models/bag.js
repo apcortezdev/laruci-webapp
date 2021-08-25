@@ -54,8 +54,7 @@ const bag = new Schema({
         required: true,
       },
       selectedSet: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'SizeSet',
+        type: String,
         required: true,
       },
       selectedSizes: [

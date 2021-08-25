@@ -330,7 +330,7 @@ const AdProductsPage = ({
       ...list,
       [name]: {
         name: name,
-        isUnique: name === 'padrão',
+        isUnique: name === 'unique',
         sizeSetId: value,
         availableSizes: {},
       },

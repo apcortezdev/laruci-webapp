@@ -30,12 +30,11 @@
   & > span {
     @include display-flex();
     width: 100%;
-    max-width: 20rem;
     justify-content: space-evenly;
     align-items: center;
 
     .formButton {
-      width: 7rem;
+      min-width: 7rem;
     }
   }
 }

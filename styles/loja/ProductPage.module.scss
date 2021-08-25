@@ -36,7 +36,7 @@
   margin: 2rem 0;
 
   @include media-min-width(40rem) {
-    margin: 0;
+    margin: 0 0 2rem 0;
     width: 49%;
   }
 }
@@ -157,7 +157,7 @@
 
 .section_details {
   background-color: transparent;
-  padding: 1rem .3rem;
+  padding: 1rem 0.3rem;
   border-top: 1px solid map-get($map: $colors, $key: light-grey);
   border-bottom: 1px solid transparent;
   border-left: 1px solid transparent;
@@ -356,4 +356,15 @@
   margin-bottom: 0.8rem;
   font-size: 1rem;
   font-weight: 500;
+}
+
+.confirmationButtonLine {
+  @include display-flex();
+  flex-direction: column;
+  align-items: center;
+
+  .formButton {
+    width: 50%;
+    margin: .5rem 0;
+  }
 }

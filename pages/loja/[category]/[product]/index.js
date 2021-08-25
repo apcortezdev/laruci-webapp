@@ -135,9 +135,16 @@ const ProductPage = ({
       quantity: quantity,
     };
 
-    setCancelText('Continuar comprando');
-    setOkText('Finalizar compra');
-    setDialogMessage(`${product.name} foi adicionado à sua sacola!`);
+    setCancelText('Continuar Comprando');
+    setOkText('Finalizar Compra');
+    setDialogMessage(
+      quantity +
+        ' "' +
+        product.name +
+        '" ' +
+        (quantity > 1 ? 'foram adicionados' : 'foi adicionado') +
+        ' à sua sacola!'
+    );
     setShowDialog(true);
 
     context.addToBag(prodToBag);
@@ -571,14 +578,40 @@ const ProductPage = ({
           setShowDialog(false);
           setCancelText('');
           setOkText('ok');
-          if (okText === 'Finalizar compra')
-            router.push({ pathname: '/loja/sacola' });
         }}
         message={dialogMessage}
         cancelText={cancelText}
         okText={okText}
-        noButtons={false}
-      />
+        noButtons={okText === 'Finalizar Compra'}
+        fixed
+      >
+        {okText === 'Finalizar Compra' && (
+          <span className={styles.confirmationButtonLine}>
+            <Button
+              className={styles.formButton}
+              onClick={() => {
+                setShowDialog(false);
+                setCancelText('');
+                setOkText('ok');
+              }}
+            >
+              {cancelText}
+            </Button>
+            <Button
+              className={styles.formButton}
+              onClick={() => {
+                setShowDialog(false);
+                setCancelText('');
+                setOkText('ok');
+                if (okText === 'Finalizar Compra')
+                  router.push({ pathname: '/loja/sacola' });
+              }}
+            >
+              {okText}
+            </Button>
+          </span>
+        )}
+      </ConfirmationDialog>
     </Main>
   );
 };
@@ -625,7 +658,7 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       title: 'Laruci',
-      canonical: `http://localhost:3000/${category}/${productId}`,
+      canonical: `http://localhost:3000/loja/${category}/${productId}`,
       notice: noticeText,
       categoryList: categoryList,
       product: product,

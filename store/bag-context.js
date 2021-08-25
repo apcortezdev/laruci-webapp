@@ -21,7 +21,7 @@ export function BagContextProvider(props) {
     const cookie = cookies['@laruci/bag'];
 
     if (cookie) {
-      setBagId(cookie.bag.bagId);
+      setBagId(cookie.bag.id);
       setQtyItemsInBag(cookie.bag.qty);
     }
   }, []);
@@ -41,7 +41,7 @@ export function BagContextProvider(props) {
 
     let expiration = new Date();
     setCookie('@laruci/bag', cookie, {
-      expires: new Date(expiration.setTime(expiration.getTime() + 3 * 3600000)),
+      expires: new Date(expiration.setTime(expiration.getTime() + 24 * 3600000)),
       path: '/loja',
       sameSite: 'strict',
     });

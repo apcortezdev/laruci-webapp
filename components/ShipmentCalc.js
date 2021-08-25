@@ -41,12 +41,12 @@ const ShipmentCalc = ({ weight }) => {
           </a>
         </Link>
       </span>
-      <span>
+      {/* <span>
         Ou retire em algum de nossos{' '}
         <Link href={'/vendedores'}>
           <a>vendedores!</a>
         </Link>
-      </span>
+      </span> */}
     </div>
   );
 };

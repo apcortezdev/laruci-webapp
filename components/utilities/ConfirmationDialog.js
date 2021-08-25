@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import styles from './ConfirmationDialog.module.scss';
 
 const ConfirmationDialog = ({
+  fixed = false,
   show,
   onCancel,
   onConfirm,
@@ -18,7 +19,7 @@ const ConfirmationDialog = ({
     return (
       <div>
         <div
-          className={[styles.confirmationBox, children ? styles.longDialog : '', className ? className : '']
+          className={[styles.confirmationBox, !fixed ? styles.longDialog : '', className ? className : '']
             .join(' ')
             .trim()}
         >
@@ -45,6 +46,7 @@ const ConfirmationDialog = ({
 };
 
 ConfirmationDialog.propTypes = {
+  fixed: PropTypes.bool,
   show: PropTypes.bool,
   onCancel: PropTypes.func,
   onConfirm: PropTypes.func,

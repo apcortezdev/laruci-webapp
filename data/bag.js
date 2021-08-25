@@ -1,4 +1,6 @@
+import mongoose from 'mongoose';
 import Bag from '../models/bag';
+import Product from '../models/product';
 import dbConnect from '../utils/dbConnect';
 
 // ERRORS TYPE: ERN0B
@@ -28,7 +30,7 @@ export async function postBag(bag) {
   }
 }
 
-export async function getBagById(_id) {
+export async function getBagById(id) {
   let bag;
 
   try {
@@ -38,7 +40,106 @@ export async function getBagById(_id) {
   }
 
   try {
-    bag = await Bag.findById(_id);
+    bag = await Bag.findById(id)
+      .populate({ path: 'items.product', model: Product })
+      .populate({
+        path: 'items.product',
+        populate: { path: 'sets.colorId', model: 'Color' },
+      });
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0B4: ' + err.message);
+    }
+  }
+  return bag;
+}
+
+export async function getBagItems(id) {
+  let bag;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0B3: ' + err.message);
+  }
+
+  try {
+    bag = await Bag.aggregate([
+      // find bag by _id
+      { $match: { _id: mongoose.Types.ObjectId(id) } },
+      // spread items from bag
+      { $unwind: '$items' },
+      // left join to products in every item
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'items.product',
+          foreignField: '_id',
+          as: 'items.product',
+        },
+      },
+      // take product out of array (array will have one item only)
+      { $unwind: '$items.product' },
+      // spreat product.sets duplicating the item
+      { $unwind: '$items.product.sets' },
+      // exclude items where the set is not equal to selectedSet
+      {
+        $match: {
+          $expr: {
+            $eq: [
+              { $toString: '$items.product.sets._id' },
+              { $toString: '$items.selectedSet' },
+            ],
+          },
+        },
+      },
+      // left join to colors in every item.product.set
+      {
+        $lookup: {
+          from: 'colors',
+          localField: 'items.product.sets.colorId',
+          foreignField: '_id',
+          as: 'items.product.sets.colorId',
+        },
+      },
+      // remove color from array (array will have one item only)
+      { $unwind: '$items.product.sets.colorId' },
+      // project all to new fields
+      {
+        $project: {
+          _id: '$_id',
+          product_name: '$items.product.name',
+          price: '$items.product.price',
+          discountPercentage: '$items.product.discountPercentage',
+          weight: '$items.product.weight',
+          // concat image to pattern [pdoructId]/[imageName]
+          image: { $concat: [{ $toString: '$items.product._id' }, '/', { $first: '$items.product.sets.images'}]},
+          color_name: '$items.product.sets.colorId.text',
+          quantity: '$items.quantity',
+          extras: '$items.product.sets.extraOptions',
+          selectedExtras: '$items.selectedExtras',
+          sizes: '$items.product.sets.sizeSets',
+          selectedSizes: '$items.selectedSizes',
+          size_test: { $map: { input: '$items.selectedSizes', as: 'size', in: {
+            name: { 
+              $getField: {
+                field: 'name',
+                input: {
+                  $first: {
+                    $filter: { input: '$items.product.sets.sizeSets', as: 'item', cond: { $eq: [
+                      { $toString: '$$size.sizeId' },
+                      { $toString: '$$item._id' },
+                      ]} 
+                    }
+                  }
+                },
+              }
+            },
+            selected: '$$size.selected',
+           }}}
+        },
+      },
+    ]);
   } catch (err) {
     if (err) {
       throw new Error('ERN0B4: ' + err.message);
@@ -79,7 +180,7 @@ export async function addToBag(_id, item) {
 
     const itemFromDb = bag.items.findIndex((i) => {
       let itemFD = {
-        product: i.product,
+        product: i.product._id,
         selectedSet: i.selectedSet,
         selectedSizes: i.selectedSizes.map((size) => ({
           sizeId: size.sizeId,
@@ -119,7 +220,24 @@ export async function addToBag(_id, item) {
   }
 }
 
-export async function deleteCategory(_id) {
+export async function deleteFromBag(_id, item) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN001: ' + err.message);
+  }
+
+  try {
+    const deleted = await Category.findByIdAndDelete(_id);
+    return deleted;
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN004: ' + err.message);
+    }
+  }
+}
+
+export async function deleteBag(_id) {
   try {
     await dbConnect();
   } catch (err) {
