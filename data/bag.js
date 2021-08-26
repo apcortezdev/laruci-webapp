@@ -117,14 +117,12 @@ export async function getBagItems(id) {
           color_name: '$items.product.sets.colorId.text',
           quantity: '$items.quantity',
           extras: '$items.product.sets.extraOptions',
-          selectedExtras: '$items.selectedExtras',
-          sizes: '$items.product.sets.sizeSets',
-          selectedSizes: '$items.selectedSizes',
-          size_test: { $map: { input: '$items.selectedSizes', as: 'size', in: {
+          selectededExtras: '$items.selectedExtras',
+          selectedSizes: { $map: { input: '$items.selectedSizes', as: 'size', in: {
             name: { 
-              $getField: {
-                field: 'name',
-                input: {
+              // $getField: {
+                // field: 'name',
+                // input: {
                   $first: {
                     $filter: { input: '$items.product.sets.sizeSets', as: 'item', cond: { $eq: [
                       { $toString: '$$size.sizeId' },
@@ -132,10 +130,27 @@ export async function getBagItems(id) {
                       ]} 
                     }
                   }
-                },
-              }
+                // },
+              // }
             },
             selected: '$$size.selected',
+           }}},
+           selectedExtras: { $map: { input: '$items.selectedExtras', as: 'extra', in: {
+            name: { 
+              // $getField: {
+                // field: 'name',
+                // input: {
+                  $first: {
+                    $filter: { input: '$items.product.sets.extraOptions', as: 'item', cond: { $eq: [
+                      { $toString: '$$extra.extraId' },
+                      { $toString: '$$item._id' },
+                      ]} 
+                    }
+                  }
+                // },
+              // }
+            },
+            selected: '$$extra.selected',
            }}}
         },
       },
