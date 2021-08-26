@@ -69,7 +69,6 @@ const ProductListItemCard = ({ product }) => {
 
 ProductListItemCard.propTypes = {
   product: PropTypes.object,
-  category: PropTypes.object,
 };
 
 export default ProductListItemCard;

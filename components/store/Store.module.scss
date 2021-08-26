@@ -27,30 +27,12 @@
 
 .content {
   height: 100%;
-  margin-top: 4rem;
+  padding-top: 4rem;
+  width: 100%;
+  max-width: 80rem;
   @include media-min-width(46.5rem) {
-    margin-top: 8rem;
-  }
-
-  .flex_center {
-    @include display-flex();
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .aside {
-    display: none;
-  }
-
-  @include media-min-width(80rem) {
-    display: grid;
-    grid-template-columns: auto minmax(0, 80rem) auto;
-
-    .aside {
-      display: inline-block;
-      filter: opacity(3%);
-      background: url('../../public/laruci_watermark.png') center/5.7rem
-        6.125rem repeat border-box scroll;
-    }
+    padding-top: 8rem;
+    margin-left: auto;
+    margin-right: auto;
   }
 }

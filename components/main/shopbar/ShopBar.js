@@ -83,6 +83,9 @@ const ShopBar = ({ categoryList, isTransparent }) => {
             <Link
               href={{
                 pathname: '/loja/sacola',
+                query: {
+                  bag: bagContext.bag.bagId
+                }
               }}
             >
               <a>

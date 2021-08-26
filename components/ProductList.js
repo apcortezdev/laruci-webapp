@@ -12,7 +12,7 @@ const ItemsList = ({ items, startIn }) => {
       if (start === items.length) start = 0;
       products[start] = (
         <div key={'carrousel' + item._id} className={styles.itemcontainer}>
-          <ProductListItemCard key={'carrouselItm_' + item._id} prodId={item._id} product={item} />
+          <ProductListItemCard key={'carrouselItm_' + item._id} product={item} />
         </div>
       );
       start++;
@@ -23,7 +23,7 @@ const ItemsList = ({ items, startIn }) => {
   return <ol className={styles.carousel}>{products}</ol>;
 };
 
-const ProductList = ({ productList, category, type }) => {
+const ProductList = ({ productList, type }) => {
   const [slidePosition, setSlidePosition] = useState(0);
 
   const slide = (value) => {
@@ -85,7 +85,6 @@ const ProductList = ({ productList, category, type }) => {
 
 ProductList.propTypes = {
   productList: PropTypes.array,
-  category: PropTypes.object,
   type: PropTypes.oneOf(['page', 'carousel']),
 };
 

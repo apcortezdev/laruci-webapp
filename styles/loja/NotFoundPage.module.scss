@@ -1,0 +1,21 @@
+@import '../_colors.scss';
+@import '../_mixin.scss';
+
+.contentbox {
+  height: 100%;
+  @include display-flex();
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  & > h1,
+  & > h2 {
+    font-weight: 400;
+  }
+
+  & > h1 {
+      font-size: 6rem;
+      margin: 0
+  }
+}

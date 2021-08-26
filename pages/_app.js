@@ -47,7 +47,7 @@ function MyApp(props) {
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="/laruci_logo.ico" />
+        <link rel="icon" href="/laruci_lg.ico" />
         <link href={domain} rel="canonical" />
       </Head>
       {page}

@@ -97,15 +97,15 @@ const post = async (req, res) => {
 
     const product = await JSON.parse(fields.product);
 
-    let preparedProduct = prepareProduct(product);
-
+    const preparedProduct = prepareProduct(product);
+    let validatedProduct;
+    
     try {
-      const isValid = await validateProduct(preparedProduct);
-
-      if (isValid !== 'OK') {
+      validatedProduct = await validateProduct(preparedProduct);
+      if (typeof validatedProduct === 'string') {
         res.status(400).json({
           statusCode: '400',
-          message: 'INVALID PRODUCT: ' + isValid,
+          message: 'INVALID PRODUCT: ' + validatedProduct,
         });
         return;
       }
@@ -118,7 +118,7 @@ const post = async (req, res) => {
     }
 
     try {
-      const newProduct = await postProduct(preparedProduct);
+      const newProduct = await postProduct(validatedProduct);
       try {
         // changes from obj to array
         let fileList = [];

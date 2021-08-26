@@ -14,9 +14,7 @@ const Store = ({ categoryList, notice, children }) => {
       </div>
 
       <div className={styles.content}>
-        <div className={styles.aside} />
-        <div className={styles.flex_center}>{children}</div>
-        <div className={styles.aside} />
+        {children}
       </div>
     </div>
   );

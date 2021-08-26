@@ -32,7 +32,7 @@ const ListingPage = ({
 
   useEffect(() => {
     setProdList(productList);
-  }, []);
+  }, [productList]);
 
   const loadPage = async () => {
     setIsLoading(true);
@@ -65,11 +65,7 @@ const ListingPage = ({
         <ListingPageFilter colors={colorList} sizes={sizeList} />
         {prodList.length > 0 ? (
           <>
-            <ProductList
-              productList={prodList}
-              category={category}
-              type="page"
-            />
+            <ProductList productList={prodList} type="page" />
             {isLoading && <p>{'Carregando...'}</p>}
             {!lastPage && (
               <section>
@@ -109,9 +105,21 @@ export async function getStaticProps({ params }) {
   const categories = await getCategoriesJSON();
   const categoryList = await JSON.parse(categories);
 
-  const categorySelected = categoryList.find(
-    (c) => c.name.toLowerCase() === category.toLowerCase()
-  );
+  let categorySelected;
+  try {
+    categorySelected = categoryList.find(
+      (c) => c.name.toLowerCase() === category.toLowerCase()
+    );
+  } catch (err) {
+    return {
+      notFound: true,
+    };
+  }
+  if (typeof categorySelected === 'undefined' || categorySelected === null || categorySelected === '') {
+    return {
+      notFound: true,
+    };
+  }
 
   const products = await getProductListingByCategoryJSON(categorySelected._id);
   const productList = await JSON.parse(products);

@@ -20,7 +20,7 @@ import styles from '../../../../styles/loja/ProductPage.module.scss';
 import { getCategoriesJSON } from '../../../../data/categories';
 import {
   getProductListingByCategoryJSON,
-  getProductIdsByCategoryJSON,
+  getProductsForSSR,
   getProductByIdJSON,
 } from '../../../../data/products';
 import { getCurrentNotice } from '../../../../data/notice';
@@ -43,7 +43,6 @@ const ProductPage = ({
   const [dialogMessage, setDialogMessage] = useState('');
   const [cancelText, setCancelText] = useState('');
   const [okText, setOkText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   // INPUT OPTIONS FOR PURCHASE: - START
   // COLOR
@@ -75,10 +74,8 @@ const ProductPage = ({
 
   const context = useContext(BagContext);
 
-  function addToBag(event) {
-    event.preventDefault();
-
-    // Validations
+  // Validations
+  const validate = async () => {
     if (!selectedSet) {
       setSelectedSetValidator(false);
       setDialogMessage('Por favor, escolha uma cor.');
@@ -124,36 +121,63 @@ const ProductPage = ({
       return false;
     }
 
-    const prodToBag = {
-      product: product._id,
-      selectedSet: selectedSet._id,
-      selectedSizes: selectedSizes,
-      selectedExtras: Object.keys(selectedExtras).map((key) => ({
-        extraId: key,
-        selected: selectedExtras[key],
-      })),
-      quantity: quantity,
-    };
-
-    setCancelText('Continuar Comprando');
-    setOkText('Finalizar Compra');
-    setDialogMessage(
-      quantity +
-        ' "' +
-        product.name +
-        '" ' +
-        (quantity > 1 ? 'foram adicionados' : 'foi adicionado') +
-        ' à sua sacola!'
-    );
-    setShowDialog(true);
-
-    context.addToBag(prodToBag);
     return true;
+  };
+
+  // Add to bag using "plus" button
+  async function addToBag(event) {
+    event.preventDefault();
+
+    const isValid = await validate();
+
+    if (isValid) {
+      const prodToBag = {
+        product: product._id,
+        selectedSet: selectedSet._id,
+        selectedSizes: selectedSizes,
+        selectedExtras: Object.keys(selectedExtras).map((key) => ({
+          extraId: key,
+          selected: selectedExtras[key],
+        })),
+        quantity: quantity,
+      };
+
+      setCancelText('Continuar Comprando');
+      setOkText('Finalizar Compra');
+      setDialogMessage(
+        quantity +
+          ' "' +
+          product.name +
+          '" ' +
+          (quantity > 1 ? 'foram adicionados' : 'foi adicionado') +
+          ' à sua sacola!'
+      );
+      setShowDialog(true);
+      await context.addToBag(prodToBag);
+    }
   }
 
-  function buyHandler(event) {
+  // Add to bag and go to bag page
+  async function buyHandler(event) {
     event.preventDefault();
-    if (addToBag(event)) router.push({ pathname: '/loja/sacola' });
+
+    const isValid = await validate();
+
+    if (isValid) {
+      const prodToBag = {
+        product: product._id,
+        selectedSet: selectedSet._id,
+        selectedSizes: selectedSizes,
+        selectedExtras: Object.keys(selectedExtras).map((key) => ({
+          extraId: key,
+          selected: selectedExtras[key],
+        })),
+        quantity: quantity,
+      };
+      context.addToBag(prodToBag).then((bag) => {
+        router.push({ pathname: '/loja/sacola', query: { bag: bag } });
+      });
+    }
   }
 
   return (
@@ -170,7 +194,7 @@ const ProductPage = ({
         <div className={styles.contentbox}>
           <div className={styles.bredcrumb_container}>
             <Breadcrumb
-              query={[product.categoryId.name, product._id]}
+              query={[product.categoryName, product._id]}
               current={product.name}
             />
           </div>
@@ -183,7 +207,7 @@ const ProductPage = ({
               <ImageShow
                 images={selectedSet.images.map((image, index) => ({
                   src: `/images/products/${product._id}/${image}`,
-                  alt: `Foto ${index} de ${product.name} na cor ${selectedSet.colorId.text}`,
+                  alt: `Foto ${index} de ${product.name} na cor ${selectedSet.colorName}`,
                 }))}
               />
             </div>
@@ -248,7 +272,7 @@ const ProductPage = ({
                       ]
                         .join(' ')
                         .trim()}
-                      style={{ backgroundColor: set.colorId.code }}
+                      style={{ backgroundColor: set.colorCode }}
                       onClick={() => {
                         setSelectedSet(set);
                         setSelectedSetValidator(true);
@@ -558,11 +582,7 @@ const ProductPage = ({
                 .trim()}
             >
               <span className={styles.section_title}>Ofertas Similares:</span>
-              <ProductList
-                category={product.categoryId}
-                productList={relatedProducts}
-                type="carousel"
-              />
+              <ProductList productList={relatedProducts} type="carousel" />
             </section>
           </div>
         </div>
@@ -617,16 +637,16 @@ const ProductPage = ({
 };
 
 export async function getStaticPaths() {
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
-
   let pathList = [];
 
-  for (const category of categoryList) {
-    const products = await getProductIdsByCategoryJSON(category._id, 1, 100);
-    const prodList = await JSON.parse(products);
-    prodList.forEach((prod) => {
-      pathList.push({ params: { category: category.name, product: prod._id } });
+  const products = await getProductsForSSR();
+
+  for (const product of products) {
+    pathList.push({
+      params: {
+        category: product.categoryName,
+        product: product._id.toString(),
+      },
     });
   }
 
@@ -640,7 +660,21 @@ export async function getStaticProps({ params }) {
   const category = params.category;
   const productId = params.product;
 
-  const prod = await getProductByIdJSON(productId);
+  let prod;
+  try {
+    prod = await getProductByIdJSON(productId);
+  } catch (err) {
+    return {
+      notFound: true,
+    };
+  }
+
+  if (typeof prod === 'undefined' || prod === null || prod === '') {
+    return {
+      notFound: true,
+    };
+  }
+
   const product = await JSON.parse(prod);
   const related = await getProductListingByCategoryJSON(
     product.categoryId,

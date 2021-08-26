@@ -42,10 +42,7 @@ export async function getProductById(id) {
   }
 
   try {
-    // product = await Product.findById(id).populate({ path: 'sectionId', model: Section });
     product = await Product.findById(id)
-      .populate({ path: 'categoryId', model: Category })
-      .populate({ path: 'sets.colorId', model: Color })
       .populate({ path: 'sets.sizeSets.sizeSetId', model: sizeSet });
   } catch (err) {
     if (err) {
@@ -58,6 +55,26 @@ export async function getProductById(id) {
 export async function getProductByIdJSON(id) {
   const product = await getProductById(id);
   return JSON.stringify(product);
+}
+
+export async function getProductsForSSR() {
+  let products;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P5: ' + err.message);
+  }
+
+  try {
+    products = await Product.find()
+      .select('_id categoryName')
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0P6: ' + err.message);
+    }
+  }
+  return products;
 }
 
 export async function getProductListingByCategory(
@@ -76,15 +93,13 @@ export async function getProductListingByCategory(
   try {
     const result = await Product.find()
       .byCategory(categoryId)
-      .select('_id name price discountPercentage shortDescription sets')
-      .populate('categoryId')
-      .populate('sets.colorId')
+      .select('_id name price discountPercentage categoryName shortDescription sets')
       .exec();
     product = result.map((p) => ({
       _id: p._id,
       name: p.name,
       price: p.price,
-      categoryName: p.categoryId.name,
+      categoryName: p.categoryName,
       discountPercentage: p.discountPercentage,
       shortDescription: p.shortDescription,
       image: p.sets[0].images[0],

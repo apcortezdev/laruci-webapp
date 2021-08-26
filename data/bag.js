@@ -40,12 +40,10 @@ export async function getBagById(id) {
   }
 
   try {
-    bag = await Bag.findById(id)
-      .populate({ path: 'items.product', model: Product })
-      .populate({
-        path: 'items.product',
-        populate: { path: 'sets.colorId', model: 'Color' },
-      });
+    bag = await Bag.findById(id).populate({
+      path: 'items.product',
+      model: Product,
+    });
   } catch (err) {
     if (err) {
       throw new Error('ERN0B4: ' + err.message);
@@ -93,65 +91,80 @@ export async function getBagItems(id) {
           },
         },
       },
-      // left join to colors in every item.product.set
-      {
-        $lookup: {
-          from: 'colors',
-          localField: 'items.product.sets.colorId',
-          foreignField: '_id',
-          as: 'items.product.sets.colorId',
-        },
-      },
-      // remove color from array (array will have one item only)
-      { $unwind: '$items.product.sets.colorId' },
       // project all to new fields
       {
         $project: {
-          _id: '$_id',
+          _id: '$items._id',
           product_name: '$items.product.name',
           price: '$items.product.price',
           discountPercentage: '$items.product.discountPercentage',
           weight: '$items.product.weight',
           // concat image to pattern [pdoructId]/[imageName]
-          image: { $concat: [{ $toString: '$items.product._id' }, '/', { $first: '$items.product.sets.images'}]},
-          color_name: '$items.product.sets.colorId.text',
+          image: {
+            $concat: [
+              { $toString: '$items.product._id' },
+              '/',
+              { $first: '$items.product.sets.images' },
+            ],
+          },
+          color_name: '$items.product.sets.colorName',
           quantity: '$items.quantity',
-          extras: '$items.product.sets.extraOptions',
-          selectededExtras: '$items.selectedExtras',
-          selectedSizes: { $map: { input: '$items.selectedSizes', as: 'size', in: {
-            name: { 
-              // $getField: {
-                // field: 'name',
-                // input: {
+          selectedSizes: {
+            $map: {
+              input: '$items.selectedSizes',
+              as: 'size',
+              in: {
+                size: {
+                  // $getField: {
+                  // field: 'name',
+                  // input: {
                   $first: {
-                    $filter: { input: '$items.product.sets.sizeSets', as: 'item', cond: { $eq: [
-                      { $toString: '$$size.sizeId' },
-                      { $toString: '$$item._id' },
-                      ]} 
-                    }
-                  }
-                // },
-              // }
+                    $filter: {
+                      input: '$items.product.sets.sizeSets',
+                      as: 'item',
+                      cond: {
+                        $eq: [
+                          { $toString: '$$size.sizeId' },
+                          { $toString: '$$item._id' },
+                        ],
+                      },
+                    },
+                  },
+                  // },
+                  // }
+                },
+                selected: '$$size.selected',
+              },
             },
-            selected: '$$size.selected',
-           }}},
-           selectedExtras: { $map: { input: '$items.selectedExtras', as: 'extra', in: {
-            name: { 
-              // $getField: {
-                // field: 'name',
-                // input: {
+          },
+          selectedExtras: {
+            $map: {
+              input: '$items.selectedExtras',
+              as: 'extra',
+              in: {
+                option: {
+                  // $getField: {
+                  // field: 'name',
+                  // input: {
                   $first: {
-                    $filter: { input: '$items.product.sets.extraOptions', as: 'item', cond: { $eq: [
-                      { $toString: '$$extra.extraId' },
-                      { $toString: '$$item._id' },
-                      ]} 
-                    }
-                  }
-                // },
-              // }
+                    $filter: {
+                      input: '$items.product.sets.extraOptions',
+                      as: 'item',
+                      cond: {
+                        $eq: [
+                          { $toString: '$$extra.extraId' },
+                          { $toString: '$$item._id' },
+                        ],
+                      },
+                    },
+                  },
+                  // },
+                  // }
+                },
+                selected: '$$extra.selected',
+              },
             },
-            selected: '$$extra.selected',
-           }}}
+          },
         },
       },
     ]);
@@ -163,7 +176,20 @@ export async function getBagItems(id) {
   return bag;
 }
 
-export async function addToBag(_id, item) {
+export async function addOrRemoveFromBag(_id, item) {
+  // Follow rules:
+
+  // _id: id to bag
+  // item: format below:
+  // {
+  //   id, quantity
+  // }
+
+  // if quantity:
+  //  - positive, adds to quantity
+  //  - negative, subtracts from quantity
+  //  - zero, removes item from bag
+
   let bag;
 
   try {
@@ -183,40 +209,68 @@ export async function addToBag(_id, item) {
   }
 
   try {
-    let itemToAdd = {
-      product: item.product,
-      selectedSet: item.selectedSet,
-      selectedSizes: item.selectedSizes.map((size) => ({
-        sizeId: size.sizeId,
-        selected: size.selected,
-      })),
-      selectedExtras: item.selectedExtras,
-    };
-
-    const itemFromDb = bag.items.findIndex((i) => {
-      let itemFD = {
-        product: i.product._id,
-        selectedSet: i.selectedSet,
-        selectedSizes: i.selectedSizes.map((size) => ({
+    if (typeof item.id === 'undefined') {
+      // Has no id, detect item by comparing all fields
+      let itemToAdd = {
+        product: item.product,
+        selectedSet: item.selectedSet,
+        selectedSizes: item.selectedSizes.map((size) => ({
           sizeId: size.sizeId,
           selected: size.selected,
         })),
-        selectedExtras: i.selectedExtras.map((extra) => ({
-          extraId: extra.extraId,
-          selected: extra.selected,
-        })),
+        selectedExtras: item.selectedExtras,
       };
-      return JSON.stringify(itemToAdd) === JSON.stringify(itemFD);
-    });
 
-    if (itemFromDb < 0) {
-      // new Item
-      itemToAdd.quantity = item.quantity;
-      bag.items.push(itemToAdd);
+      const index = bag.items.findIndex((i) => {
+        let itemFD = {
+          product: i.product._id,
+          selectedSet: i.selectedSet,
+          selectedSizes: i.selectedSizes.map((size) => ({
+            sizeId: size.sizeId,
+            selected: size.selected,
+          })),
+          selectedExtras: i.selectedExtras.map((extra) => ({
+            extraId: extra.extraId,
+            selected: extra.selected,
+          })),
+        };
+        return JSON.stringify(itemToAdd) === JSON.stringify(itemFD);
+      });
+
+      if (index < 0) {
+        // Item not found: new Item
+        itemToAdd.quantity = item.quantity;
+        bag.items.push(itemToAdd);
+      } else {
+        // item found
+        if (item.quantity === 0) {
+          // if qty is zero, remove item
+          bag.items.splice(index, 1);
+        } else {
+          // if not, add value
+          itemToAdd.quantity = item.quantity + bag.items[index].quantity;
+          bag.items[index] = itemToAdd;
+        }
+        // Item found: add to qty
+      }
     } else {
-      // add to qty
-      itemToAdd.quantity = item.quantity + bag.items[itemFromDb].quantity;
-      bag.items[itemFromDb] = itemToAdd;
+      // has item id
+      const index = bag.items.findIndex(
+        (itm) => itm._id.toString() === item.id.toString()
+      );
+      if (index >= 0) {
+        // item found
+        if (item.quantity === 0) {
+          // if qty is zero, remove item
+          bag.items.splice(index, 1);
+        } else {
+          // if not, add value
+          bag.items[index].quantity = bag.items[index].quantity + item.quantity;
+        }
+      } else {
+        // item not found, throw error
+        throw new Error('NOT FOUND');
+      }
     }
 
     const updated = await Bag.findByIdAndUpdate(

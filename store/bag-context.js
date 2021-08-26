@@ -90,6 +90,15 @@ export function BagContextProvider(props) {
   };
 
   async function addToBagHandler(newToBag) {
+    // Follow rules:
+    // gets a obj item as: 
+    // {
+    //   id, quantity
+    // }
+    // if quantity:
+    //  - positive, adds to quantity
+    //  - negative, subtracts from quantity
+    //  - zero, removes item from bag
     let bag;
     if (bagId) {
       bag = await saveBag(newToBag);
@@ -100,15 +109,15 @@ export function BagContextProvider(props) {
 
     setQtyItemsInBag((v) => v + newToBag.quantity);
     saveCookie(bag);
+    return bag._id;
   }
 
-  function removeFromBagHandler(key) {
-    // setProductList(list => {
-    //   const {[prodBagId]: _, ...newList} = list;
-    //   return newList;
-    // });
-    // setQtyItemsInBag((num) => num - product.qty);
-    // setTotal((tot) => tot - product.subtotal);
+  async function removeFromBagHandler(item) {
+    const newToBag = {
+      ...item,
+      quantity: 0,
+    }
+    addToBagHandler(newToBag);
   }
 
   const context = {

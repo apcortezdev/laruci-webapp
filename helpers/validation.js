@@ -119,6 +119,7 @@ const validateProduct = async (product) => {
   } catch (err) {
     return 'INVALID CATEGORY';
   }
+  product.categoryName = category.name;
 
   // sectionId
   if (product.sectionId.trim().length <= 0)
@@ -151,6 +152,8 @@ const validateProduct = async (product) => {
       isValid = 'INVALID SET: INVALID COLOR';
       break;
     }
+    set.colorName = color.text;
+    set.colorCode = color.code;
 
     // sizeSets
     if (set.sizeSets.length > 0) {
@@ -247,7 +250,7 @@ const validateProduct = async (product) => {
     if (isValid !== 'OK') return;
   }
 
-  return isValid;
+  return product;
 };
 
 export {

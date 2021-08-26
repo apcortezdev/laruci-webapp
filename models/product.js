@@ -8,6 +8,14 @@ const setSchema = new Schema({
     ref: 'Color',
     required: true,
   },
+  colorName: {
+    type: String,
+    required: true,
+  },
+  colorCode: {
+    type: String,
+    required: true,
+  },
   sizeSets: [
     {
       name: {
@@ -76,6 +84,10 @@ const product = new Schema({
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
+    required: true,
+  },
+  categoryName: {
+    type: String,
     required: true,
   },
   sectionId: {

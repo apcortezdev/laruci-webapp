@@ -1,4 +1,4 @@
-import { postBag, addToBag } from '../../../data/bag';
+import { postBag, addOrRemoveFromBag } from '../../../data/bag';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -34,13 +34,13 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     try {
-      const bag = await addToBag(req.body.id, req.body.item);
+      const bag = await addOrRemoveFromBag(req.body.id, req.body.item);
       res.status(200).json({ statusCode: '200', bag: bag });
     } catch (err) {
-      if (err.message.startsWith('NOT FOUND')) {
+      if (err.message.startsWith('ERN005: NOT FOUND')) {
         res.status(404).json({
           statusCode: '404',
-          message: 'BAG NOT FOUND',
+          message: 'BAG OR ITEM NOT FOUND',
         });
         return;
       }
