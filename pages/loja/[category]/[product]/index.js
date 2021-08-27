@@ -20,7 +20,7 @@ import Spin from '../../../../components/utilities/Spin';
 import styles from '../../../../styles/loja/ProductPage.module.scss';
 import { getCategoriesJSON } from '../../../../data/categories';
 import {
-  getProductListingByCategoryJSON,
+  getProductListingJSON,
   getProductsForSSR,
   getProductByIdJSON,
 } from '../../../../data/products';
@@ -693,8 +693,8 @@ export async function getStaticProps({ params }) {
   }
 
   const product = await JSON.parse(prod);
-  const related = await getProductListingByCategoryJSON(
-    product.categoryId,
+  const related = await getProductListingJSON(
+    { category: product.categoryId },
     1,
     10
   );

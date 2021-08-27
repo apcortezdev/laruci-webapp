@@ -1,12 +1,13 @@
+import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { SelectColor, SelectText } from './utilities/FormComponents';
 import styles from './ListingPageFilter.module.scss';
 import Button from '../components/utilities/Button';
 
-const ListingPageFilter = ({ colors, sizes }) => {
-  const [selectedColor, setSelectedColor] = useState();
-  const [selectedSize, setSelectedSize] = useState();
-  const [selectedOrder, setSelectedOrder] = useState();
+const ListingPageFilter = ({ colors, sizes, onSearch }) => {
+  const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(0);
+  const [selectedOrder, setSelectedOrder] = useState(0);
 
   const [toggleFilter, setToggleFilter] = useState(false);
   const toggleMobileFilter = () => {
@@ -44,6 +45,7 @@ const ListingPageFilter = ({ colors, sizes }) => {
 
   const submitSearch = (event) => {
     event.preventDefault();
+    onSearch(selectedColor, selectedSize, selectedOrder);
   };
 
   return (
@@ -72,6 +74,7 @@ const ListingPageFilter = ({ colors, sizes }) => {
           className={[styles.form, toggleFilter && styles.form_open]
             .join(' ')
             .trim()}
+          onSubmit={submitSearch}
         >
           <div
             className={[styles.form_item_group, styles.form_item_group_one]
@@ -125,11 +128,7 @@ const ListingPageFilter = ({ colors, sizes }) => {
                 options={orderList}
               />
             </div>
-            <Button
-              type="submit"
-              className={styles.form__button}
-              onClick={submitSearch}
-            >
+            <Button type="submit" className={styles.form__button}>
               Buscar
             </Button>
           </div>
@@ -137,6 +136,12 @@ const ListingPageFilter = ({ colors, sizes }) => {
       </div>
     </div>
   );
+};
+
+ListingPageFilter.propTypes = {
+  colors: PropTypes.array.isRequired,
+  sizes: PropTypes.array.isRequired,
+  onSearch: PropTypes.func.isRequired,
 };
 
 export default ListingPageFilter;

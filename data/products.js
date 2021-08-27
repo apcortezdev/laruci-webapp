@@ -42,8 +42,10 @@ export async function getProductById(id) {
   }
 
   try {
-    product = await Product.findById(id)
-      .populate({ path: 'sets.sizeSets.sizeSetId', model: sizeSet });
+    product = await Product.findById(id).populate({
+      path: 'sets.sizeSets.sizeSetId',
+      model: sizeSet,
+    });
   } catch (err) {
     if (err) {
       throw new Error('ERN0P4: ' + err.message);
@@ -67,8 +69,7 @@ export async function getProductsForSSR() {
   }
 
   try {
-    products = await Product.find()
-      .select('_id categoryName')
+    products = await Product.find().select('_id categoryName');
   } catch (err) {
     if (err) {
       throw new Error('ERN0P6: ' + err.message);
@@ -77,10 +78,10 @@ export async function getProductsForSSR() {
   return products;
 }
 
-export async function getProductListingByCategory(
-  categoryId,
-  page,
-  numPerPage
+export async function getProductListing(
+  { category = 0, color = 0, size = 0, order = 0, term = '' },
+  page = 1,
+  numPerPage = 25
 ) {
   let product;
 
@@ -92,8 +93,10 @@ export async function getProductListingByCategory(
 
   try {
     const result = await Product.find()
-      .byCategory(categoryId)
-      .select('_id name price discountPercentage categoryName shortDescription sets')
+      .byCategory(category)
+      .select(
+        '_id name price discountPercentage categoryName shortDescription sets'
+      )
       .exec();
     product = result.map((p) => ({
       _id: p._id,
@@ -112,12 +115,22 @@ export async function getProductListingByCategory(
   return product;
 }
 
-export async function getProductListingByCategoryJSON(
-  categoryId,
-  page,
-  numPerPage
+export async function getProductListingJSON(
+  { category = 0, color = 0, size = 0, order = 0, term = '' },
+  page = 1,
+  numPerPage = 25
 ) {
-  const list = await getProductListingByCategory(categoryId, page, numPerPage);
+  const list = await getProductListing(
+    {
+      category,
+      color,
+      size,
+      order,
+      term,
+    },
+    page,
+    numPerPage
+  );
   return JSON.stringify(list);
 }
 
@@ -141,7 +154,6 @@ export async function getProductByCode(code) {
 }
 
 export async function postProduct(product) {
-
   const newProduct = new Product({
     ...product,
     sets: [...product.sets],

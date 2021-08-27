@@ -26,7 +26,7 @@ export async function postBag(bag) {
     const created = await newBag.save();
     return {
       status: 201,
-      bag: created
+      bag: created,
     };
   } catch (err) {
     throw new Error('ERN0B2: ' + err.message);
@@ -61,7 +61,7 @@ export async function getBagItems(id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0B3: ' + err.message);
+    throw new Error('ERN0B5: ' + err.message);
   }
 
   try {
@@ -119,7 +119,7 @@ export async function getBagItems(id) {
               in: {
                 size: {
                   // $getField: {
-                  // field: 'name',
+                  // field: "name",
                   // input: {
                   $first: {
                     $filter: {
@@ -147,7 +147,7 @@ export async function getBagItems(id) {
               in: {
                 option: {
                   // $getField: {
-                  // field: 'name',
+                  // field: "name",
                   // input: {
                   $first: {
                     $filter: {
@@ -173,7 +173,7 @@ export async function getBagItems(id) {
     ]);
   } catch (err) {
     if (err) {
-      throw new Error('ERN0B4: ' + err.message);
+      throw new Error('ERN0B6: ' + err.message);
     }
   }
   return bag;
@@ -185,7 +185,7 @@ export async function addOrRemoveFromBag(_id, item) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0B7: ' + err.message);
   }
 
   try {
@@ -198,7 +198,7 @@ export async function addOrRemoveFromBag(_id, item) {
     return {
       status: '404',
       bag: [],
-    }
+    };
   }
 
   try {
@@ -268,10 +268,10 @@ export async function addOrRemoveFromBag(_id, item) {
 
     let result = {};
     if (bag.items.length <= 0) {
-      result.status = '204'
+      result.status = '204';
       result.bag = await Bag.findByIdAndDelete(_id);
     } else {
-      result.status = '201'
+      result.status = '201';
       result.bag = await Bag.findByIdAndUpdate(
         _id,
         { items: bag.items },
@@ -285,7 +285,7 @@ export async function addOrRemoveFromBag(_id, item) {
     return result;
   } catch (err) {
     if (err) {
-      throw new Error('ERN005: ' + err.message);
+      throw new Error('ERN0B8: ' + err.message);
     }
   }
 }
@@ -294,7 +294,7 @@ export async function deleteBag(_id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN001: ' + err.message);
+    throw new Error('ERN0B9: ' + err.message);
   }
 
   try {
@@ -302,7 +302,7 @@ export async function deleteBag(_id) {
     return deleted;
   } catch (err) {
     if (err) {
-      throw new Error('ERN004: ' + err.message);
+      throw new Error('ERN0B10: ' + err.message);
     }
   }
 }

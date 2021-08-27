@@ -8,7 +8,7 @@ import { getMainSizeSetsJSON } from '../../../data/sizeSets';
 import { getCategoriesJSON } from '../../../data/categories';
 import { getColorsJSON } from '../../../data/colors';
 import { getCurrentNotice } from '../../../data/notice';
-import { getProductListingByCategoryJSON } from '../../../data/products';
+import { getProductListingJSON } from '../../../data/products';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -59,10 +59,20 @@ const ListingPage = ({
     setIsLoading(false);
   };
 
+  const search = (selectedColor, selectedSize, selectedOrder) => {
+    console.log(selectedColor);
+    console.log(selectedSize);
+    console.log(selectedOrder);
+  };
+
   return (
     <Main notice={notice} categoryList={categoryList}>
       <Store notice={!!notice} categoryList={categoryList}>
-        <ListingPageFilter colors={colorList} sizes={sizeList} />
+        <ListingPageFilter
+          colors={colorList}
+          sizes={sizeList}
+          onSearch={search}
+        />
         {prodList.length > 0 ? (
           <>
             <ProductList productList={prodList} type="page" />
@@ -115,13 +125,19 @@ export async function getStaticProps({ params }) {
       notFound: true,
     };
   }
-  if (typeof categorySelected === 'undefined' || categorySelected === null || categorySelected === '') {
+  if (
+    typeof categorySelected === 'undefined' ||
+    categorySelected === null ||
+    categorySelected === ''
+  ) {
     return {
       notFound: true,
     };
   }
 
-  const products = await getProductListingByCategoryJSON(categorySelected._id);
+  const products = await getProductListingJSON({
+    category: categorySelected._id,
+  });
   const productList = await JSON.parse(products);
 
   const colors = await getColorsJSON();
