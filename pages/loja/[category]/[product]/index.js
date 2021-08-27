@@ -15,6 +15,7 @@ import {
   InputRadio,
   InputNumber,
 } from '../../../../components/utilities/FormComponents';
+import Spin from '../../../../components/utilities/Spin';
 
 import styles from '../../../../styles/loja/ProductPage.module.scss';
 import { getCategoriesJSON } from '../../../../data/categories';
@@ -43,6 +44,7 @@ const ProductPage = ({
   const [dialogMessage, setDialogMessage] = useState('');
   const [cancelText, setCancelText] = useState('');
   const [okText, setOkText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // INPUT OPTIONS FOR PURCHASE: - START
   // COLOR
@@ -127,7 +129,7 @@ const ProductPage = ({
   // Add to bag using "plus" button
   async function addToBag(event) {
     event.preventDefault();
-
+    setIsLoading(true);
     const isValid = await validate();
 
     if (isValid) {
@@ -153,13 +155,16 @@ const ProductPage = ({
           ' à sua sacola!'
       );
       setShowDialog(true);
-      await context.addToBag(prodToBag);
+      context.addOrRemoveFromBag(prodToBag).then(() => {
+        setIsLoading(false);
+      });
     }
   }
 
   // Add to bag and go to bag page
   async function buyHandler(event) {
     event.preventDefault();
+    setIsLoading(true);
 
     const isValid = await validate();
 
@@ -174,7 +179,8 @@ const ProductPage = ({
         })),
         quantity: quantity,
       };
-      context.addToBag(prodToBag).then((bag) => {
+      context.addOrRemoveFromBag(prodToBag).then((bag) => {
+        setIsLoading(false);
         router.push({ pathname: '/loja/sacola', query: { bag: bag } });
       });
     }
@@ -607,28 +613,39 @@ const ProductPage = ({
       >
         {okText === 'Finalizar Compra' && (
           <span className={styles.confirmationButtonLine}>
-            <Button
-              className={styles.formButton}
-              onClick={() => {
-                setShowDialog(false);
-                setCancelText('');
-                setOkText('ok');
-              }}
-            >
-              {cancelText}
-            </Button>
-            <Button
-              className={styles.formButton}
-              onClick={() => {
-                setShowDialog(false);
-                setCancelText('');
-                setOkText('ok');
-                if (okText === 'Finalizar Compra')
-                  router.push({ pathname: '/loja/sacola' });
-              }}
-            >
-              {okText}
-            </Button>
+            {isLoading ? (
+              <Spin width={40} height={40} />
+            ) : (
+              <>
+                <Button
+                  className={styles.formButton}
+                  onClick={() => {
+                    setShowDialog(false);
+                    setCancelText('');
+                    setOkText('ok');
+                  }}
+                >
+                  {cancelText}
+                </Button>
+                <Button
+                  className={styles.formButton}
+                  onClick={() => {
+                    setShowDialog(false);
+                    setCancelText('');
+                    setOkText('ok');
+                    if (okText === 'Finalizar Compra')
+                      router.push({
+                        pathname: '/loja/sacola',
+                        query: {
+                          bag: context.bag.bagId,
+                        },
+                      });
+                  }}
+                >
+                  {okText}
+                </Button>
+              </>
+            )}
           </span>
         )}
       </ConfirmationDialog>

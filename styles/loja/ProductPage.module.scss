@@ -362,9 +362,13 @@
   @include display-flex();
   flex-direction: column;
   align-items: center;
+  height: 7rem;
 
   .formButton {
-    width: 50%;
-    margin: .5rem 0;
+    width: 100%;
+    margin: .3rem 0;
+    @include media-min-width(40rem) {
+      width: 60%;
+    }
   }
 }

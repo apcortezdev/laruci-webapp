@@ -58,40 +58,37 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
     event.preventDefault();
   };
 
+  const addOrRemoveHandler = (e, itemId, quantity, index) => {
+    e.preventDefault();
+    if (itemsInBag[index].quantity + quantity === 0) {
+      onRemoveProduct(itemId, index, quantity);
+      return;
+    } else {
+      addOrRemove(itemId, quantity, index);
+    }
+  }
+
   const addOrRemove = (itemId, quantity, index) => {
     const item = {
       id: itemId,
       quantity: quantity,
     };
-    context.addToBag(item);
+    context.addOrRemoveFromBag(item);
     setItemsInBag((items) => {
       let newList = [...items];
-      newList[index].quantity = newList[index].quantity + quantity;
+      if (newList[index].quantity === -1 * quantity) newList.splice(index, 1);
+      else newList[index].quantity = newList[index].quantity + quantity;
       calculateTotals(newList);
       return newList;
     });
   };
 
-  const onRemoveProduct = (e, id, index) => {
-    e.preventDefault();
+  const onRemoveProduct = (id, index, qty) => {
     setShowDialog(true);
     setDialogMessage('Retirar este item da sacola?');
     setCancelText('Não');
     setOkText('Sim');
-    setOnConfirm(() => () => removeItem(id, index));
-  };
-
-  const removeItem = (itemId, index) => {
-    const item = {
-      id: itemId,
-    };
-    context.removeFromBag(item);
-    setItemsInBag((items) => {
-      let newList = [...items];
-      newList.splice(index, 1);
-      calculateTotals(newList);
-      return newList;
-    });
+    setOnConfirm(() => () => addOrRemove(id, qty, index));
   };
 
   if (totalItems === 0) {
@@ -186,7 +183,10 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                       height="20"
                       className={styles.icon}
                       viewBox="0 0 16 16"
-                      onClick={(e) => onRemoveProduct(e, item._id, index)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onRemoveProduct(item._id, index, -1 * item.quantity);
+                      }}
                     >
                       <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                       <path
@@ -208,7 +208,7 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                         ? item.selectedSizes
                             .map(
                               (s) =>
-                                `${s.size.name}: ${s.selected.toUpperCase()}`
+                                `${s.size.name.toLowerCase()}: ${s.selected.toUpperCase()}`
                             )
                             .join(', ')
                         : 'único'}
@@ -219,7 +219,7 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                         ? item.selectedExtras
                             .map(
                               (e) =>
-                                `${e.option.name}: ${e.selected.toLowerCase()}`
+                                `${e.option.name.toLowerCase()}: ${e.selected.toLowerCase()}`
                             )
                             .join(', ')
                         : '-'}
@@ -254,10 +254,7 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                           height="20"
                           className={styles.icon}
                           viewBox="0 0 16 16"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            addOrRemove(item._id, -1, index);
-                          }}
+                          onClick={(e) => addOrRemoveHandler(e, item._id, -1, index)}
                         >
                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
                         </svg>
@@ -268,10 +265,7 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                           height="20"
                           className={styles.icon}
                           viewBox="0 0 16 16"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            addOrRemove(item._id, 1, index);
-                          }}
+                          onClick={(e) => addOrRemoveHandler(e, item._id, 1, index)}
                         >
                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
                         </svg>
@@ -309,8 +303,9 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
 
 export async function getServerSideProps(context) {
   let bag = [];
-  const cookie = context.req.cookies ? JSON.parse(context.req.cookies['@laruci/bag']) : '';
-
+  let cookie = '';
+  const c = context.req.cookies['@laruci/bag'];
+  if (c) cookie = context.req.cookies ? JSON.parse(c) : '';
   const bagId = context.query.bag;
   let id;
 
@@ -325,7 +320,7 @@ export async function getServerSideProps(context) {
       return {
         props: {
           title: 'Laruci - Finalizar Compra',
-          canonical: `http://localhost:3000/loja/sacola`,
+          canonical: 'http://localhost:3000/loja/sacola',
           notice: noticeText,
           categoryList: categoryList,
           items: [],
@@ -341,7 +336,7 @@ export async function getServerSideProps(context) {
   if (id) {
     try {
       bag = await getBagItems(id);
-    } catch(err) {
+    } catch (err) {
       return {
         notFound: true,
       };
@@ -355,10 +350,10 @@ export async function getServerSideProps(context) {
   return {
     props: {
       title: 'Laruci - Finalizar Compra',
-      canonical: `http://localhost:3000/loja/sacola`,
+      canonical: 'http://localhost:3000/loja/sacola',
       notice: noticeText,
       categoryList: categoryList,
-      items: bag.length > 0 ? JSON.parse(bag) : [],
+      items: bag.length > 0 ? JSON.parse(JSON.stringify(bag)) : [],
     },
   };
 }

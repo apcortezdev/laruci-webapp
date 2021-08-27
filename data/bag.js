@@ -24,7 +24,10 @@ export async function postBag(bag) {
 
   try {
     const created = await newBag.save();
-    return created;
+    return {
+      status: 201,
+      bag: created
+    };
   } catch (err) {
     throw new Error('ERN0B2: ' + err.message);
   }
@@ -177,19 +180,6 @@ export async function getBagItems(id) {
 }
 
 export async function addOrRemoveFromBag(_id, item) {
-  // Follow rules:
-
-  // _id: id to bag
-  // item: format below:
-  // {
-  //   id, quantity
-  // }
-
-  // if quantity:
-  //  - positive, adds to quantity
-  //  - negative, subtracts from quantity
-  //  - zero, removes item from bag
-
   let bag;
 
   try {
@@ -205,7 +195,10 @@ export async function addOrRemoveFromBag(_id, item) {
   }
 
   if (!bag) {
-    throw new Error('NOT FOUND');
+    return {
+      status: '404',
+      bag: [],
+    }
   }
 
   try {
@@ -243,8 +236,8 @@ export async function addOrRemoveFromBag(_id, item) {
         bag.items.push(itemToAdd);
       } else {
         // item found
-        if (item.quantity === 0) {
-          // if qty is zero, remove item
+        if (item.quantity === -1 * bag.items[index].quantity) {
+          // if item.quantity is equal to negative bag.items.quantity, remove item from bag
           bag.items.splice(index, 1);
         } else {
           // if not, add value
@@ -260,8 +253,8 @@ export async function addOrRemoveFromBag(_id, item) {
       );
       if (index >= 0) {
         // item found
-        if (item.quantity === 0) {
-          // if qty is zero, remove item
+        if (item.quantity === -1 * bag.items[index].quantity) {
+          // if item.quantity is equal to negative bag.items.quantity, remove item from bag
           bag.items.splice(index, 1);
         } else {
           // if not, add value
@@ -273,35 +266,26 @@ export async function addOrRemoveFromBag(_id, item) {
       }
     }
 
-    const updated = await Bag.findByIdAndUpdate(
-      _id,
-      { items: bag.items },
-      {
-        new: true,
-        lean: true,
-      }
-    );
-    return updated;
+    let result = {};
+    if (bag.items.length <= 0) {
+      result.status = '204'
+      result.bag = await Bag.findByIdAndDelete(_id);
+    } else {
+      result.status = '201'
+      result.bag = await Bag.findByIdAndUpdate(
+        _id,
+        { items: bag.items },
+        {
+          new: true,
+          lean: true,
+        }
+      );
+    }
+
+    return result;
   } catch (err) {
     if (err) {
       throw new Error('ERN005: ' + err.message);
-    }
-  }
-}
-
-export async function deleteFromBag(_id, item) {
-  try {
-    await dbConnect();
-  } catch (err) {
-    throw new Error('ERN001: ' + err.message);
-  }
-
-  try {
-    const deleted = await Category.findByIdAndDelete(_id);
-    return deleted;
-  } catch (err) {
-    if (err) {
-      throw new Error('ERN004: ' + err.message);
     }
   }
 }
@@ -314,7 +298,7 @@ export async function deleteBag(_id) {
   }
 
   try {
-    const deleted = await Category.findByIdAndDelete(_id);
+    const deleted = await Bag.findByIdAndDelete(_id);
     return deleted;
   } catch (err) {
     if (err) {

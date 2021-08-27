@@ -7,7 +7,7 @@ const BagContext = createContext({
     qtyItemsInBag: 0,
   },
   user: {},
-  addToBag: function (product) {},
+  addOrRemoveFromBag: function (product) {},
   removeFromBag: function (product) {},
 });
 
@@ -28,9 +28,12 @@ export function BagContextProvider(props) {
 
   function saveCookie(bag) {
     let qty = 0;
-    bag.items.forEach((item) => {
-      qty = qty + item.quantity;
-    });
+    if (bag.items) {
+      bag.items.forEach((item) => {
+        qty = qty + item.quantity;
+      });
+    }
+
     let cookie = {
       bag: {
         id: bag._id,
@@ -41,7 +44,9 @@ export function BagContextProvider(props) {
 
     let expiration = new Date();
     setCookie('@laruci/bag', cookie, {
-      expires: new Date(expiration.setTime(expiration.getTime() + 24 * 3600000)),
+      expires: new Date(
+        expiration.setTime(expiration.getTime() + 24 * 3600000)
+      ),
       path: '/loja',
       sameSite: 'strict',
     });
@@ -89,35 +94,26 @@ export function BagContextProvider(props) {
     }
   };
 
-  async function addToBagHandler(newToBag) {
-    // Follow rules:
-    // gets a obj item as: 
-    // {
-    //   id, quantity
-    // }
-    // if quantity:
-    //  - positive, adds to quantity
-    //  - negative, subtracts from quantity
-    //  - zero, removes item from bag
+  async function quantityInBagHandler(newToBag) {
     let bag;
     if (bagId) {
       bag = await saveBag(newToBag);
+      bag = bag;
     } else {
       bag = await createNewBag(newToBag);
-      setBagId(bag._id);
+      setBagId(bag.bag._id);
     }
 
     setQtyItemsInBag((v) => v + newToBag.quantity);
-    saveCookie(bag);
-    return bag._id;
-  }
-
-  async function removeFromBagHandler(item) {
-    const newToBag = {
-      ...item,
-      quantity: 0,
+    if (bag.status === '204' || bag.status === 204) {
+      saveCookie({ _id: '' });
+      setBagId('');
+      setQtyItemsInBag(0);
+      return bag.status;
+    } else {
+      saveCookie(bag.bag);
+      return bag.bag._id;
     }
-    addToBagHandler(newToBag);
   }
 
   const context = {
@@ -126,8 +122,7 @@ export function BagContextProvider(props) {
       qtyItemsInBag: qtyItemsInBag,
     },
     user: {},
-    addToBag: addToBagHandler,
-    removeFromBag: removeFromBagHandler,
+    addOrRemoveFromBag: quantityInBagHandler,
   };
 
   return (
