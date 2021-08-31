@@ -80,7 +80,7 @@ export async function getProductsForSSR() {
 }
 
 export async function getProductListing(
-  { category = 0, color = 0, size = 0, order = 0, term = '' },
+  { category = 0, color = 0, section = 0, order = 0, term = '' },
   page = 1,
   numPerPage = 20
 ) {
@@ -92,37 +92,53 @@ export async function getProductListing(
 
   try {
     let aggregate = [];
-    // selects category
-    aggregate.push({
-      $match: { categoryId: mongoose.Types.ObjectId(category) },
-    });
 
-    //selects color
+    if (numPerPage <= 0) {
+      return [];
+    }
+
+    // selects category
+    if (category != 0 && category !== 'all' && category.length > 0) {
+      aggregate.push({
+        $match: { categoryId: mongoose.Types.ObjectId(category) },
+      });
+    }
+
+    // selects color
     if (color != 0 && color !== 'all' && color.length > 0) {
-      console.log(color);
-      console.log('colored');
       aggregate.push({ $unwind: '$sets' });
       aggregate.push({ $addFields: { color: '$sets.colorId' } });
       aggregate.push({ $match: { color: mongoose.Types.ObjectId(color) } });
     }
 
-    //selects term
+    // selects term
     if (term.length > 1) {
-      console.log('termed');
       aggregate.push({
         $match: {
-          $expr: {
-            $or: [
-              { name: { $regex: new RegExp(term, 'i') } },
-              { categoryName: { $regex: new RegExp(term, 'i') } },
-              { shortDescription: { $regex: new RegExp(term, 'i') } },
-              { longDescription: { $regex: new RegExp(term, 'i') } },
-            ],
-          },
+          $or: [
+            { name: { $regex: term, $options: 'i' } },
+            { categoryName: { $regex: term, $options: 'i' } },
+            { shortDescription: { $regex: term, $options: 'i' } },
+            { longDescription: { $regex: term, $options: 'i' } },
+          ],
         },
       });
     }
 
+    // paginate
+    if (page > 1) {
+      const p = (+page - 1) * +numPerPage ;
+      aggregate.push({
+        $skip: p
+      });
+    }
+
+    // limit to page
+    aggregate.push({
+      $limit: +numPerPage
+    });
+
+    // projects accordingly
     if (color != 0 && color !== 'all' && color.length > 0) {
       aggregate.push({
         $project: {
@@ -161,7 +177,7 @@ export async function getProductListing(
 }
 
 export async function getProductListingJSON(
-  { category = 0, color = 0, size = 0, order = 0, term = '' },
+  { category = 0, color = 0, section = 0, order = 0, term = '' },
   page = 1,
   numPerPage = 20
 ) {
@@ -169,7 +185,7 @@ export async function getProductListingJSON(
     {
       category,
       color,
-      size,
+      section,
       order,
       term,
     },

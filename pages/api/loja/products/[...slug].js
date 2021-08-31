@@ -4,8 +4,6 @@ import { getProductListing } from '../../../../data/products';
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      console.log('API\'d')
-      console.log(req.query.slug)
       let list = [];
       list = await getProductListing(
         {
@@ -23,7 +21,6 @@ export default async function handler(req, res) {
       } else {
         res.status(404).json({ statusCode: '404', data: list });
       }
-    console.log(list);
     } catch (err) {
       res.status(500).json({
         statusCode: '500',

@@ -197,9 +197,10 @@
   }
 }
 
-.selector_sizes {
-  width: 6rem;
+.selector_sections {
+  width: 8rem;
   height: 2rem;
+  text-transform: capitalize;
   @include media-min-width(40rem) {
     height: 3rem;
   }

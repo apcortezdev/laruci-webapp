@@ -4,9 +4,9 @@ import { SelectColor, SelectText } from './utilities/FormComponents';
 import styles from './ListingPageFilter.module.scss';
 import Button from '../components/utilities/Button';
 
-const ListingPageFilter = ({ colors, sizes, onSearch }) => {
+const ListingPageFilter = ({ colors, sections, onSearch }) => {
   const [selectedColor, setSelectedColor] = useState('all');
-  const [selectedSize, setSelectedSize] = useState('all');
+  const [selectedSection, setSelectedSection] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState('all');
 
   const [toggleFilter, setToggleFilter] = useState(false);
@@ -22,10 +22,10 @@ const ListingPageFilter = ({ colors, sizes, onSearch }) => {
   ];
 
   const [colorList, setColorList] = useState([]);
-  const [sizeList, setSizeList] = useState([]);
+  const [sectionList, setSectionList] = useState([]);
 
   useEffect(() => {
-    setSizeList(sizes.map((s) => ({ id: s._id, text: s.text.toUpperCase() })));
+    setSectionList(sections.map((s) => ({ id: s._id, text: s.text.toLowerCase() })));
     setColorList(
       colors.map((c) => ({ id: c._id, text: c.text, code: c.code }))
     );
@@ -35,8 +35,8 @@ const ListingPageFilter = ({ colors, sizes, onSearch }) => {
     setSelectedColor(color);
   };
 
-  const setSize = (size) => {
-    setSelectedSize(size);
+  const setSection = (section) => {
+    setSelectedSection(section);
   };
 
   const setOrder = (order) => {
@@ -45,7 +45,7 @@ const ListingPageFilter = ({ colors, sizes, onSearch }) => {
 
   const submitSearch = (event) => {
     event.preventDefault();
-    onSearch(selectedColor, selectedSize, selectedOrder);
+    onSearch(selectedColor, selectedSection, selectedOrder);
   };
 
   return (
@@ -99,15 +99,15 @@ const ListingPageFilter = ({ colors, sizes, onSearch }) => {
               />
             </div>
             <div className={styles.form_item}>
-              <label htmlFor="size" className={styles.form_label}>
-                Tamanho:
+              <label htmlFor="section" className={styles.form_label}>
+                Modelo:
               </label>
               <SelectText
-                className={styles.selector_sizes}
-                id="size"
+                className={styles.selector_sections}
+                id="section"
                 placeholder="Todos"
-                onChange={setSize}
-                options={sizeList}
+                onChange={setSection}
+                options={sectionList}
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ const ListingPageFilter = ({ colors, sizes, onSearch }) => {
 
 ListingPageFilter.propTypes = {
   colors: PropTypes.array.isRequired,
-  sizes: PropTypes.array.isRequired,
+  sections: PropTypes.array.isRequired,
   onSearch: PropTypes.func.isRequired,
 };
 

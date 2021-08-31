@@ -22,11 +22,15 @@ const ShopBar = ({ categoryList, isTransparent }) => {
 
   const search = (e) => {
     e.preventDefault();
-    router.push({
-      pathname: `/loja/busca`,
-      query: {
+    let query;
+    if (inpSearch.current.value)
+      query = {
+        page: 1,
         term: inpSearch.current.value
       }
+    router.push({
+      pathname: `/loja/busca`,
+      query: query
     })
   }
 
