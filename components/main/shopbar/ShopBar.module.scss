@@ -25,6 +25,7 @@
 }
 
 .icon_search {
+  cursor: pointer;
   fill: map-get($map: $colors, $key: primary);
   color: map-get($map: $colors, $key: primary);
 }

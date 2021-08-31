@@ -1,93 +1,200 @@
+import { useEffect, useState } from 'react';
+import Head from 'next/Head';
+import { useRouter } from 'next/router';
+import useSWR, { useSWRConfig } from 'swr';
+import styles from '../../../styles/loja/ListingPage.module.scss';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import styles from '../../../styles/loja/ListingPage.module.scss';
 import ListingPageFilter from '../../../components/ListingPageFilter';
 import ProductList from '../../../components/ProductList';
 import Button from '../../../components/utilities/Button';
+import Spin from '../../../components/utilities/Spin';
 import { getMainSizeSetsJSON } from '../../../data/sizeSets';
 import { getCategoriesJSON } from '../../../data/categories';
 import { getColorsJSON } from '../../../data/colors';
 import { getCurrentNotice } from '../../../data/notice';
-import { getProductListingJSON } from '../../../data/products';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+
+const productsFetcher = async (uri) => {
+  const products = await fetch(uri);
+  return await products.json();
+};
+
+const Page = ({ index, query }) => {
+  const uri = () => {
+    if (
+      typeof query.category === 'undefined' ||
+      typeof query.color === 'undefined' ||
+      typeof query.size === 'undefined' ||
+      typeof query.order === 'undefined' ||
+      typeof query.page === 'undefined'
+    ) {
+      return false;
+    }
+    return (
+      '/api/loja/products/' +
+      query.category +
+      '/' +
+      query.color +
+      '/' +
+      query.size +
+      '/' +
+      query.order +
+      '/_/' +
+      query.page +
+      '/25'
+    );
+  };
+
+  // category/color/size/order/term/page/numperpage
+  const { data, error, isValidating } = useSWR(uri, productsFetcher);
+
+  console.log('data');
+  console.log(data);
+
+  if (!data) {
+    return (
+      <div>
+        <Spin width={64} length={64} />
+      </div>
+    );
+  }
+
+  if (data && (data.statusCode === '404' || data.statusCode === '500')) {
+    return (
+      <div>
+        <p>
+          Poxa, sua pesquisa não retornou nenhum resultado.
+          <br />
+          Mas não se preocupe, logo teremos novidades para você!
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <ProductList productList={data.data} type="page" />
+    </div>
+  );
+};
 
 const ListingPage = ({
   notice,
   category,
   categoryList,
-  productList,
   colorList,
   sizeList,
 }) => {
-  if (!category || !colorList || !sizeList || !productList) {
-    return <p className="center">Loading...</p>;
+  if (!category || !colorList || !sizeList) {
+    return (
+      <div className="center">
+        <Spin width={48} length={48} />
+      </div>
+    );
   }
 
   const router = useRouter();
-  const [page, setPage] = useState(1);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [prodList, setProdList] = useState(productList);
   const [lastPage, setLastPage] = useState(false);
+  const [err, setErr] = useState();
+  const [query, setQuery] = useState({
+    page: 1,
+    category: category,
+    color: '',
+    size: '',
+    order: '',
+  });
 
   useEffect(() => {
-    setProdList(productList);
-  }, [productList]);
+    setQuery({
+      page: router.query.page,
+      category: category,
+      color: router.query.color,
+      size: router.query.size,
+      order: router.query.order,
+    });
+  }, [category, router.query]);
 
-  const loadPage = async () => {
-    setIsLoading(true);
-    const pag = page;
-    const products = await fetch(
-      `/api/admin/products/list/${category._id}/${pag + 1}/20`
-    );
-
-    const data = await products.json();
-
-    switch (products.status) {
-      case 200:
-        setProdList((prods) => [...prods, ...data.productList]);
-        setLastPage(data.lastPage);
-        break;
-      case 404:
-      case 400:
-      case 500:
-      default:
-        window.alert('Ops, Erro interno! Por favor, contate o Administrador.');
-        break;
-    }
-    setPage((page) => page++);
-    setIsLoading(false);
+  const search = (selectedColor, selectedSize, selectedOrder, page = 1) => {
+    const pathname =
+      category === 'all'
+        ? '/loja/busca'
+        : `/loja/${categoryList.find((c) => c._id === category).name}`;
+    setQuery({
+      page: +page,
+      category: category,
+      color: selectedColor,
+      size: selectedSize,
+      order: selectedOrder,
+    });
+    router.push({
+      pathname: pathname,
+      query: {
+        page: page,
+        color: selectedColor,
+        size: selectedSize,
+        order: selectedOrder,
+      },
+    });
   };
 
-  const search = (selectedColor, selectedSize, selectedOrder) => {
-    console.log(selectedColor);
-    console.log(selectedSize);
-    console.log(selectedOrder);
+  const setPages = (query) => {
+    let pages = [];
+    for (let i = 0; i < query.page; i++) {
+      pages.push(<Page index={i} key={i} query={query} />);
+    }
+    return pages;
   };
 
   return (
     <Main notice={notice} categoryList={categoryList}>
+      <Head>
+        <link
+          rel="preload"
+          href={`/api/loja/products/${category === 'all' ? 'busca' : category}/all/all/0/_/1/25`}
+          as="fetch"
+          crossOrigin="anonymous"
+        ></link>
+      </Head>
       <Store notice={!!notice} categoryList={categoryList}>
         <ListingPageFilter
           colors={colorList}
           sizes={sizeList}
           onSearch={search}
         />
-        {prodList.length > 0 ? (
-          <>
-            <ProductList productList={prodList} type="page" />
-            {isLoading && <p>{'Carregando...'}</p>}
-            {!lastPage && (
-              <section>
-                <Button className={styles.loadbutton} onClick={loadPage}>
-                  Carregar Mais
-                </Button>
-              </section>
-            )}
-          </>
-        ) : (
-          <p>{'Ops, isso é estranho, mas parece que ocorreu um erro =('}</p>
-        )}
+        <div className={styles.content}>
+          {isLoading ? (
+            <Spin width={48} length={48} />
+          ) : err ? (
+            <p>
+              Ops, isso é estranho, mas parece que ocorreu um erro.
+              <br />
+              Por favor, tente mais tarde.
+            </p>
+          ) : (
+            <>
+              <section>{query.page > 0 && setPages(query)}</section>
+              {!lastPage && (
+                <section>
+                  <Button
+                    className={styles.loadbutton}
+                    onClick={() =>
+                      search(
+                        query.color,
+                        query.size,
+                        query.order,
+                        +query.page++
+                      )
+                    }
+                  >
+                    Carregar Mais
+                  </Button>
+                </section>
+              )}
+            </>
+          )}
+        </div>
       </Store>
     </Main>
   );
@@ -96,7 +203,9 @@ const ListingPage = ({
 export async function getStaticPaths() {
   const categories = await getCategoriesJSON();
   const catList = await JSON.parse(categories);
-  const categoryList = catList.map((c) => ({ params: { category: c.name } }));
+  const categoryMapped = catList.map((c) => ({ params: { category: c.name } }));
+  const categoryList = [{ params: { category: 'busca' } }, ...categoryMapped];
+
   return {
     paths: categoryList,
     fallback: 'blocking',
@@ -116,29 +225,26 @@ export async function getStaticProps({ params }) {
   const categoryList = await JSON.parse(categories);
 
   let categorySelected;
-  try {
-    categorySelected = categoryList.find(
-      (c) => c.name.toLowerCase() === category.toLowerCase()
-    );
-  } catch (err) {
-    return {
-      notFound: true,
-    };
+  if (category !== 'busca') {
+    try {
+      categorySelected = categoryList.find(
+        (c) => c.name.toLowerCase() === category.toLowerCase()
+      );
+    } catch (err) {
+      return {
+        notFound: true,
+      };
+    }
+    if (
+      typeof categorySelected === 'undefined' ||
+      categorySelected === null ||
+      categorySelected === ''
+    ) {
+      return {
+        notFound: true,
+      };
+    }
   }
-  if (
-    typeof categorySelected === 'undefined' ||
-    categorySelected === null ||
-    categorySelected === ''
-  ) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const products = await getProductListingJSON({
-    category: categorySelected._id,
-  });
-  const productList = await JSON.parse(products);
 
   const colors = await getColorsJSON();
   const ColorList = await JSON.parse(colors);
@@ -146,8 +252,7 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       notice: noticeText,
-      category: categorySelected,
-      productList: productList,
+      category: categorySelected ? categorySelected._id : 'all',
       categoryList: categoryList,
       colorList: ColorList,
       sizeList: sizeSetsList[0].sizes.map((c) => ({ _id: c, text: c })),

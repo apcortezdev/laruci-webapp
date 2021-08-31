@@ -11,6 +11,12 @@ const MainMenu = ({ categoryList, onMobileClick }) => {
             <Link
               href={{
                 pathname: `/loja/${category.name}`,
+                query: {
+                  page: 1,
+                  color: 'all',
+                  size: 'all',
+                  order: 1
+                }
               }}
               passHref
             >

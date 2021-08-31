@@ -57,10 +57,9 @@ const ProductPage = ({
 
   // EXTRAS
   const [selectedExtras, setSelectedExtras] = useState({});
-  const [selectedExtrasValidator, setSelectedExtrasValidator] = useState(true);
   const onSelectedExtrasHandler = (name, value) => {
     setSelectedExtras((options) => ({ ...options, [name]: value }));
-    setSelectedExtrasValidator(true);
+    setSelectedSizesValidator(true);
   };
 
   // QUANTITY
@@ -109,8 +108,8 @@ const ProductPage = ({
       return false;
     }
 
-    if (selectedSet.extraOptions.length != Object.keys(selectedExtras).length) {
-      setSelectedExtrasValidator(false);
+    if (!selectedSizes[0].isUnique && selectedSet.extraOptions.length != Object.keys(selectedExtras).length) {
+      setSelectedSizesValidator(false);
       setDialogMessage('Por favor, selecione as opções desejadas.');
       setShowDialog(true);
       return false;
@@ -283,7 +282,7 @@ const ProductPage = ({
                         setSelectedSet(set);
                         setSelectedSetValidator(true);
                         setSelectedSizesValidator(true);
-                        setSelectedExtrasValidator(true);
+                        setSelectedSizesValidator(true);
                         setSelectedExtras({});
                         setSelectedSizes([]);
                       }}
@@ -380,135 +379,135 @@ const ProductPage = ({
                     {selectedSet.sizeSets.filter((size) => !size.isUnique)
                       .length > 0 && (
                       <div
-                        className={
+                        className={[
+                          styles.sizeSections,
                           !!selectedSizes[0] && !selectedSizes[0].isUnique
                             ? styles.selectedSizeSet
-                            : ''
+                            : ''].join(' ').trim()
                         }
                       >
-                        <label htmlFor="customSize">
-                          <InputRadio
-                            id="customSize"
-                            type="radio"
-                            name="size_type"
-                            value="customSize"
-                            checked={
-                              !!selectedSizes[0] &&
-                              selectedSizes[0].isUnique === false
-                            }
-                            onChange={() => {
-                              setSelectedSizes(() => {
-                                let newSelectedSizes = [];
-                                selectedSet.sizeSets.forEach((size) => {
-                                  if (!size.isUnique)
-                                    newSelectedSizes.push({
-                                      sizeId: size._id,
-                                      isUnique: false,
-                                      selected: '',
-                                    });
+                        <div className={styles.sizeSection}>
+                          <label htmlFor="customSize">
+                            <InputRadio
+                              id="customSize"
+                              type="radio"
+                              name="size_type"
+                              value="customSize"
+                              checked={
+                                !!selectedSizes[0] &&
+                                selectedSizes[0].isUnique === false
+                              }
+                              onChange={() => {
+                                setSelectedSizes(() => {
+                                  let newSelectedSizes = [];
+                                  selectedSet.sizeSets.forEach((size) => {
+                                    if (!size.isUnique)
+                                      newSelectedSizes.push({
+                                        sizeId: size._id,
+                                        isUnique: false,
+                                        selected: '',
+                                      });
+                                  });
+                                  return newSelectedSizes;
                                 });
-                                return newSelectedSizes;
-                              });
-                              setSelectedSizesValidator(true);
-                            }}
-                          />
-                          <span>Personalizado:</span>
-                        </label>
-                        <div>
-                          {selectedSet.sizeSets.map((size, i) => {
-                            if (!size.isUnique)
-                              return (
-                                <div
-                                  key={size._id}
-                                  className={styles.specialSizes}
-                                >
-                                  <span className={styles.capitalize}>
-                                    {size.name}:
+                                setSelectedSizesValidator(true);
+                              }}
+                            />
+                            <span>Personalizado:</span>
+                          </label>
+                          <div>
+                            {selectedSet.sizeSets.map((size, i) => {
+                              if (!size.isUnique)
+                                return (
+                                  <div
+                                    key={size._id}
+                                    className={styles.specialSizes}
+                                  >
+                                    <span className={styles.capitalize}>
+                                      {size.name}:
+                                    </span>
+                                    <span>
+                                      <SizeSelector
+                                        availableSizeList={
+                                          selectedSizes.some(
+                                            (s) => s.sizeId === size._id
+                                          )
+                                            ? size.availableSizes
+                                            : []
+                                        }
+                                        value={
+                                          selectedSizes.find(
+                                            (s) => s.sizeId === size._id
+                                          )
+                                            ? selectedSizes.find(
+                                                (s) => s.sizeId === size._id
+                                              ).selected
+                                            : ''
+                                        }
+                                        fullSizeList={size.sizeSetId.sizes}
+                                        id={size._id}
+                                        onChange={(id, value) => {
+                                          let index = selectedSizes.findIndex(
+                                            (s) => s.sizeId === id
+                                          );
+                                          setSelectedSizes((oldArray) => {
+                                            let newArray = [...oldArray];
+                                            newArray[index] = {
+                                              sizeId: id,
+                                              ref: i,
+                                              isUnique: false,
+                                              selected: value,
+                                            };
+                                            setSelectedSizesValidator(true);
+                                            return newArray;
+                                          });
+                                        }}
+                                      />
+                                    </span>
+                                  </div>
+                                );
+                            })}
+                          </div>
+                        </div>
+                        {selectedSet.extraOptions.length > 0 && (
+                          <div className={[styles.section_details, styles.section_extras].join(' ')}>
+                              <p>Opções:</p>
+                              {selectedSet.extraOptions.map((op) => (
+                                <div key={`${selectedSet._id}_${op.name}`}>
+                                  <span>
+                                    <p>{op.name}:</p>
                                   </span>
                                   <span>
-                                    <SizeSelector
-                                      availableSizeList={
-                                        selectedSizes.some(
-                                          (s) => s.sizeId === size._id
-                                        )
-                                          ? size.availableSizes
-                                          : []
-                                      }
-                                      value={
-                                        selectedSizes.find(
-                                          (s) => s.sizeId === size._id
-                                        )
-                                          ? selectedSizes.find(
-                                              (s) => s.sizeId === size._id
-                                            ).selected
-                                          : ''
-                                      }
-                                      fullSizeList={size.sizeSetId.sizes}
-                                      id={size._id}
-                                      onChange={(id, value) => {
-                                        let index = selectedSizes.findIndex(
-                                          (s) => s.sizeId === id
-                                        );
-                                        setSelectedSizes((oldArray) => {
-                                          let newArray = [...oldArray];
-                                          newArray[index] = {
-                                            sizeId: id,
-                                            ref: i,
-                                            isUnique: false,
-                                            selected: value,
-                                          };
-                                          setSelectedSizesValidator(true);
-                                          return newArray;
-                                        });
-                                      }}
-                                    />
+                                    {op.options.map((option) => (
+                                      <label
+                                        htmlFor={`extraOptInpt_${op.name}_${option}`}
+                                        key={`extraOptLabel_${op.name}_${option}`}
+                                      >
+                                        <InputRadio
+                                          id={`extraOptInpt_${op.name}_${option}`}
+                                          type="radio"
+                                          name={`extraOptInpt_${op.name}_${op.name}`}
+                                          value={option}
+                                          onChange={() =>
+                                            onSelectedExtrasHandler(
+                                              op._id,
+                                              option
+                                            )
+                                          }
+                                        />
+                                        <span>{option}</span>
+                                      </label>
+                                    ))}
                                   </span>
                                 </div>
-                              );
-                          })}
-                        </div>
+                              ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </>
                 )}
               </section>
-              {selectedSet.extraOptions.length > 0 && (
-                <section
-                  className={[
-                    styles.section_details,
-                    styles.section_extras,
-                    !selectedExtrasValidator ? styles.section_validation : '',
-                  ].join(' ')}
-                >
-                  <p>Opções:</p>
-                  {selectedSet.extraOptions.map((op) => (
-                    <div key={`${selectedSet._id}_${op.name}`}>
-                      <span>
-                        <p>{op.name}:</p>
-                      </span>
-                      <span>
-                        {op.options.map((option) => (
-                          <label
-                            htmlFor={`extraOptInpt_${op.name}_${option}`}
-                            key={`extraOptLabel_${op.name}_${option}`}
-                          >
-                            <InputRadio
-                              id={`extraOptInpt_${op.name}_${option}`}
-                              type="radio"
-                              name={`extraOptInpt_${op.name}_${op.name}`}
-                              value={option}
-                              onChange={() =>
-                                onSelectedExtrasHandler(op._id, option)
-                              }
-                            />
-                            <span>{option}</span>
-                          </label>
-                        ))}
-                      </span>
-                    </div>
-                  ))}
-                </section>
-              )}
               <section
                 className={[
                   styles.section_details,

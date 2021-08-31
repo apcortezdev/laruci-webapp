@@ -5,9 +5,9 @@ import styles from './ListingPageFilter.module.scss';
 import Button from '../components/utilities/Button';
 
 const ListingPageFilter = ({ colors, sizes, onSearch }) => {
-  const [selectedColor, setSelectedColor] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(0);
-  const [selectedOrder, setSelectedOrder] = useState(0);
+  const [selectedColor, setSelectedColor] = useState('all');
+  const [selectedSize, setSelectedSize] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState('all');
 
   const [toggleFilter, setToggleFilter] = useState(false);
   const toggleMobileFilter = () => {

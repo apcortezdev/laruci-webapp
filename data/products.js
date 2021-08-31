@@ -3,6 +3,7 @@ import Color from '../models/color';
 import Category from '../models/category';
 import dbConnect from '../utils/dbConnect';
 import sizeSet from '../models/sizeSet';
+import mongoose from 'mongoose';
 
 export async function getProductIdsByCategory(categoryId, page, numPerPage) {
   let product;
@@ -81,10 +82,8 @@ export async function getProductsForSSR() {
 export async function getProductListing(
   { category = 0, color = 0, size = 0, order = 0, term = '' },
   page = 1,
-  numPerPage = 25
+  numPerPage = 20
 ) {
-  let product;
-
   try {
     await dbConnect();
   } catch (err) {
@@ -92,33 +91,79 @@ export async function getProductListing(
   }
 
   try {
-    const result = await Product.find()
-      .byCategory(category)
-      .select(
-        '_id name price discountPercentage categoryName shortDescription sets'
-      )
-      .exec();
-    product = result.map((p) => ({
-      _id: p._id,
-      name: p.name,
-      price: p.price,
-      categoryName: p.categoryName,
-      discountPercentage: p.discountPercentage,
-      shortDescription: p.shortDescription,
-      image: p.sets[0].images[0],
-    }));
+    let aggregate = [];
+    // selects category
+    aggregate.push({
+      $match: { categoryId: mongoose.Types.ObjectId(category) },
+    });
+
+    //selects color
+    if (color != 0 && color !== 'all' && color.length > 0) {
+      console.log(color);
+      console.log('colored');
+      aggregate.push({ $unwind: '$sets' });
+      aggregate.push({ $addFields: { color: '$sets.colorId' } });
+      aggregate.push({ $match: { color: mongoose.Types.ObjectId(color) } });
+    }
+
+    //selects term
+    if (term.length > 1) {
+      console.log('termed');
+      aggregate.push({
+        $match: {
+          $expr: {
+            $or: [
+              { name: { $regex: new RegExp(term, 'i') } },
+              { categoryName: { $regex: new RegExp(term, 'i') } },
+              { shortDescription: { $regex: new RegExp(term, 'i') } },
+              { longDescription: { $regex: new RegExp(term, 'i') } },
+            ],
+          },
+        },
+      });
+    }
+
+    if (color != 0 && color !== 'all' && color.length > 0) {
+      aggregate.push({
+        $project: {
+          _id: '$_id',
+          name: '$name',
+          price: '$price',
+          colorName: '$sets.colorName',
+          discountPercentage: '$discountPercentage',
+          categoryName: '$categoryName',
+          shortDescription: '$shortDescription',
+          image: { $first: '$sets.images' },
+        },
+      });
+    } else {
+      aggregate.push({
+        $project: {
+          _id: '$_id',
+          name: '$name',
+          price: '$price',
+          colorName: '$sets.colorName',
+          discountPercentage: '$discountPercentage',
+          categoryName: '$categoryName',
+          shortDescription: '$shortDescription',
+          image: { $first: { $first: '$sets.images' } },
+        },
+      });
+    }
+
+    const products = await Product.aggregate(aggregate);
+    return products;
   } catch (err) {
     if (err) {
       throw new Error('ERN0P6: ' + err.message);
     }
   }
-  return product;
 }
 
 export async function getProductListingJSON(
   { category = 0, color = 0, size = 0, order = 0, term = '' },
   page = 1,
-  numPerPage = 25
+  numPerPage = 20
 ) {
   const list = await getProductListing(
     {

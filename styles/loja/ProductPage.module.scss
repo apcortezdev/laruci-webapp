@@ -177,6 +177,18 @@
 }
 
 .section_sizes {
+  .sizeSections {
+    @include display-flex();
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .sizeSection {
+    @include display-flex();
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
   p {
     @include display-flex();
     align-items: center;
@@ -267,6 +279,7 @@
 }
 
 .section_extras {
+  margin-top: 1rem;
   p {
     margin: 0;
   }

@@ -9,8 +9,8 @@ const Spin = ({
     <div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={width ? width : 16}
-        height={height ?  height : 16}
+        width={width > 0 ? width : 16}
+        height={height > 0 ?  height : 16}
         fill="currentColor"
         className={styles.spin}
         viewBox="0 0 16 16"
