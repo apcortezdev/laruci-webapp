@@ -32,7 +32,7 @@ const Main = ({ categoryList, notice, children, isTransparent, transparency }) =
           .trim()}
       >
         <div>{children}</div>
-        <Footer className={styles.footer} />
+        <Footer />
       </main>
     </>
   );

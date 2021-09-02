@@ -24,3 +24,236 @@
     width: 20rem;
   }
 }
+
+.filter {
+  position: relative;
+  width: 100%;
+  font-size: 0.8rem;
+  margin: 1rem 0 2rem 0;
+  padding: 0 1rem 1rem 1rem;
+  border-bottom: 1px solid map-get($map: $colors, $key: light-grey);
+  @include media-min-width(40rem) {
+    font-size: 1rem;
+  }
+
+  .container_capitalized {
+    font-family: inherit;
+    text-transform: capitalize;
+  }
+}
+
+.filter_box {
+  @include display-flex();
+  position: relative;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 1rem;
+  width: 6rem;
+  height: 2.6rem;
+  border: 1px solid map-get($map: $colors, $key: secondary);
+  color: map-get($map: $colors, $key: back-dark);
+  transition: all 0.3s ease;
+
+  @include media-min-width(40rem) {
+    width: 100%;
+    height: 7rem;
+    border: none;
+    @include media-min-width(48rem) {
+      height: 3rem;
+    }
+  }
+}
+
+.filter_box_open {
+  width: 100%;
+  height: 13rem;
+  @include media-min-width(25rem) {
+    height: 8rem;
+    @include media-min-width(40rem) {
+      height: 7rem;
+      @include media-min-width(48rem) {
+        height: 3rem;
+      }
+    }
+  }
+}
+
+.filter_icon_container {
+  @include display-flex();
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  flex-direction: row;
+  align-items: center;
+  z-index: 2;
+
+  & > span {
+    margin-left: .5rem;
+  }
+  
+  &:hover {
+    cursor: pointer;
+  }
+
+  @include media-min-width(40rem) {
+    display: none;
+  }
+}
+
+.icon_color {
+  fill: map-get($map: $colors, $key: primary);
+}
+
+.form {
+  display: none;
+  visibility: hidden;
+  padding: 0.6rem 0.6rem 0 0.6rem;
+  width: 100%;
+
+  @include media-min-width(40rem) {
+    @include display-flex();
+    justify-content: flex-start;
+    align-items: flex-start;
+    visibility: visible;
+    padding: 0;
+    @include media-min-width(48rem) {
+      justify-content: space-evenly;
+      flex-direction: row;
+    }
+  }
+
+  .form_item_group {
+    @include display-flex();
+    flex-direction: column;
+    width: 100%;
+
+    @include media-min-width(25rem) {
+      flex-direction: row;
+      justify-content: space-evenly;
+      align-items: center;
+      @include media-min-width(48rem) {
+        width: 50%;
+      }
+    }
+  }
+
+  .form_item_group_one {
+    @include media-min-width(35rem) {
+      width: 65%;
+      @include media-min-width(48rem) {
+        width: 100%;
+      }
+    }
+  }
+
+  .form_item_group_two {
+    @include media-min-width(35rem) {
+      @include display-flex();
+      flex-direction: column;
+      align-items: flex-end;
+      width: 35%;
+      height: 200%;
+      @include media-min-width(48rem) {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+      }
+    }
+  }
+
+  .form_item {
+    @include display-flex();
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.2rem 0;
+
+    @include media-min-width(48rem) {
+      align-items: center;
+      justify-content: space-between;
+      flex-direction: row;
+    }
+  }
+
+  .form_label {
+    @include media-min-width(26rem) {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .form__button {
+    width: 100%;
+    height: 2rem;
+    @include media-min-width(25rem) {
+      width: 6rem;
+    }
+    @include media-min-width(40rem) {
+      height: 3rem;
+    }
+  }
+}
+
+.form_open {
+  @include display-flex();
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  visibility: visible;
+  animation: open_form 0.3s ease;
+  @include media-min-width(35rem) {
+    flex-direction: row;
+    @include media-min-width(40rem) {
+      // flex-direction: column;
+      @include media-min-width(48rem) {
+        // flex-direction: row;
+      }
+    }
+  }
+}
+
+.selector_colors {
+  width: 8rem;
+  height: 2rem;
+  @include media-min-width(40rem) {
+    width: 10rem;
+    height: 3rem;
+  }
+}
+
+.selector_sections {
+  width: 8rem;
+  height: 2rem;
+  text-transform: capitalize;
+  @include media-min-width(40rem) {
+    height: 3rem;
+  }
+}
+
+.selector_order {
+  width: 8rem;
+  height: 2rem;
+  @include media-min-width(40rem) {
+    width: 9rem;
+    height: 3rem;
+    @include media-min-width(42rem) {
+      width: 10rem;
+    }
+  }
+}
+
+@keyframes open_form {
+  0% {
+    display: none;
+    visibility: hidden;
+  }
+  99% {
+    display: none;
+    visibility: hidden;
+  }
+  100% {
+    display: none;
+    visibility: hidden;
+  }
+}
+

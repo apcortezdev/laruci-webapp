@@ -188,11 +188,7 @@ export const SelectText = ({
   return (
     <div
       ref={ref}
-      className={[
-        styles.select,
-        className,
-        !valid && styles.inputText_invalid,
-      ]
+      className={[styles.select, className, !valid && styles.inputText_invalid]
         .join(' ')
         .trim()}
       onClick={() => setOptionsAsVisible(true)}
@@ -444,30 +440,45 @@ InputMask.propTypes = {
 };
 
 // Input type text
-export const Input = (props) => {
-  const { className, valid, validationMessage, id, type, tip, ...rest } = props;
+export const Input = React.forwardRef((props, ref) => {
+  const { className, valid, validationMessage, id, tip, ...rest } = props;
   const isValid = valid != null ? valid : true;
 
   return (
     <span id={`IPT_${id}`} className={styles.inputLine}>
-      <input
-        className={[
-          styles.inputText,
-          className || '',
-          !isValid && styles.inputText_invalid,
-        ]
-          .join(' ')
-          .trim()}
-        id={id}
-        {...rest}
-      />
+      {ref ? (
+        <input
+          ref={ref}
+          className={[
+            styles.inputText,
+            className || '',
+            !isValid ? styles.inputText_invalid : '',
+          ]
+            .join(' ')
+            .trim()}
+          id={id}
+          {...rest}
+        />
+      ) : (
+        <input
+          className={[
+            styles.inputText,
+            className || '',
+            !isValid ? styles.inputText_invalid : '',
+          ]
+            .join(' ')
+            .trim()}
+          id={id}
+          {...rest}
+        />
+      )}
       <span className={styles.validationMessage}>
         {isValid || (validationMessage ? validationMessage : 'Campo inválido')}
       </span>
       {!!tip && <span className={styles.tooltip}>{tip}</span>}
     </span>
   );
-};
+});
 
 Input.propTypes = {
   className: PropTypes.string,

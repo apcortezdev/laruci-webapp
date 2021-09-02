@@ -2,14 +2,59 @@
 @import '../../styles/_mixin.scss';
 
 .footer {
-  @include display-flex();
-  background-color: map-get($map: $colors, $key: black);
-  color: map-get($map: $colors, $key: white);
-  justify-content: center;
-  align-items: center;
-}
+  & > div:first-child {
+    font-size: 0.85rem;
+    background-color: map-get($map: $colors, $key: black);
+    color: map-get($map: $colors, $key: white);
+    padding: 2rem 0;
+  }
 
-.footer_logo {
-  height: 1em;
-  margin-left: 0.5rem;
+  & > div:last-child {
+    font-size: 0.8rem;
+    background-color: map-get($map: $colors, $key: white);
+    color: map-get($map: $colors, $key: black);
+    text-align: justify;
+    text-transform: uppercase;
+    padding: 1rem 20%;
+  }
+
+  .logo {
+    font-family: 'Mrs Saint Delafield';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 0;
+  }
+
+  .flex {
+    @include display-flex();
+  }
+
+  .flex_j_center {
+    justify-content: center;
+  }
+
+  .flex_a_center {
+    align-items: center;
+  }
+
+  .flex_column {
+    flex-direction: column;
+  }
+
+  .flex_row {
+    flex-direction: row;
+  }
+
+  .marginh3rem {
+    margin-left: 3rem;
+    margin-right: 3rem;
+  }
+
+  .section {
+    &>:not(p:first-child) {
+      margin: .6rem 0;
+    }
+  }
 }

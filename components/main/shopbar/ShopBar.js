@@ -79,7 +79,7 @@ const ShopBar = ({ categoryList, isTransparent }) => {
           <span className={styles.user_area}>
             <Link
               href={{
-                pathname: '/loja/user',
+                pathname: '/loja/cliente',
               }}
             >
               <a>

@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import Head from 'next/Head';
 import { useRouter } from 'next/router';
+import Head from 'next/Head';
 import useSWR from 'swr';
 import styles from '../../../styles/loja/ListingPage.module.scss';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import ListingPageFilter from '../../../components/ListingPageFilter';
 import ProductList from '../../../components/ProductList';
 import Button from '../../../components/utilities/Button';
 import Spin from '../../../components/utilities/Spin';
-import { getMainSizeSetsJSON } from '../../../data/sizeSets';
+import {
+  SelectColor,
+  SelectText,
+} from '../../../components/utilities/FormComponents';
+
 import { getCategoriesJSON } from '../../../data/categories';
 import { getColorsJSON } from '../../../data/colors';
 import { getCurrentNotice } from '../../../data/notice';
@@ -53,7 +56,7 @@ const Page = ({ page, query, onSearch }) => {
   const { data, error } = useSWR(uri, productsFetcher);
 
   if (!data) {
-    return (<Spin width={64} length={64} />);
+    return <Spin width={64} length={64} />;
   }
 
   if (
@@ -77,7 +80,12 @@ const Page = ({ page, query, onSearch }) => {
     list = <ProductList productList={data.data} type="page" />;
   }
 
-  if (data.lastPage || typeof data.lastPage === 'undefined' || page < +query.page) return <>{list}</>;
+  if (
+    data.lastPage ||
+    typeof data.lastPage === 'undefined' ||
+    page < +query.page
+  )
+    return <>{list}</>;
 
   return (
     <>
@@ -109,17 +117,22 @@ const ListingPage = ({
   category,
   categoryList,
   colorList,
-  sizeList,
   sectionList,
 }) => {
-  if (!category || !colorList || !sizeList || !sectionList) {
+
+  if (!category || !colorList || !sectionList) {
     return (
       <div className="center">
         <Spin width={48} length={48} />
       </div>
     );
   }
+
   const router = useRouter();
+  const [selectedColor, setSelectedColor] = useState('all');
+  const [selectedSection, setSelectedSection] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState('pop');
+  const [toggleFilter, setToggleFilter] = useState(false);
   const [query, setQuery] = useState({
     page: '',
     category: '',
@@ -130,15 +143,33 @@ const ListingPage = ({
   });
 
   useEffect(() => {
-    console.log('RE-RENDERED');
     const page = +router.query.page > 0 ? router.query.page : 1;
     const categ = category;
-    const color =
-    router.query.color ? router.query.color : 'all';
-    const section =
-      router.query.section ? router.query.section : 'all';
-    const order =
-      router.query.order ? router.query.order : 0;
+
+    let color;
+    if (router.query.color) {
+      color = router.query.color;
+    } else {
+      color = 'all';
+      setSelectedColor('all');
+    }
+
+    let section;
+    if (router.query.section) {
+      section = router.query.section;
+    } else {
+      section = 'all';
+      setSelectedSection('all');
+    }
+
+    let order;
+    if (router.query.order) {
+      order = router.query.order;
+    } else {
+      order = 'pop';
+      setSelectedSection('pop');
+    }
+
     const term = router.query.term ? router.query.term : '';
     setQuery({
       page: page,
@@ -155,8 +186,7 @@ const ListingPage = ({
       category === 'all'
         ? '/loja/busca'
         : `/loja/${categoryList.find((c) => c._id === category).name}`;
-    setQuery(q =>
-      ({
+    setQuery((q) => ({
       page: +page,
       category: category,
       color: selectedColor,
@@ -193,6 +223,17 @@ const ListingPage = ({
     return pages;
   };
 
+  const toggleMobileFilter = () => {
+    setToggleFilter((toggle) => !toggle);
+  };
+
+  const orders = [
+    { id: 'price', text: 'Menor Preço' },
+    { id: '-price', text: 'Maior Preço' },
+    { id: 'name', text: 'A - Z' },
+    { id: '-name', text: 'Z - A' },
+  ];
+
   return (
     <Main notice={notice} categoryList={categoryList}>
       <Head>
@@ -204,11 +245,101 @@ const ListingPage = ({
         ></link>
       </Head>
       <Store notice={!!notice} categoryList={categoryList}>
-        <ListingPageFilter
-          colors={colorList}
-          sections={sectionList}
-          onSearch={search}
-        />
+        <div className={styles.filter}>
+          <div
+            className={[
+              styles.filter_box,
+              toggleFilter && styles.filter_box_open,
+            ]
+              .join(' ')
+              .trim()}
+          >
+            <span
+              className={styles.filter_icon_container}
+              onClick={toggleMobileFilter}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                className={styles.icon_color}
+                viewBox="0 0 16 16"
+              >
+                <path d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293V2.5zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zM7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z" />
+              </svg>
+              <span>Filtrar</span>
+            </span>
+            <form
+              className={[styles.form, toggleFilter && styles.form_open]
+                .join(' ')
+                .trim()}
+              onSubmit={(e) => {
+                e.preventDefault();
+                search(selectedColor, selectedSection, selectedOrder);
+              }}
+            >
+              <div
+                className={[styles.form_item_group, styles.form_item_group_one]
+                  .join(' ')
+                  .trim()}
+              >
+                <div className={styles.form_item}>
+                  <label htmlFor="color" className={styles.form_label}>
+                    Cor:
+                  </label>
+                  <SelectColor
+                    className={[
+                      styles.container_capitalized,
+                      styles.selector_colors,
+                    ]
+                      .join(' ')
+                      .trim()}
+                    id="color"
+                    placeholder="Todas"
+                    onChange={(v) => setSelectedColor(v)}
+                    colors={colorList}
+                    value={colorList.find((v) => v.id === selectedColor) ? colorList.find((v) => v.id === selectedColor).text : 'Todas'}
+                  />
+                </div>
+                <div className={styles.form_item}>
+                  <label htmlFor="section" className={styles.form_label}>
+                    Modelo:
+                  </label>
+                  <SelectText
+                    className={styles.selector_sections}
+                    id="section"
+                    placeholder="Todos"
+                    onChange={(v) => setSelectedSection(v)}
+                    options={sectionList}
+                    value={sectionList.find((v) => v.id === selectedSection) ? sectionList.find((v) => v.id === selectedSection).text : 'Popular'}
+                  />
+                </div>
+              </div>
+              <div
+                className={[styles.form_item_group, styles.form_item_group_two]
+                  .join(' ')
+                  .trim()}
+              >
+                <div className={styles.form_item}>
+                  <label htmlFor="order" className={styles.form_label}>
+                    Ordem:
+                  </label>
+                  <SelectText
+                    className={styles.selector_order}
+                    id="order"
+                    placeholder="Popular"
+                    onChange={(v) => setSelectedOrder(v)}
+                    options={orders}
+                    value={orders.find((v) => v.id === selectedOrder) ? orders.find((v) => v.id === selectedOrder).text : 'Todos'}
+                  />
+                </div>
+                <Button type="submit" className={styles.form__button}>
+                  Buscar
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
         <div className={styles.content}>
           <section>{query.page > 0 && setPages(query)}</section>
         </div>
@@ -234,9 +365,6 @@ export async function getStaticProps({ params }) {
 
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
-
-  const sizes = await getMainSizeSetsJSON();
-  const sizeSetsList = await JSON.parse(sizes);
 
   const sections = await getSectionsJSON();
   const sectionList = await JSON.parse(sections);
@@ -267,16 +395,15 @@ export async function getStaticProps({ params }) {
   }
 
   const colors = await getColorsJSON();
-  const ColorList = await JSON.parse(colors);
+  const colorList = await JSON.parse(colors);
 
   return {
     props: {
       notice: noticeText,
       category: categorySelected ? categorySelected._id : 'all',
       categoryList: categoryList,
-      colorList: ColorList,
-      sizeList: sizeSetsList[0].sizes.map((c) => ({ _id: c, text: c })),
-      sectionList: sectionList,
+      colorList: colorList.map((c) => ({ id: c._id, text: c.text, code: c.code })),
+      sectionList: sectionList.map((s) => ({ id: s._id, text: s.text.toLowerCase() })),
     },
   };
 }

@@ -2,6 +2,59 @@
 @import '../_mixin.scss';
 
 .content {
+  & p {
+    margin: 0;
+  }
+
+  & h2 {
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  & form {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+
+    & > span {
+      margin: 1 0;
+    }
+  }
+}
+
+.h_100 {
+  height: 100%;
+}
+
+.w_100 {
   width: 100%;
-  min-height: 100%;
+}
+
+.flex_center {
+  @include display-flex();
+  justify-content: center;
+  align-items: center;
+}
+
+.flex_column {
+  flex-direction: column;
+}
+
+.marginver_1rem {
+  margin: 1rem 0;
+}
+
+.width_8rem {
+  width: 100%;
+  max-width: 8rem;
+}
+
+.width_25rem {
+  width: 100%;
+  max-width: 25rem;
+}
+
+.link {
+  color: map-get($map: $colors, $key: primary);
+  text-decoration: underline;
+  cursor: pointer;
 }
