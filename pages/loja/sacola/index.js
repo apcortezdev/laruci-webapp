@@ -13,8 +13,18 @@ import styles from '../../../styles/loja/BagPage.module.scss';
 import { getCategoriesJSON } from '../../../data/categories';
 import { getCurrentNotice } from '../../../data/notice';
 import { getBagItems } from '../../../data/bag';
+import { getMainSocial } from '../../../data/contact';
 
-const BagPage = ({ title, canonical, notice, categoryList, items }) => {
+const BagPage = ({
+  title,
+  canonical,
+  notice,
+  categoryList,
+  items,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
+}) => {
   // Dialog
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
@@ -66,7 +76,7 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
     } else {
       addOrRemove(itemId, quantity, index);
     }
-  }
+  };
 
   const addOrRemove = (itemId, quantity, index) => {
     const item = {
@@ -93,7 +103,15 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
 
   if (totalItems === 0) {
     return (
-      <Main notice={notice} categoryList={categoryList}>
+      <Main
+        notice={notice}
+        categoryList={categoryList}
+        footerLinks={{
+          facebook: facebookLink,
+          instagram: instagramLink,
+          whatsapp: whatsappLink,
+        }}
+      >
         <Head>
           <title>{title}</title>
           <meta name="description" content={'Finalizar Compra'} />
@@ -114,7 +132,15 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
   }
 
   return (
-    <Main notice={notice} categoryList={categoryList}>
+    <Main
+      notice={notice}
+      categoryList={categoryList}
+      footerLinks={{
+        facebook: facebookLink,
+        instagram: instagramLink,
+        whatsapp: whatsappLink,
+      }}
+    >
       <Head>
         <title>{title}</title>
         <meta name="description" content={'Finalizar Compra'} />
@@ -254,7 +280,9 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                           height="20"
                           className={styles.icon}
                           viewBox="0 0 16 16"
-                          onClick={(e) => addOrRemoveHandler(e, item._id, -1, index)}
+                          onClick={(e) =>
+                            addOrRemoveHandler(e, item._id, -1, index)
+                          }
                         >
                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z" />
                         </svg>
@@ -265,7 +293,9 @@ const BagPage = ({ title, canonical, notice, categoryList, items }) => {
                           height="20"
                           className={styles.icon}
                           viewBox="0 0 16 16"
-                          onClick={(e) => addOrRemoveHandler(e, item._id, 1, index)}
+                          onClick={(e) =>
+                            addOrRemoveHandler(e, item._id, 1, index)
+                          }
                         >
                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
                         </svg>
@@ -315,6 +345,13 @@ export async function getServerSideProps(context) {
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
 
+  const contato = await getMainSocial();
+  const facebook = 'https://facebook.com/' + contato[0].facebookName;
+  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const whatsapp = `https://wa.me/${
+    contato[0].whatsappNum
+  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
   if (!bagId) {
     if (!cookie || !cookie.bag || !cookie.bag.id || !cookie.bag.qty) {
       return {
@@ -323,6 +360,9 @@ export async function getServerSideProps(context) {
           canonical: 'http://localhost:3000/loja/sacola',
           notice: noticeText,
           categoryList: categoryList,
+          facebookLink: facebook,
+          instagramLink: instagtam,
+          whatsappLink: whatsapp,
           items: [],
         },
       };

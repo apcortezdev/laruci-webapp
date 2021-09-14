@@ -1,37 +1,35 @@
-import Product from '../models/product';
-import Color from '../models/color';
-import Category from '../models/category';
 import dbConnect from '../utils/dbConnect';
+import Product from '../models/product';
 import sizeSet from '../models/sizeSet';
 import mongoose from 'mongoose';
 
-export async function getProductIdsByCategory(categoryId, page, numPerPage) {
-  let product;
+// export async function getProductIdsByCategory(categoryId, page, numPerPage) {
+//   let product;
 
-  try {
-    await dbConnect();
-  } catch (err) {
-    throw new Error('ERN0P1: ' + err.message);
-  }
+//   try {
+//     await dbConnect();
+//   } catch (err) {
+//     throw new Error('ERN0P1: ' + err.message);
+//   }
 
-  try {
-    product = await Product.find().byCategory(categoryId).select('_id').exec();
-  } catch (err) {
-    if (err) {
-      throw new Error('ERN0P2: ' + err.message);
-    }
-  }
-  return product;
-}
+//   try {
+//     product = await Product.find().byCategory(categoryId).select('_id').exec();
+//   } catch (err) {
+//     if (err) {
+//       throw new Error('ERN0P2: ' + err.message);
+//     }
+//   }
+//   return product;
+// }
 
-export async function getProductIdsByCategoryJSON(
-  categoryId,
-  page,
-  numPerPage
-) {
-  const list = await getProductIdsByCategory(categoryId, page, numPerPage);
-  return JSON.stringify(list);
-}
+// export async function getProductIdsByCategoryJSON(
+//   categoryId,
+//   page,
+//   numPerPage
+// ) {
+//   const list = await getProductIdsByCategory(categoryId, page, numPerPage);
+//   return JSON.stringify(list);
+// }
 
 export async function getProductById(id) {
   let product;

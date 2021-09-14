@@ -1,52 +1,136 @@
-const dummyContactInfo = {
-  email: 'contato@laruci.com.br',
-  phoneSac: ['551432182634', '08004057687', '30045566'],
-  facebookName: 'LaruciStoreBauru',
-  instagramName: 'larucilingerie',
-  whatsappNum: '5514997157687',
-  whatsappTemplateMessage:
-    'Bom dia, estou entrando em contato depois de visitar seu site. Poderia me ajudar?',
-  addressOne: 'Rua Jacinto Pinto Aquino Rego',
-  addressTwo: 'Lazanha-SP',
-  addressCep: '50005-505',
-  mosaic: [
-    {
-      src: 'https://images.unsplash.com/photo-1601605496942-9d6e7a81fc39?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
-      width: 634,
-      height: 951,
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1626213216833-63ef82d1d18d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=634&q=80',
-      width: 634,
-      height: 951,
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1592318324785-c41691d2e773?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
-      width: 634,
-      height: 951,
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1561375958-10610c9b9e5d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80',
-      width: 700,
-      height: 875,
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1625646905820-417189385210?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=596&q=80',
-      width: 596,
-      height: 1000,
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1590021715678-acf5f9755ec6?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80',
-      width: 700,
-      height: 875,
-    },
-  ],
-};
+import Contact from '../models/contact';
+import dbConnect from '../utils/dbConnect';
 
-export async function getFullContactInfo() {
-  return dummyContactInfo;
+// ERROR TYPE: ERN0C
+
+export async function getMainSocial() {
+  let contact;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0C1: ' + err.message);
+  }
+
+  try {
+    contact = await Contact.find()
+      .mainSocial()
+      .select('facebookName instagramName whatsappNum whatsappMessage');
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0C2: ' + err.message);
+    }
+  }
+  return contact;
 }
 
-export async function sendEmail() {
-  // SINATIZE INPUTS!!! FOR XSS ATTACKS
+export async function getContactById(_id) {
+  let contact;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0C3: ' + err.message);
+  }
+
+  try {
+    contact = await Contact.findById(_id);
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0C4: ' + err.message);
+    }
+  }
+  return contact;
+}
+
+export async function getContactByName(name) {
+  let contact;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0C5: ' + err.message);
+  }
+
+  try {
+    contact = await Contact.find().byName(name);
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0C6: ' + err.message);
+    }
+  }
+  return contact;
+}
+
+export async function postContact(contact) {
+  const newContact = new Contact({
+    ...contact,
+  });
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0C7: ' + err.message);
+  }
+
+  try {
+    let contact = await getContactByName(newContact.name);
+    if (contact.length > 0) {
+      throw new Error('DUPLICATED');
+    }
+    contact = await getContactByText(newContact.text);
+    if (contact.length > 0) {
+      throw new Error('DUPLICATED');
+    }
+
+    const created = await newContact.save();
+    return created;
+  } catch (err) {
+    if (err.message.startsWith('DUPLICATED')) {
+      throw new Error('DUPLICATED');
+    } else {
+      throw new Error('ERN0C8: ' + err.message);
+    }
+  }
+}
+
+export async function deleteContact(_id) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0C9: ' + err.message);
+  }
+
+  try {
+    const deleted = await Contact.findByIdAndDelete(_id);
+    return deleted;
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0C10: ' + err.message);
+    }
+  }
+}
+
+export async function putContact(_id, contact) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0C11: ' + err.message);
+  }
+
+  try {
+    const updated = await Contact.findByIdAndUpdate(
+      _id,
+      { ...contact },
+      {
+        new: true,
+        lean: true,
+      }
+    );
+    return updated;
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0C12: ' + err.message);
+    }
+  }
 }

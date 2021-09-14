@@ -17,6 +17,7 @@ import { getCategoriesJSON } from '../../../data/categories';
 import { getColorsJSON } from '../../../data/colors';
 import { getCurrentNotice } from '../../../data/notice';
 import { getSectionsJSON } from '../../../data/sections';
+import { getMainSocial } from '../../../data/contact';
 
 const productsFetcher = async (uri) => {
   const products = await fetch(uri);
@@ -118,8 +119,10 @@ const ListingPage = ({
   categoryList,
   colorList,
   sectionList,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
 }) => {
-
   if (!category || !colorList || !sectionList) {
     return (
       <div className="center">
@@ -235,7 +238,15 @@ const ListingPage = ({
   ];
 
   return (
-    <Main notice={notice} categoryList={categoryList}>
+    <Main
+      notice={notice}
+      categoryList={categoryList}
+      footerLinks={{
+        facebook: facebookLink,
+        instagram: instagramLink,
+        whatsapp: whatsappLink,
+      }}
+    >
       <Head>
         <link
           rel="preload"
@@ -298,7 +309,11 @@ const ListingPage = ({
                     placeholder="Todas"
                     onChange={(v) => setSelectedColor(v)}
                     colors={colorList}
-                    value={colorList.find((v) => v.id === selectedColor) ? colorList.find((v) => v.id === selectedColor).text : 'Todas'}
+                    value={
+                      colorList.find((v) => v.id === selectedColor)
+                        ? colorList.find((v) => v.id === selectedColor).text
+                        : 'Todas'
+                    }
                   />
                 </div>
                 <div className={styles.form_item}>
@@ -311,7 +326,11 @@ const ListingPage = ({
                     placeholder="Todos"
                     onChange={(v) => setSelectedSection(v)}
                     options={sectionList}
-                    value={sectionList.find((v) => v.id === selectedSection) ? sectionList.find((v) => v.id === selectedSection).text : 'Popular'}
+                    value={
+                      sectionList.find((v) => v.id === selectedSection)
+                        ? sectionList.find((v) => v.id === selectedSection).text
+                        : 'Popular'
+                    }
                   />
                 </div>
               </div>
@@ -330,7 +349,11 @@ const ListingPage = ({
                     placeholder="Popular"
                     onChange={(v) => setSelectedOrder(v)}
                     options={orders}
-                    value={orders.find((v) => v.id === selectedOrder) ? orders.find((v) => v.id === selectedOrder).text : 'Todos'}
+                    value={
+                      orders.find((v) => v.id === selectedOrder)
+                        ? orders.find((v) => v.id === selectedOrder).text
+                        : 'Todos'
+                    }
                   />
                 </div>
                 <Button type="submit" className={styles.form__button}>
@@ -397,13 +420,30 @@ export async function getStaticProps({ params }) {
   const colors = await getColorsJSON();
   const colorList = await JSON.parse(colors);
 
+  const contato = await getMainSocial();
+  const facebook = 'https://facebook.com/' + contato[0].facebookName;
+  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const whatsapp = `https://wa.me/${
+    contato[0].whatsappNum
+  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
   return {
     props: {
       notice: noticeText,
       category: categorySelected ? categorySelected._id : 'all',
       categoryList: categoryList,
-      colorList: colorList.map((c) => ({ id: c._id, text: c.text, code: c.code })),
-      sectionList: sectionList.map((s) => ({ id: s._id, text: s.text.toLowerCase() })),
+      facebookLink: facebook,
+      instagramLink: instagtam,
+      whatsappLink: whatsapp,
+      colorList: colorList.map((c) => ({
+        id: c._id,
+        text: c.text,
+        code: c.code,
+      })),
+      sectionList: sectionList.map((s) => ({
+        id: s._id,
+        text: s.text.toLowerCase(),
+      })),
     },
   };
 }

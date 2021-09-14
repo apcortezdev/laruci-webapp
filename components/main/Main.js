@@ -4,7 +4,7 @@ import NoticeBar from './NoticeBar';
 import ShopBar from './shopbar/ShopBar';
 import styles from './Main.module.scss';
 
-const Main = ({ categoryList, notice, children, isTransparent, transparency }) => {
+const Main = ({ categoryList, notice, children, isTransparent, transparency, footerLinks }) => {
   return (
     <>
       <header className={styles.navbar}>
@@ -32,7 +32,7 @@ const Main = ({ categoryList, notice, children, isTransparent, transparency }) =
           .trim()}
       >
         <div>{children}</div>
-        <Footer />
+        <Footer facebookLink={footerLinks.facebook} instagramLink={footerLinks.instagram} whatsappLink={footerLinks.whatsapp}/>
       </main>
     </>
   );
@@ -40,6 +40,7 @@ const Main = ({ categoryList, notice, children, isTransparent, transparency }) =
 
 Main.propTypes = {
   categoryList: PropTypes.array.isRequired,
+  footerLinks: PropTypes.object.isRequired,
   isTransparent: PropTypes.bool,
   notice: PropTypes.string,
   transparency: PropTypes.number,

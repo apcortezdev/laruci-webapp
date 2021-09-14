@@ -4,14 +4,31 @@ import Main from '../components/main/Main';
 import Store from '../components/store/Store';
 import { getCategoriesJSON } from '../data/categories';
 import { getCurrentNotice } from '../data/notice';
-import styles from '../styles/loja/NotFoundPage.module.scss';
+import { getMainSocial } from '../data/contact';
+
 import { BagContextProvider } from '../store/bag-context';
+import styles from '../styles/loja/NotFoundPage.module.scss';
 
-
-const NotFoundPage = ({ notice, title, canonical, categoryList }) => {
+const NotFoundPage = ({
+  notice,
+  title,
+  canonical,
+  categoryList,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
+}) => {
   return (
     <BagContextProvider>
-      <Main notice={notice} categoryList={categoryList}>
+      <Main
+        notice={notice}
+        categoryList={categoryList}
+        footerLinks={{
+          facebook: facebookLink,
+          instagram: instagramLink,
+          whatsapp: whatsappLink,
+        }}
+      >
         <Store notice={!!notice} categoryList={categoryList}>
           <Head>
             <title>{title}</title>
@@ -38,12 +55,22 @@ export async function getStaticProps() {
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
 
+  const contato = await getMainSocial();
+  const facebook = 'https://facebook.com/' + contato[0].facebookName;
+  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const whatsapp = `https://wa.me/${
+    contato[0].whatsappNum
+  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
   return {
     props: {
       title: 'Laruci',
       canonical: 'http://localhost:3000/',
       notice: noticeText,
       categoryList: categoryList,
+      facebookLink: facebook,
+      instagramLink: instagtam,
+      whatsappLink: whatsapp,
     },
   };
 }

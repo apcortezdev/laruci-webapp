@@ -4,10 +4,18 @@ import Main from '../../components/main/Main';
 import MainMenu from '../../components/MainMenu';
 import { getCurrentNotice } from '../../data/notice';
 import { getPageInfo } from '../../data/pageInfo';
-import styles from '../../styles/loja/Home.module.scss';
+import { getMainSocial } from '../../data/contact';
 import { getCategoriesJSON } from '../../data/categories';
+import styles from '../../styles/loja/Home.module.scss';
 
-export default function Home({ notice, categoryList, info }) {
+export default function Home({
+  notice,
+  categoryList,
+  info,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
+}) {
   if (!info || !categoryList) {
     return <p>Loading...</p>;
   }
@@ -42,6 +50,11 @@ export default function Home({ notice, categoryList, info }) {
       categoryList={categoryList}
       isTransparent={isTransparent}
       transparency={opacityBanner}
+      footerLinks={{
+        facebook: facebookLink,
+        instagram: instagramLink,
+        whatsapp: whatsappLink,
+      }}
     >
       <section className={styles.banner_one}>
         <div className={styles.frontpage_banner_slogan}>
@@ -99,11 +112,21 @@ export async function getStaticProps() {
   const categories = await getCategoriesJSON();
   const catList = await JSON.parse(categories);
 
+  const contato = await getMainSocial();
+  const facebook = 'https://facebook.com/' + contato[0].facebookName;
+  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const whatsapp = `https://wa.me/${
+    contato[0].whatsappNum
+  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
   return {
     props: {
       notice: noticeText,
       categoryList: catList,
       info: info,
+      facebookLink: facebook,
+      instagramLink: instagtam,
+      whatsappLink: whatsapp,
     },
     revalidate: 86400,
   };

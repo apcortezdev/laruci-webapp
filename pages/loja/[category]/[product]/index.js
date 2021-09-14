@@ -25,6 +25,7 @@ import {
   getProductByIdJSON,
 } from '../../../../data/products';
 import { getCurrentNotice } from '../../../../data/notice';
+import { getMainSocial } from '../../../../data/contact';
 
 const ProductPage = ({
   notice,
@@ -33,6 +34,9 @@ const ProductPage = ({
   categoryList,
   product,
   relatedProducts,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
 }) => {
   const router = useRouter();
   const newPrice = !!product.discountPercentage
@@ -108,7 +112,10 @@ const ProductPage = ({
       return false;
     }
 
-    if (!selectedSizes[0].isUnique && selectedSet.extraOptions.length != Object.keys(selectedExtras).length) {
+    if (
+      !selectedSizes[0].isUnique &&
+      selectedSet.extraOptions.length != Object.keys(selectedExtras).length
+    ) {
       setSelectedSizesValidator(false);
       setDialogMessage('Por favor, selecione as opções desejadas.');
       setShowDialog(true);
@@ -186,7 +193,15 @@ const ProductPage = ({
   }
 
   return (
-    <Main notice={notice} categoryList={categoryList}>
+    <Main
+      notice={notice}
+      categoryList={categoryList}
+      footerLinks={{
+        facebook: facebookLink,
+        instagram: instagramLink,
+        whatsapp: whatsappLink,
+      }}
+    >
       <Store notice={!!notice} categoryList={categoryList}>
         <Head>
           <title>{`${title} - ${product.name}`}</title>
@@ -383,8 +398,10 @@ const ProductPage = ({
                           styles.sizeSections,
                           !!selectedSizes[0] && !selectedSizes[0].isUnique
                             ? styles.selectedSizeSet
-                            : ''].join(' ').trim()
-                        }
+                            : '',
+                        ]
+                          .join(' ')
+                          .trim()}
                       >
                         <div className={styles.sizeSection}>
                           <label htmlFor="customSize">
@@ -470,37 +487,42 @@ const ProductPage = ({
                           </div>
                         </div>
                         {selectedSet.extraOptions.length > 0 && (
-                          <div className={[styles.section_details, styles.section_extras].join(' ')}>
-                              <p>Opções:</p>
-                              {selectedSet.extraOptions.map((op) => (
-                                <div key={`${selectedSet._id}_${op.name}`}>
-                                  <span>
-                                    <p>{op.name}:</p>
-                                  </span>
-                                  <span>
-                                    {op.options.map((option) => (
-                                      <label
-                                        htmlFor={`extraOptInpt_${op.name}_${option}`}
-                                        key={`extraOptLabel_${op.name}_${option}`}
-                                      >
-                                        <InputRadio
-                                          id={`extraOptInpt_${op.name}_${option}`}
-                                          type="radio"
-                                          name={`extraOptInpt_${op.name}_${op.name}`}
-                                          value={option}
-                                          onChange={() =>
-                                            onSelectedExtrasHandler(
-                                              op._id,
-                                              option
-                                            )
-                                          }
-                                        />
-                                        <span>{option}</span>
-                                      </label>
-                                    ))}
-                                  </span>
-                                </div>
-                              ))}
+                          <div
+                            className={[
+                              styles.section_details,
+                              styles.section_extras,
+                            ].join(' ')}
+                          >
+                            <p>Opções:</p>
+                            {selectedSet.extraOptions.map((op) => (
+                              <div key={`${selectedSet._id}_${op.name}`}>
+                                <span>
+                                  <p>{op.name}:</p>
+                                </span>
+                                <span>
+                                  {op.options.map((option) => (
+                                    <label
+                                      htmlFor={`extraOptInpt_${op.name}_${option}`}
+                                      key={`extraOptLabel_${op.name}_${option}`}
+                                    >
+                                      <InputRadio
+                                        id={`extraOptInpt_${op.name}_${option}`}
+                                        type="radio"
+                                        name={`extraOptInpt_${op.name}_${op.name}`}
+                                        value={option}
+                                        onChange={() =>
+                                          onSelectedExtrasHandler(
+                                            op._id,
+                                            option
+                                          )
+                                        }
+                                      />
+                                      <span>{option}</span>
+                                    </label>
+                                  ))}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -705,6 +727,13 @@ export async function getStaticProps({ params }) {
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
 
+  const contato = await getMainSocial();
+  const facebook = 'https://facebook.com/' + contato[0].facebookName;
+  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const whatsapp = `https://wa.me/${
+    contato[0].whatsappNum
+  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
   return {
     props: {
       title: 'Laruci',
@@ -713,6 +742,9 @@ export async function getStaticProps({ params }) {
       categoryList: categoryList,
       product: product,
       relatedProducts: relatedProducts,
+      facebookLink: facebook,
+      instagramLink: instagtam,
+      whatsappLink: whatsapp,
     },
   };
 }

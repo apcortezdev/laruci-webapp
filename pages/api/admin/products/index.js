@@ -6,7 +6,7 @@ import {
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import { validateProduct } from '../../../../helpers/validation';
+import { validateProduct } from '../../../../utils/validation';
 
 export const config = {
   api: {

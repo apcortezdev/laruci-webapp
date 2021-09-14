@@ -18,7 +18,7 @@ const validateNameSlur = (name) => {
   return true;
 };
 
-const validateIsEmail = (email) => {
+const validateEmail = (email) => {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
@@ -31,8 +31,15 @@ const validatePasswordSize = (pass) => {
   return true;
 };
 
+const validateCPF = (cpf) => {
+  const regex = /^(?:(\d)\1{10})$|(\D)|^(\d{12,})$|^(\d{0,10})$/g;
+  if (cpf.length !== 11) return false;
+  if (cpf.match(regex)) return false;
+  return true;
+};
+
 const validateProduct = async (product) => {
-    // code
+  // code
   if (product.code.trim().length < 4 || product.code.trim().length > 10)
     return 'INVALID CODE: OUT OF RANGE';
   if (!validateNameSlur(product.code)) return 'INVALID CODE: SLUR';
@@ -67,7 +74,7 @@ const validateProduct = async (product) => {
   if (
     product.price.toString().match(/[^0-9\.]/gi) != null ||
     (product.price.toString().match(/\./g) != null &&
-    product.price.toString().match(/\./g).length > 1) ||
+      product.price.toString().match(/\./g).length > 1) ||
     +product.price <= 0
   )
     return 'INVALID PRICE';
@@ -76,7 +83,7 @@ const validateProduct = async (product) => {
   if (
     product.discountPercentage.toString().match(/[^0-9\.]/gi) != null ||
     (product.discountPercentage.toString().match(/\./g) != null &&
-    product.discountPercentage.toString().match(/\./g).length > 1) ||
+      product.discountPercentage.toString().match(/\./g).length > 1) ||
     +product.discountPercentage < 0 ||
     +product.discountPercentage > 100
   )
@@ -86,7 +93,7 @@ const validateProduct = async (product) => {
   if (
     product.weight.toString().match(/[^0-9\.]/gi) != null ||
     (product.weight.toString().match(/\./g) != null &&
-    product.weight.toString().match(/\./g).length > 1) ||
+      product.weight.toString().match(/\./g).length > 1) ||
     +product.weight <= 0
   )
     return 'INVALID WEIGHT';
@@ -255,7 +262,8 @@ const validateProduct = async (product) => {
 
 export {
   validateNameSlur,
-  validateIsEmail,
+  validateEmail,
   validatePasswordSize,
   validateProduct,
+  validateCPF,
 };

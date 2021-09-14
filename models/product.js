@@ -122,8 +122,8 @@ product.query.byCode = function (code) {
   return this.where({ code: new RegExp(code, 'i') });
 };
 
-product.query.byCategory = function (categoryId) {
-  return this.where({ categoryId: categoryId });
-};
+// product.query.byCategory = function (categoryId) {
+//   return this.where({ categoryId: categoryId });
+// };
 
 export default mongoose.models.Product || mongoose.model('Product', product);

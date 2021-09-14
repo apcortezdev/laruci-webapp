@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const user = new Schema({
+const client = new Schema({
   name: {
     type: String,
     required: true,
@@ -15,10 +15,14 @@ const user = new Schema({
     type: Date,
     default: new Date(),
   },
+  hashPassword: {
+    type: String,
+    required: true,
+  },
 });
 
-user.query.byEmail = function(email) {
+client.query.byEmail = function(email) {
   return this.where({ email: email});
 }
 
-export default mongoose.models.User || mongoose.model('User', user);
+export default mongoose.models.Client || mongoose.model('Client', client);
