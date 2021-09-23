@@ -6,10 +6,18 @@ export default async function handler(req, res) {
       const newClient = await postClient(req.body.client);
       res.status(201).json({ statusCode: '201', client: newClient });
     } catch (err) {
-      res.status(500).json({
-        statusCode: '500',
-        message: 'ERROR SAVING SIZE SET: ' + err.message,
-      });
+      console.log(err);
+      if (err.message.startsWith('ERN0C1')) {
+        res.status(400).json({
+          statusCode: '400',
+          message: 'INVALID CLIENT: ' + err.message,
+        });
+      } else {
+        res.status(500).json({
+          statusCode: '500',
+          message: 'ERROR SAVING SIZE SET: ' + err.message,
+        });
+      }
     }
   } else {
     res.status(405).json({

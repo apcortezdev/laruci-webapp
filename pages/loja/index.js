@@ -1,12 +1,15 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import Main from '../../components/main/Main';
 import MainMenu from '../../components/MainMenu';
+import styles from '../../styles/loja/Home.module.scss';
 import { getCurrentNotice } from '../../data/notice';
 import { getPageInfo } from '../../data/pageInfo';
 import { getMainSocial } from '../../data/contact';
 import { getCategoriesJSON } from '../../data/categories';
-import styles from '../../styles/loja/Home.module.scss';
+import { getProductListingJSON } from '../../data/products';
+import ProductList from '../../components/ProductList';
 
 export default function Home({
   notice,
@@ -98,7 +101,46 @@ export default function Home({
       >
         <MainMenu categoryList={categoryList} onMobileClick={false} />
       </div>
-      <section className={styles.home_listng}></section>
+      <section className={styles.home_listng}>
+        {info.promos.map((promo) => (
+          <section
+            key={promo.id}
+            className={styles.promo_section}
+            id={promo.id}
+          >
+            <Link
+              href={{
+                pathname: `/loja${promo.link}`,
+                query: promo.query,
+              }}
+            >
+              <a>
+                <div className={styles.banner}>
+                  <Image
+                    src={promo.image}
+                    layout="fill"
+                    objectFit="cover"
+                    loading="lazy"
+                    alt="Laruci Lingerie - Conjuntos"
+                  />
+                  <p>{promo.text}</p>
+                </div>
+              </a>
+            </Link>
+            <div className={styles.listing}>
+              <ProductList productList={promo.products} type="large" />
+              <Link
+                href={{
+                  pathname: `/loja${promo.link}`,
+                  query: promo.query,
+                }}
+              >
+                <a>ver mais</a>
+              </Link>
+            </div>
+          </section>
+        ))}
+      </section>
     </Main>
   );
 }
@@ -118,6 +160,19 @@ export async function getStaticProps() {
   const whatsapp = `https://wa.me/${
     contato[0].whatsappNum
   }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
+  for (const promo of info.promos) {
+    const products = await getProductListingJSON(
+      {
+        category: promo.categoryId,
+        section: promo.section || 0,
+        order: 'createdOn',
+      },
+      1,
+      3
+    );
+    promo.products = await JSON.parse(products);
+  }
 
   return {
     props: {

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './ProductListItemCard.module.scss';
 
-const ProductListItemCard = ({ product }) => {
+const ProductListItemCard = ({ product, type }) => {
   const prod = product;
 
   let discountPrice = 0;
@@ -27,16 +27,14 @@ const ProductListItemCard = ({ product }) => {
               <div className={styles.promo}>-{prod.discountPercentage}%</div>
             )}
             <div className={styles.img_container}>
-              {/* <div className={styles.img_ratio}> */}
                 <Image
                   src={img}
                   alt={prod.name}
                   width={400}
-                  height={400}
+                  height={type === 'large' ? 600 : 400}
                   loading="lazy"
                   objectFit="cover"
                 />
-              {/* </div> */}
             </div>
             <div className={styles.info_container}>
               <span className={styles.name}>{prod.name}</span>
@@ -69,6 +67,7 @@ const ProductListItemCard = ({ product }) => {
 
 ProductListItemCard.propTypes = {
   product: PropTypes.object,
+  type: PropTypes.string,
 };
 
 export default ProductListItemCard;

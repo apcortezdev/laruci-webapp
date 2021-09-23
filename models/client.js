@@ -11,18 +11,26 @@ const client = new Schema({
     type: String,
     required: true,
   },
-  createdOn: {
-    type: Date,
-    default: new Date(),
+  cpf: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true,
   },
   hashPassword: {
     type: String,
     required: true,
   },
+  createdOn: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
-client.query.byEmail = function(email) {
-  return this.where({ email: email});
-}
+client.query.byEmail = function (email) {
+  return this.where({ email: email });
+};
 
 export default mongoose.models.Client || mongoose.model('Client', client);

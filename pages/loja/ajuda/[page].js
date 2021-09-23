@@ -1,17 +1,30 @@
-import { useState } from 'react';
 import Head from 'next/Head';
-import Link from 'next/link';
-import styles from '../../../styles/loja/HelpPage.module.scss';
+import styles from '../../../styles/loja/Defaults.module.scss';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import { Input, InputMask } from '../../../components/utilities/FormComponents';
-import Button from '../../../components/utilities/Button';
 import { getCategoriesJSON } from '../../../data/categories';
 import { getCurrentNotice } from '../../../data/notice';
+import { getMainSocial } from '../../../data/contact';
 
-const HelpPage = ({ title, notice, cannonical, categoryList }) => {
+const HelpPage = ({
+  title,
+  notice,
+  cannonical,
+  categoryList,
+  facebookLink,
+  instagramLink,
+  whatsappLink,
+}) => {
   return (
-    <Main notice={notice} categoryList={categoryList}>
+    <Main
+      notice={notice}
+      categoryList={categoryList}
+      footerLinks={{
+        facebook: facebookLink,
+        instagram: instagramLink,
+        whatsapp: whatsappLink,
+      }}
+    >
       <Head>
         <title>Laruci - {title}</title>
         <meta
@@ -21,7 +34,16 @@ const HelpPage = ({ title, notice, cannonical, categoryList }) => {
         <link href={cannonical} rel="canonical" />
       </Head>
       <Store notice={!!notice} categoryList={categoryList}>
-        <div className={[styles.content].join(' ')}></div>
+        <div
+          className={[
+            styles.content,
+            styles.flex_center,
+            styles.flex_column,
+            styles.h_100,
+          ].join(' ')}
+        >
+          {title}
+        </div>
       </Store>
     </Main>
   );
@@ -58,6 +80,10 @@ export async function getStaticProps({ params }) {
     case 'politicas':
       title = 'Politicas';
       break;
+    default:
+      return {
+        notFound: true
+      }
   }
 
   const notice = await getCurrentNotice();
@@ -66,12 +92,22 @@ export async function getStaticProps({ params }) {
   const categories = await getCategoriesJSON();
   const categoryList = await JSON.parse(categories);
 
+  const contato = await getMainSocial();
+  const facebook = 'https://facebook.com/' + contato[0].facebookName;
+  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const whatsapp = `https://wa.me/${
+    contato[0].whatsappNum
+  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+
   return {
     props: {
       title: title,
       notice: noticeText,
       cannonical: cannonical,
       categoryList: categoryList,
+      facebookLink: facebook,
+      instagramLink: instagtam,
+      whatsappLink: whatsapp,
     },
     revalidate: 86400,
   };

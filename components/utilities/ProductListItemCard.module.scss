@@ -3,10 +3,12 @@
 
 .item {
   list-style: none;
+  margin: auto;
 }
 
 .card {
   position: relative;
+  max-width: 20rem;
   width: 100%;
   overflow: hidden;
   background-color: map-get($map: $colors, $key: white);

@@ -10,11 +10,6 @@
     text-transform: uppercase;
     font-weight: 400;
   }
-
-  & form {
-    margin: 3rem 0;
-    padding: 0 1rem;
-  }
 }
 
 .h_100 {
@@ -53,18 +48,4 @@
   color: map-get($map: $colors, $key: primary);
   text-decoration: underline;
   cursor: pointer;
-}
-
-.signinConfirmation {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 25rem;
-  height: 25rem;
-  text-align: center;
-  margin: 5rem auto;
-  line-height: 2rem;
-  padding: 0 2rem;
-  background-color: map-get($map: $colors, $key: lighter-grey);
 }

@@ -5,7 +5,6 @@ import Store from '../components/store/Store';
 import { getCategoriesJSON } from '../data/categories';
 import { getCurrentNotice } from '../data/notice';
 import { getMainSocial } from '../data/contact';
-
 import { BagContextProvider } from '../store/bag-context';
 import styles from '../styles/loja/NotFoundPage.module.scss';
 

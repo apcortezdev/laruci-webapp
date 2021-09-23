@@ -154,19 +154,10 @@ const Footer = ({ className, facebookLink, instagramLink, whatsappLink }) => {
             <p>
               <Link
                 href={{
-                  pathname: '/loja/sobre',
+                  pathname: '/loja/cliente',
                 }}
               >
-                <a className={styles.link}>Devoluções</a>
-              </Link>
-            </p>
-            <p>
-              <Link
-                href={{
-                  pathname: '/loja/contato',
-                }}
-              >
-                <a className={styles.link}>Frete</a>
+                <a className={styles.link}>Minhas Compras</a>
               </Link>
             </p>
             <p>

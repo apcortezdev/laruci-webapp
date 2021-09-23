@@ -63,8 +63,12 @@ const contact = new Schema({
   },
 });
 
-contact.query.mainSocial = function() {
-    return this.where({ name: 'main', type: 'store'});
-  }
+contact.query.mainSocial = function () {
+  return this.where({ name: 'main', type: 'store' });
+};
+
+contact.query.byName = function (name) {
+  return this.where({ name: name });
+};
 
 export default mongoose.models.Contact || mongoose.model('Contact', contact);

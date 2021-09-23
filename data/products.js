@@ -3,34 +3,6 @@ import Product from '../models/product';
 import sizeSet from '../models/sizeSet';
 import mongoose from 'mongoose';
 
-// export async function getProductIdsByCategory(categoryId, page, numPerPage) {
-//   let product;
-
-//   try {
-//     await dbConnect();
-//   } catch (err) {
-//     throw new Error('ERN0P1: ' + err.message);
-//   }
-
-//   try {
-//     product = await Product.find().byCategory(categoryId).select('_id').exec();
-//   } catch (err) {
-//     if (err) {
-//       throw new Error('ERN0P2: ' + err.message);
-//     }
-//   }
-//   return product;
-// }
-
-// export async function getProductIdsByCategoryJSON(
-//   categoryId,
-//   page,
-//   numPerPage
-// ) {
-//   const list = await getProductIdsByCategory(categoryId, page, numPerPage);
-//   return JSON.stringify(list);
-// }
-
 export async function getProductById(id) {
   let product;
 
@@ -102,6 +74,13 @@ export async function getProductListing(
       });
     }
 
+    // selects section
+    if (section != 0 && section !== 'all' && section.length > 0) {
+      aggregate.push({
+        $match: { sectionId: mongoose.Types.ObjectId(section) },
+      });
+    }
+
     // selects color
     if (color != 0 && color !== 'all' && color.length > 0) {
       aggregate.push({ $unwind: '$sets' });
@@ -125,15 +104,22 @@ export async function getProductListing(
 
     // paginate
     if (page > 1) {
-      const p = (+page - 1) * +numPerPage ;
+      const p = (+page - 1) * +numPerPage;
       aggregate.push({
-        $skip: p
+        $skip: p,
+      });
+    }
+
+    // sort
+    if (order && order != 'all' && order != 0) {
+      aggregate.push({
+        $sort: { createdOn: -1 },
       });
     }
 
     // limit to page
     aggregate.push({
-      $limit: +numPerPage
+      $limit: +numPerPage,
     });
 
     // projects accordingly

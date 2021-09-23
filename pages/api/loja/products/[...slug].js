@@ -1,6 +1,6 @@
 import { getProductListing } from '../../../../data/products';
 
-// /api/loja/products/[category]/[color]/[size]/[order]/[term]/[page]/[numperpage]
+// /api/loja/products/[category]/[color]/[section]/[order]/[term]/[page]/[numperpage]
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         {
           category: req.query.slug[0],
           color: req.query.slug[1],
-          size: req.query.slug[2],
+          section: req.query.slug[2],
           order: req.query.slug[3],
           term: req.query.slug[4],
         },

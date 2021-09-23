@@ -44,7 +44,7 @@
   .webnav_area {
     display: none;
     @include media-min-width(46.5rem) {
-      min-width: 32.86rem;
+      min-width: 25rem;
       display: inline-flex;
       flex-grow: 0;
     }

@@ -72,6 +72,7 @@ const ProductList = ({ productList, type }) => {
           <ProductListItemCard
             key={element._id}
             product={element}
+            type={type}
           />
         );
       });
@@ -85,7 +86,7 @@ const ProductList = ({ productList, type }) => {
 
 ProductList.propTypes = {
   productList: PropTypes.array,
-  type: PropTypes.oneOf(['page', 'carousel']),
+  type: PropTypes.oneOf(['page', 'carousel', 'large']),
 };
 
 export default ProductList;

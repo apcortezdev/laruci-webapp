@@ -49,7 +49,7 @@ const Page = ({ page, query, onSearch }) => {
       (query.term || '0') +
       '/' +
       (page || 1) +
-      '/3'
+      '/20'
     );
   };
 
@@ -78,7 +78,7 @@ const Page = ({ page, query, onSearch }) => {
 
   let list;
   if (data.data && data.data.length > 0) {
-    list = <ProductList productList={data.data} type="page" />;
+    list = <ProductList productList={data.data} type="large" />;
   }
 
   if (
@@ -134,7 +134,7 @@ const ListingPage = ({
   const router = useRouter();
   const [selectedColor, setSelectedColor] = useState('all');
   const [selectedSection, setSelectedSection] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState('pop');
+  const [selectedOrder, setSelectedOrder] = useState('all');
   const [toggleFilter, setToggleFilter] = useState(false);
   const [query, setQuery] = useState({
     page: '',
@@ -169,8 +169,8 @@ const ListingPage = ({
     if (router.query.order) {
       order = router.query.order;
     } else {
-      order = 'pop';
-      setSelectedSection('pop');
+      order = 'all';
+      setSelectedSection('all');
     }
 
     const term = router.query.term ? router.query.term : '';
@@ -250,7 +250,7 @@ const ListingPage = ({
       <Head>
         <link
           rel="preload"
-          href={`/api/loja/products/${category}/all/all/0/_/1/25`}
+          href={`/api/loja/products/${category}/all/all/0/_/1/20`}
           as="fetch"
           crossOrigin="anonymous"
         ></link>
@@ -379,7 +379,7 @@ export async function getStaticPaths() {
 
   return {
     paths: categoryList,
-    fallback: 'blocking',
+    fallback: false
   };
 }
 

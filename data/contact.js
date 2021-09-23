@@ -62,6 +62,11 @@ export async function getContactByName(name) {
   return contact;
 }
 
+export async function getContactByNameJSON(name) {
+  let contact = await getContactByName(name);
+  return JSON.stringify(contact);
+}
+
 export async function postContact(contact) {
   const newContact = new Contact({
     ...contact,
