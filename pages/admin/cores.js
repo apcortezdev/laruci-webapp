@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
+import { getSession } from 'next-auth/client';
+
 import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import Admin from '../../components/admin/Admin';
 import { Input, InputColor } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import styles from '../../styles/AdColorsPage.module.scss';
-import { useEffect, useState } from 'react';
 import { getColorsJSON } from '../../data/colors';
 
 const METHOD = {
@@ -111,11 +113,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
   );
 };
 
-const AdColorsPage = ({ user, colors }) => {
-  if (user !== 'admin') {
-    return <p>Esta página no ecxiste!</p>;
-  }
-
+const AdColorsPage = ({ session, colors }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [confirmationMethod, setConfirmationMethod] = useState('');
@@ -341,13 +339,21 @@ const AdColorsPage = ({ user, colors }) => {
   );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    return {
+      notFound: true,
+    };
+  }
+  
   const colors = await getColorsJSON();
   const ColorList = await JSON.parse(colors);
 
   return {
     props: {
-      user: 'admin',
+      session: session,
       colors: ColorList,
     },
   };

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { getSession } from 'next-auth/client';
+
 import { useRouter } from 'next/router';
 import Admin from '../../components/admin/Admin';
 import { getFullContactInfo } from '../../data/contact';
@@ -7,7 +9,7 @@ import styles from '../../styles/AdContactPage.module.scss';
 import Button from '../../components/utilities/Button';
 
 const AdContactPage = ({
-  user,
+  session,
   contactEmail,
   facebookLink,
   instagramLink,
@@ -25,10 +27,6 @@ const AdContactPage = ({
         </div>
       </Admin>
     );
-  }
-
-  if (user !== 'admin') {
-    return <p>Esta página no ecxiste!</p>;
   }
 
   const [email, setEmail] = useState(contactEmail || '');
@@ -310,11 +308,19 @@ const AdContactPage = ({
   );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    return {
+      notFound: true,
+    };
+  }
+  
   const contact = getFullContactInfo();
   return {
     props: {
-      user: 'admin',
+      session: session,
       contactEmail: contact.email,
       facebookLink: contact.facebookLink,
       instagramLink: contact.instagramLink,

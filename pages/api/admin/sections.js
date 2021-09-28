@@ -1,6 +1,14 @@
+import { getSession } from 'next-auth/client';
 import { postSection, deleteSection, putSection } from '../../../data/sections';
 
 export default async function handler(req, res) {
+  const session = await getSession({ req: req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    res.status(404).json({ message: 'Not Found.' });
+    return;
+  }
+
   if (req.method === 'POST') {
     try {
       const newSection = await postSection(req.body.text);
@@ -11,9 +19,7 @@ export default async function handler(req, res) {
         message: 'ERROR SAVING SECTION: ' + err.message,
       });
     }
-  }
-
-  if (req.method === 'DELETE') {
+  } else if (req.method === 'DELETE') {
     try {
       const deletedSection = await deleteSection(req.body.id);
       res.status(200).json({ statusCode: '200', section: deletedSection });
@@ -23,9 +29,7 @@ export default async function handler(req, res) {
         message: 'ERROR DELETING SECTION: ' + err.message,
       });
     }
-  }
-
-  if (req.method === 'PUT') {
+  } else if (req.method === 'PUT') {
     try {
       const updatedSection = await putSection(req.body.id, req.body.newText);
       res.status(200).json({ statusCode: '200', section: updatedSection });
@@ -35,5 +39,10 @@ export default async function handler(req, res) {
         message: 'ERROR UPDATING SECTION: ' + err.message,
       });
     }
+  } else {
+    res.status(405).json({
+      statusCode: '405',
+      message: 'Method Not Allowed',
+    });
   }
 }

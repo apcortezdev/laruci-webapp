@@ -1,17 +1,18 @@
 import { useRef, useState } from 'react';
 import Head from 'next/Head';
-import styles from '../../../../styles/loja/UserPage.module.scss';
-import Main from '../../../../components/main/Main';
-import Store from '../../../../components/store/Store';
-import {
-  Input,
-  InputMask,
-} from '../../../../components/utilities/FormComponents';
-import Button from '../../../../components/utilities/Button';
-import { getCategoriesJSON } from '../../../../data/categories';
-import { getCurrentNotice } from '../../../../data/notice';
-import { getMainSocial } from '../../../../data/contact';
-import ConfirmationDialog from '../../../../components/utilities/ConfirmationDialog';
+import { useRouter } from 'next/router';
+import { getSession } from 'next-auth/client';
+
+import defstyles from '../../../styles/loja/Defaults.module.scss';
+import userstyles from '../../../styles/loja/UserPage.module.scss';
+import Main from '../../../components/main/Main';
+import Store from '../../../components/store/Store';
+import { Input, InputMask } from '../../../components/utilities/FormComponents';
+import Button from '../../../components/utilities/Button';
+import { getCategoriesJSON } from '../../../data/categories';
+import { getCurrentNotice } from '../../../data/notice';
+import { getMainSocial } from '../../../data/contact';
+import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog';
 import {
   validateEmail,
   validateCPF,
@@ -20,7 +21,7 @@ import {
   validatePhone,
   validatePasswordLength,
   validatePasswordStrength,
-} from '../../../../utils/validationFront';
+} from '../../../utils/validationFront';
 
 const UserPage = ({
   notice,
@@ -30,6 +31,7 @@ const UserPage = ({
   whatsappLink,
 }) => {
   const [toggleConfirm, setToggleConfirm] = useState(false);
+  const router = useRouter();
 
   const [userCPF, setUserCPF] = useState('');
   const cpfRef = useRef();
@@ -190,6 +192,18 @@ const UserPage = ({
           const data = await response.json();
           setToggleConfirm(true);
           setShowDialog(false);
+          break;
+        case 400:
+          setNoButtons(false);
+          setDialogMessage(
+            'Ops, esse email já está cadastrado. Use a opção de recuperação de senha caso não consiga logar!'
+          );
+          setIsEmailValid(false);
+          window.scrollTo(0, emailRef.current.offsetTop - 156);
+          setOnfocus(() => () => {
+            emailRef.current.focus();
+          });
+          break;
         default:
           setNoButtons(false);
           setDialogMessage(
@@ -225,28 +239,44 @@ const UserPage = ({
       <Store notice={!!notice} categoryList={categoryList}>
         <div
           className={[
-            styles.content,
-            styles.flex_center,
-            styles.flex_column,
-            styles.h_100,
+            defstyles.content,
+            defstyles.flex_center,
+            defstyles.flex_column,
+            defstyles.h_100,
+            userstyles.forms,
           ].join(' ')}
         >
           {toggleConfirm ? (
-            <div className={styles.signinConfirmation}>
-              <p>Tudo pronto! Agora, só verificar seu e-mail para confirmar o
-              cadastro e começar a comprar!</p>
+            <div className={userstyles.signinConfirmation}>
+              <p>
+                Tudo pronto! Agora, só verificar seu e-mail para confirmar o
+                cadastro e começar a comprar!
+              </p>
+              <Button
+                className={[
+                  defstyles.marginver_1rem,
+                  defstyles.width_8rem,
+                ].join(' ')}
+                onClick={() => router.push({ pathname: '/loja/cliente/entrar' })}
+              >
+                Entrar
+              </Button>
             </div>
           ) : (
             <form
               className={[
-                styles.flex_center,
-                styles.flex_column,
-                styles.width_25rem,
+                defstyles.flex_center,
+                defstyles.flex_column,
+                defstyles.width_25rem,
               ].join(' ')}
               onSubmit={signin}
             >
               <h2>Cadastro</h2>
-              <div className={[styles.w_100, styles.marginver_1rem].join(' ')}>
+              <div
+                className={[defstyles.w_100, defstyles.marginver_1rem].join(
+                  ' '
+                )}
+              >
                 <Input
                   ref={nameRef}
                   id="name"
@@ -255,7 +285,11 @@ const UserPage = ({
                   valid={isNameValid}
                 />
               </div>
-              <div className={[styles.w_100, styles.marginver_1rem].join(' ')}>
+              <div
+                className={[defstyles.w_100, defstyles.marginver_1rem].join(
+                  ' '
+                )}
+              >
                 <Input
                   id="email"
                   placeholder="Email"
@@ -265,7 +299,9 @@ const UserPage = ({
               </div>
               <div
                 ref={cpfRef}
-                className={[styles.w_100, styles.marginver_1rem].join(' ')}
+                className={[defstyles.w_100, defstyles.marginver_1rem].join(
+                  ' '
+                )}
               >
                 <InputMask
                   id="cpf"
@@ -278,7 +314,9 @@ const UserPage = ({
               </div>
               <div
                 ref={phoneRef}
-                className={[styles.w_100, styles.marginver_1rem].join(' ')}
+                className={[defstyles.w_100, defstyles.marginver_1rem].join(
+                  ' '
+                )}
               >
                 <InputMask
                   id="phone"
@@ -289,7 +327,11 @@ const UserPage = ({
                   mask={['(99) 9999-9999', '(99) 9 9999-9999']}
                 />
               </div>
-              <div className={[styles.w_100, styles.marginver_1rem].join(' ')}>
+              <div
+                className={[defstyles.w_100, defstyles.marginver_1rem].join(
+                  ' '
+                )}
+              >
                 <Input
                   id="password"
                   ref={passwordRef}
@@ -298,7 +340,11 @@ const UserPage = ({
                   placeholder="Senha"
                 />
               </div>
-              <div className={[styles.w_100, styles.marginver_1rem].join(' ')}>
+              <div
+                className={[defstyles.w_100, defstyles.marginver_1rem].join(
+                  ' '
+                )}
+              >
                 <Input
                   id="passwordConf"
                   placeholder="Confirmação da senha"
@@ -308,7 +354,10 @@ const UserPage = ({
                 />
               </div>
               <Button
-                className={[styles.marginver_1rem, styles.width_8rem].join(' ')}
+                className={[
+                  defstyles.marginver_1rem,
+                  defstyles.width_8rem,
+                ].join(' ')}
                 type="submit"
               >
                 Cadastrar
@@ -340,7 +389,18 @@ const UserPage = ({
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/loja/cliente',
+        permanent: false,
+      },
+    };
+  }
+
   const notice = await getCurrentNotice();
   let noticeText = notice ? notice.text : '';
 
@@ -362,7 +422,6 @@ export async function getStaticProps() {
       instagramLink: instagtam,
       whatsappLink: whatsapp,
     },
-    revalidate: 86400,
   };
 }
 

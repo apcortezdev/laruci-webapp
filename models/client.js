@@ -23,6 +23,18 @@ const client = new Schema({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    required: true,
+  },
+  lastAcces: {
+    type: Date,
+    default: new Date(),
+  },
+  active: {
+    type: Boolean,
+    default: true,
+  },
   createdOn: {
     type: Date,
     default: new Date(),
@@ -30,7 +42,7 @@ const client = new Schema({
 });
 
 client.query.byEmail = function (email) {
-  return this.where({ email: email });
+  return this.where({ email: email, active: true });
 };
 
 export default mongoose.models.Client || mongoose.model('Client', client);

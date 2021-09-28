@@ -1,4 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
+import { getSession } from 'next-auth/client';
+
 import styles from '../../styles/AdProductsPage.module.scss';
 import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import { useRouter } from 'next/router';
@@ -197,16 +199,13 @@ const productReducer = (state, action) => {
 };
 
 const AdProductsPage = ({
-  user,
+  session,
   categoryList,
   colorList,
   sectionList,
   sizeSetList,
 }) => {
   const router = useRouter();
-  if (user !== 'admin') {
-    return <p>Esta página no ecxiste!</p>;
-  }
 
   if (!categoryList) {
     return (
@@ -1930,7 +1929,15 @@ const AdProductsPage = ({
   );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    return {
+      notFound: true,
+    };
+  }
+  
   const categories = await getCategoriesJSON();
   const catList = await JSON.parse(categories);
 
@@ -1945,7 +1952,7 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      user: 'admin',
+      session: session,
       categoryList: catList,
       colorList: colorList,
       sectionList: sectionList,

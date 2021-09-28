@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { getSession } from 'next-auth/client';
+
 import styles from '../../styles/AdNoticePage.module.scss';
 import Admin from '../../components/admin/Admin';
 import Button from '../../components/utilities/Button';
@@ -9,10 +11,6 @@ import { getNoticeJSON } from '../../data/notice';
 
 const AdNoticePage = (props) => {
   const router = useRouter();
-
-  if (props.user !== 'admin') {
-    return <p>Esta página no ecxiste!</p>;
-  }
 
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -172,7 +170,15 @@ const AdNoticePage = (props) => {
   );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    return {
+      notFound: true,
+    };
+  }
+
   const notice = await getNoticeJSON();
 
   const propNotice = {
@@ -185,7 +191,7 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      user: 'admin',
+      session: session,
       notice: notice,
     },
   };

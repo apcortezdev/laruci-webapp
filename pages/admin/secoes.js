@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
+import { getSession } from 'next-auth/client';
+
 import ConfirmationDialog from '../../components/utilities/ConfirmationDialog';
 import Admin from '../../components/admin/Admin';
 import { Input } from '../../components/utilities/FormComponents';
 import Button from '../../components/utilities/Button';
 import styles from '../../styles/AdSectionsPage.module.scss';
-import { useEffect, useState } from 'react';
 import { getSectionsJSON } from '../../data/sections';
 
 const METHOD = {
@@ -102,11 +104,7 @@ const ItemList = ({ item, onEdit, onDelete }) => {
   );
 };
 
-const AdSectionsPage = ({ user, sections }) => {
-  if (user !== 'admin') {
-    return <p>Esta página no ecxiste!</p>;
-  }
-
+const AdSectionsPage = ({ session, sections }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [confirmationMethod, setConfirmationMethod] = useState('');
@@ -316,13 +314,21 @@ const AdSectionsPage = ({ user, sections }) => {
   );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    return {
+      notFound: true,
+    };
+  }
+  
   const sections = await getSectionsJSON();
   const list = await JSON.parse(sections);
 
   return {
     props: {
-      user: 'admin',
+      session: session,
       sections: list,
     },
   };

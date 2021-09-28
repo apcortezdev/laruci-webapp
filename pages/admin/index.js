@@ -1,11 +1,9 @@
-import Admin from '../../components/admin/Admin';
+import { getSession } from 'next-auth/client';
 
+import Admin from '../../components/admin/Admin';
 import styles from '../../styles/AdInitialPage.module.scss';
 
 const AdminPage = (props) => {
-  if (props.user !== 'admin') {
-    return <p>Esta página no ecxiste!</p>;
-  }
   return (
     <Admin>
       <div className={styles.wrapper}>
@@ -14,7 +12,8 @@ const AdminPage = (props) => {
           <div>
             <ul>
               <li>
-                Cuidado ao fazer alterações! Tenha sempre <u>certeza</u> do que está fazendo!
+                Cuidado ao fazer alterações! Tenha sempre <u>certeza</u> do que
+                está fazendo!
               </li>
               <li>
                 Alterações poderão <u> demorar até 24 horas</u> para serem
@@ -29,11 +28,17 @@ const AdminPage = (props) => {
 };
 
 export async function getServerSideProps(context) {
-  const { params, req, res } = context;
+  const session = await getSession({ req: context.req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
     props: {
-      user: 'admin',
+      session: session,
     },
   };
 }

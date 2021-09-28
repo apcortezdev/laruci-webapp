@@ -1,6 +1,10 @@
 import { useRef, useState } from 'react';
 import Head from 'next/Head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { signin } from 'next-auth/client';
+import { getSession } from 'next-auth/client';
+
 import defstyles from '../../../styles/loja/Defaults.module.scss';
 import userstyles from '../../../styles/loja/UserPage.module.scss';
 import Main from '../../../components/main/Main';
@@ -11,9 +15,7 @@ import { getCategoriesJSON } from '../../../data/categories';
 import { getCurrentNotice } from '../../../data/notice';
 import { getMainSocial } from '../../../data/contact';
 import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog';
-import { signin } from 'next-auth/client';
-
-import { getSession } from 'next-auth/client';
+import { validateEmail } from '../../../utils/validationFront';
 
 const UserPage = ({
   notice,
@@ -22,17 +24,66 @@ const UserPage = ({
   instagramLink,
   whatsappLink,
 }) => {
+  const router = useRouter();
+
+  const emailRef = useRef();
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const passwordRef = useRef();
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
 
   // Dialog
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  // const [cancelText, setCancelText] = useState('');
-  // const [okText, setOkText] = useState('');
   const [noButtons, setNoButtons] = useState(false);
   const [onFocus, setOnfocus] = useState(() => () => {});
 
-  const logout = async (e) => {
+  const validate = () => {
+    let error = false;
+    setIsEmailValid(true);
+    setIsPasswordValid(true);
+    setNoButtons(false);
+
+    // validate email
+    if (emailRef.current.value.trim().length <= 0) {
+      error = true;
+      setDialogMessage('Por favor, digite seu e-mail para entrar.');
+    } else if (!validateEmail(emailRef.current.value.trim())) {
+      error = true;
+      setDialogMessage('Ops, seu email parece estar errado.');
+    }
+    if (error) {
+      setIsEmailValid(false);
+      window.scrollTo(0, emailRef.current.offsetTop - 156);
+      setOnfocus(() => () => {
+        emailRef.current.focus();
+      });
+      return false;
+    }
+
+    // validate password
+    if (passwordRef.current.value.length <= 0) {
+      error = true;
+      setDialogMessage('Por favor, digite sua senha para entrar.');
+    }
+    if (error) {
+      setIsPasswordValid(false);
+      window.scrollTo(0, passwordRef.current.offsetTop - 156);
+      console.log(passwordRef.current);
+      setOnfocus(() => () => {
+        passwordRef.current.focus();
+      });
+      return false;
+    }
+
+    return {
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+    };
+  };
+
+  const login = async (e) => {
     e.preventDefault();
+    const client = validate();
     if (!client) {
       setShowDialog(true);
     } else {
@@ -51,9 +102,10 @@ const UserPage = ({
           if (response.error) {
             setNoButtons(false);
             setDialogMessage(
-              'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
+              'Ops, parece que o usuário ou a senha estão errados! Por favor, tente novamente.'
             );
           } else {
+            router.push({ pathname: '/loja/cliente' });
           }
           break;
         default:
@@ -97,25 +149,70 @@ const UserPage = ({
             defstyles.h_100,
           ].join(' ')}
         >
-          <div>Você está logado!</div>
+          <form
+            className={[
+              defstyles.flex_center,
+              defstyles.flex_column,
+              defstyles.width_25rem,
+              userstyles.forms,
+            ].join(' ')}
+            onSubmit={login}
+          >
+            <h2 className={userstyles.title}>Acesse sua conta</h2>
+            <div
+              className={[defstyles.w_100, defstyles.marginver_1rem].join(' ')}
+            >
+              <Input
+                id="login_email"
+                placeholder="Email"
+                ref={emailRef}
+                autoFocus={true}
+                valid={isEmailValid}
+              />
+            </div>
+            <div
+              className={[defstyles.w_100, defstyles.marginver_1rem].join(' ')}
+            >
+              <Input
+                id="login_password"
+                placeholder="Senha"
+                ref={passwordRef}
+                type="password"
+                valid={isPasswordValid}
+              />
+            </div>
+            <Button
+              type="submit"
+              className={[defstyles.marginver_1rem, defstyles.width_8rem].join(
+                ' '
+              )}
+            >
+              Entrar
+            </Button>
+            <p className={defstyles.margin0}>
+              {'Ou clique para faser seu '}
+              <Link
+                href={{
+                  pathname: '/loja/cliente/cadastro',
+                }}
+                passHref
+              >
+                <a className={defstyles.link}>cadastro!</a>
+              </Link>
+            </p>
+          </form>
         </div>
       </Store>
       <ConfirmationDialog
         show={showDialog}
         onCancel={() => {
           setShowDialog(false);
-          // setCancelText('');
-          // setOkText('ok');
         }}
         onConfirm={() => {
           setShowDialog(false);
           onFocus();
-          // setCancelText('');
-          // setOkText('ok');
         }}
         message={dialogMessage}
-        // cancelText={cancelText}
-        // okText={okText}
         noButtons={noButtons}
         fixed
       />
@@ -126,10 +223,10 @@ const UserPage = ({
 export async function getServerSideProps(context) {
   const session = await getSession({ req: context.req });
 
-  if (!session) {
+  if (session) {
     return {
       redirect: {
-        destination: '/loja/cliente/entrar',
+        destination: '/loja/cliente',
         permanent: false,
       },
     };
@@ -156,7 +253,7 @@ export async function getServerSideProps(context) {
       instagramLink: instagtam,
       whatsappLink: whatsapp,
       session: session,
-    }
+    },
   };
 }
 

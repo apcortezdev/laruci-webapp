@@ -7,6 +7,7 @@ import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import { validateProduct } from '../../../../utils/validation';
+import { getSession } from 'next-auth/client';
 
 export const config = {
   api: {
@@ -242,11 +243,18 @@ const del = async (req, res) => {
 };
 
 export default (req, res) => {
+  const session = await getSession({ req: req });
+
+  if (!session || session.user.name !== process.env.USERADM) {
+    res.status(404).json({ message: 'Not Found.' });
+    return;
+  }
+
   req.method === 'POST'
     ? post(req, res)
     : req.method === 'GET'
     ? get(req, res)
     : req.method === 'DELETE'
     ? del(req, res)
-    : res.status(404).send('');
+    : res.status(404).send('Not Found.');
 };

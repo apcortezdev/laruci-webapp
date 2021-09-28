@@ -6,11 +6,15 @@ export default async function handler(req, res) {
       const newClient = await postClient(req.body.client);
       res.status(201).json({ statusCode: '201', client: newClient });
     } catch (err) {
-      console.log(err);
       if (err.message.startsWith('ERN0C1')) {
+        res.status(422).json({
+          statusCode: '422',
+          message: 'INVALID CLIENT: ' + err.message,
+        });
+      } else if (err.message.startsWith('DUPLICATED')) {
         res.status(400).json({
           statusCode: '400',
-          message: 'INVALID CLIENT: ' + err.message,
+          message: 'CLIENT ALREADY EXISTS: ' + err.message,
         });
       } else {
         res.status(500).json({

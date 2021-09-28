@@ -85,6 +85,7 @@ export async function postClient(client) {
       email: validation.client.email,
       cpf: validation.client.cpf,
       phone: validation.client.phone,
+      type: process.env.USERCLI,
       hashPassword: await hashPassword(validation.client.password),
     });
   } else {
@@ -98,6 +99,10 @@ export async function postClient(client) {
   }
 
   try {
+    const exists = await Client.findOne().byEmail(validation.client.email);
+    if (exists) {
+      throw new Error('DUPLICATED');
+    }
     const created = await newClient.save();
     return created;
   } catch (err) {
