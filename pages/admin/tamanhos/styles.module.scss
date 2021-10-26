@@ -1,0 +1,149 @@
+@import '../../../styles/_colors.scss';
+@import '../../../styles/_mixin.scss';
+
+.wrapper {
+  @include display-flex();
+  margin-top: 1rem;
+  flex-direction: column;
+  align-items: center;
+
+  .borderBottom {
+    border-bottom: 1px dotted map-get($map: $colors, $key: light-grey);
+  }
+
+  .warning {
+    & > h1 {
+      margin: 2rem auto;
+      font-weight: inherit;
+    }
+
+    & > div {
+      max-width: 40rem;
+      text-align: justify;
+      line-height: 1.5rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  .sizeSets {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: 45%;
+    min-width: 30rem;
+
+    .border {
+      border: 1px solid map-get($map: $colors, $key: light-grey);
+    }
+
+    .padding {
+      padding: 1rem 0;
+    }
+
+    .paddingBottom {
+      padding-bottom: 1rem;
+    }
+
+    .set {
+      padding: 0 1rem;
+      & > span {
+        margin: 1rem 0;
+      }
+    }
+
+    .flexLine {
+      @include display-flex();
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .gridLine {
+      display: grid;
+      grid-template-columns: repeat(6, 3rem);
+      gap: .3rem;
+    }
+
+    .toTheLeft {
+      justify-content: flex-end;
+    }
+
+    .tag {
+      position: relative;
+      @include display-flex();
+      justify-content: center;
+      align-items: center;
+      height: 3rem;
+      width: 3rem;
+      text-transform: uppercase;
+      border: 1px solid map-get($map: $colors, $key: primary);
+      margin-right: 0.5rem;
+    }
+    
+    .tagEdit {
+      cursor: pointer;
+      &:hover:after {
+        position: absolute;
+        @include display-flex();
+        justify-content: center;
+        align-items: center;
+        content: 'Remover';
+        font-size: 0.8rem;
+        width: 5rem;
+        height: 1rem;
+        top: -1.5rem;
+        left: 0;
+        text-transform: capitalize;
+        background-color: map-get($map: $colors, $key: yellow-tip);
+        border: 1px solid map-get($map: $colors, $key: dark-yellow-tip);
+        border-radius: 5px;
+      }
+    }
+
+    .icon {
+      fill: map-get($map: $colors, $key: white);
+    }
+
+    .uppercase {
+      text-transform: uppercase;
+    }
+
+    .capitalize {
+      text-transform: capitalize;
+    }
+
+    .button {
+      height: 3rem;
+      width: 3rem;
+    }
+
+    .buttonLarge {
+      height: 3rem;
+      width: 8rem;
+    }
+
+    .button_delete {
+      margin-left: 0.5rem;
+      background-color: map-get($map: $colors, $key: promo-red);
+
+      &:hover {
+        background-color: map-get($map: $colors, $key: dark-red);
+      }
+    }
+
+    .block {
+      display: block;
+    }
+
+    .setForm {
+      & > label {
+        display: inline-block;
+        width: 3rem;
+      }
+      label:first-child {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}

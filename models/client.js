@@ -27,7 +27,7 @@ const client = new Schema({
     type: String,
     required: true,
   },
-  lastAcces: {
+  lastAccess: {
     type: Date,
     default: new Date(),
   },

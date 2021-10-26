@@ -1,0 +1,16 @@
+@import '../../../styles/_colors.scss';
+
+.spin {
+  fill: map-get($map: $colors, $key: black);
+  transform: rotateZ(0deg);
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotateZ(0deg);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}

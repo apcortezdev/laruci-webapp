@@ -1,0 +1,60 @@
+@import '../../../styles/_colors';
+@import '../../../styles/_mixin.scss';
+
+.tagsContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 2.5rem);
+  gap: 0.3rem;
+}
+
+.tag {
+  @include display-flex();
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0 0.3rem;
+  border: 1px solid map-get($map: $colors, $key: light-grey);
+  transition: all 0.3s ease 0s;
+}
+
+.abled {
+  position: relative;
+  padding: 0;
+  
+  &:hover {
+    cursor: pointer;
+    transition: all 0.15s ease 0s;
+    box-shadow: 1px 1px 1px 1px map-get($map: $colors, $key: light-grey);
+    border: 1px solid map-get($map: $colors, $key: primary);
+  }
+}
+
+.active {
+  border: 1px solid map-get($map: $colors, $key: primary);
+  transform: scale(1.3);
+  width: 100%;
+  height: 100%;
+}
+
+.disabled {
+  color: map-get($map: $colors, $key: light-grey);
+}
+
+.disabled:hover {
+  cursor: default;
+}
+
+.relative {
+  position: relative;
+}
+
+.guideContainer {
+  width: 100%;
+  text-align: end;
+}
+
+.selected {
+  box-shadow: 1px 1px 1px 1px map-get($map: $colors, $key: light-grey);
+  border: 1px solid map-get($map: $colors, $key: primary);
+}

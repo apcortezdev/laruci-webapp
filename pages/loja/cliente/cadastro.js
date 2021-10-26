@@ -259,7 +259,7 @@ const UserPage = ({
                 ].join(' ')}
                 onClick={() => router.push({ pathname: '/loja/cliente/entrar' })}
               >
-                Entrar
+                Ir para o Login
               </Button>
             </div>
           ) : (

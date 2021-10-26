@@ -2,24 +2,30 @@ import Head from 'next/Head';
 import Image from 'next/image';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import { getCategoriesJSON } from '../../../data/categories';
-import { getCurrentNotice } from '../../../data/notice';
 import dfStyles from '../../../styles/loja/Defaults.module.scss';
 import Button from '../../../components/utilities/Button';
 import FacebookIconLink from '../../../components/utilities/FacebookIconLink';
 import InstagramIconLink from '../../../components/utilities/InstagramIconLink';
 import WhatsappIconLink from '../../../components/utilities/WhatsappIconLink';
 import styles from '../../../styles/loja/ContactPage.module.scss';
-import { getContactByNameJSON } from '../../../data/contact';
 import {
   Input,
   masker,
   Textarea,
 } from '../../../components/utilities/FormComponents';
 import { useRef } from 'react';
+import {
+  getCategories,
+  getContact,
+  getContactMosaic,
+  getSocialContact,
+  getTopNotice,
+} from '../../../data/access/appInfo';
 
 const ContactPage = ({
   notice,
+  domain,
+  mosaic,
   facebookName,
   instagramName,
   whatsappNum,
@@ -35,10 +41,6 @@ const ContactPage = ({
   city,
   state,
 }) => {
-  if (!categoryList || !facebookLink || !instagramLink || !whatsappLink) {
-    return <p>Carregando ...</p>;
-  }
-
   const email = useRef();
   const subject = useRef();
   const message = useRef();
@@ -47,41 +49,6 @@ const ContactPage = ({
     event.preventDefault();
     email.current.focus();
   };
-
-  const mosaic = [
-    {
-      src: '/images/banners/contato/contato01.png',
-      alt: 'Banner página de contato 01',
-    },
-    {
-      src: '/images/banners/contato/contato02.png',
-      alt: 'Banner página de contato 02',
-    },
-    {
-      src: '/images/banners/contato/contato03.png',
-      alt: 'Banner página de contato 03',
-    },
-    {
-      src: '/images/banners/contato/contato04.png',
-      alt: 'Banner página de contato 04',
-    },
-    {
-      src: '/images/banners/contato/contato05.png',
-      alt: 'Banner página de contato 05',
-    },
-    {
-      src: '/images/banners/contato/contato06.png',
-      alt: 'Banner página de contato 06',
-    },
-    {
-      src: '/images/banners/contato/contato07.png',
-      alt: 'Banner página de contato 07',
-    },
-    {
-      src: '/images/banners/contato/contato08.png',
-      alt: 'Banner página de contato 08',
-    },
-  ];
 
   return (
     <Main
@@ -96,7 +63,7 @@ const ContactPage = ({
       <Head>
         <title>Laruci - Login</title>
         <meta name="description" content={'Página de contato Laruci'} />
-        <link href={'http://localhost:3000/loja/contato'} rel="canonical" />
+        <link href={`${domain}/loja/contato`} rel="canonical" />
       </Head>
       <Store notice={!!notice} categoryList={categoryList}>
         <div
@@ -220,8 +187,8 @@ const ContactPage = ({
                             ? phone.slice(2)
                             : phone;
                           let mask;
-                          if (phone.length === 13) mask = '(99) 9 9999-9999';
-                          if (phone.length === 12) mask = '(99) 9999-9999';
+                          if (phone.length === 12) mask = '(99) 9 9999-9999';
+                          if (phone.length === 10) mask = '(99) 9999-9999';
                           if (phone.length === 11) mask = '9999 999 9999';
                           if (phone.length === 8) mask = '9999-9999';
                           return <p key={phone}>{masker(text, mask)}</p>;
@@ -314,39 +281,38 @@ const ContactPage = ({
 };
 
 export async function getStaticProps() {
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
-
-  const ctInfo = await getContactByNameJSON('main');
-  const contact = await JSON.parse(ctInfo)[0];
-  const facebook = 'https://facebook.com/' + contact.facebookName;
-  const instagtam = 'https://instagram.com/' + contact.instagramName;
+  const notice = await getTopNotice();
+  const categories = await getCategories();
+  const contact = await getContact();
+  const social = await getSocialContact();
+  const mosaic = await getContactMosaic();
+  const facebook = 'https://facebook.com/' + social.facebookName;
+  const instagtam = 'https://instagram.com/' + social.instagramName;
   const whatsapp = `https://wa.me/${
-    contact.whatsappNum
-  }?text=${encodeURIComponent(contact.whatsappMessage)}`;
+    social.whatsappNum
+  }?text=${encodeURIComponent(social.whatsappMessage)}`;
 
   return {
     props: {
-      notice: noticeText,
-      categoryList: categoryList,
-      facebookName: contact.facebookName,
-      instagramName: contact.instagramName,
-      whatsappNum: contact.whatsappNum,
+      notice: notice,
+      domain: process.env.MAIN_DOMAIN,
+      mosaic: mosaic,
+      categoryList: categories,
+      facebookName: social.facebookName,
+      instagramName: social.instagramName,
+      whatsappNum: social.whatsappNum,
       facebookLink: facebook,
       instagramLink: instagtam,
       whatsappLink: whatsapp,
       contactEmail: contact.email,
-      phoneSac: contact.phone,
+      phoneSac: contact.phones,
       addressOne: contact.addressOne,
       addressTwo: contact.addressTwo,
       addressCep: contact.addressCep,
       city: contact.city,
       state: contact.state,
     },
-    revalidate: 86400,
   };
 }
 

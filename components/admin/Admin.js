@@ -11,41 +11,16 @@ const Admin = (props) => {
         <ul>
           <li>
             <div className={styles.dropdown}>
-              <span>Site</span>
-              <div className={styles.dropdown_content}>
-                <Link href={{ pathname: '/admin/banners/' }} passHref>
-                  <a>Banners</a>
-                </Link>
-                <Link href={{ pathname: '/admin/aviso/' }} passHref>
-                  <a>Aviso</a>
-                </Link>
-                <Link href={{ pathname: '/admin/contato/' }} passHref>
-                  <a>Contato</a>
-                </Link>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div className={styles.dropdown}>
               <span>Produtos</span>
               <div className={styles.dropdown_content}>
                 <Link href={{ pathname: '/admin/produtos/' }} passHref>
                   <a>Produtos</a>
                 </Link>
-                <Link href={{ pathname: '/admin/categorias/' }} passHref>
-                  <a>Categorias</a>
-                </Link>
                 <Link href={{ pathname: '/admin/cores/' }} passHref>
                   <a>Cores</a>
                 </Link>
-                <Link href={{ pathname: '/admin/secoes/' }} passHref>
-                  <a>Seções</a>
-                </Link>
                 <Link href={{ pathname: '/admin/tamanhos/' }} passHref>
                   <a>Tamanhos</a>
-                </Link>
-                <Link href={{ pathname: '/admin/banners/' }} passHref>
-                  <a>Frete</a>
                 </Link>
               </div>
             </div>

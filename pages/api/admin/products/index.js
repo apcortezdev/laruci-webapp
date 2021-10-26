@@ -2,12 +2,16 @@ import {
   getProductByCode,
   postProduct,
   deleteProduct,
-} from '../../../../data/products';
+} from '../../../../data/access/products';
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import { validateProduct } from '../../../../utils/validation';
+import { validateProduct } from '../../../../validation/backValidation';
 import { getSession } from 'next-auth/client';
+import {
+  getCategoryById,
+  getSectionById,
+} from '../../../../data/access/appInfo';
 
 export const config = {
   api: {
@@ -32,56 +36,6 @@ const saveFile = async (prodId, file) => {
   return;
 };
 
-const prepareProduct = (product) => {
-  let newProduct = {
-    code: product.code.trim(),
-    name: product.name.trim(),
-    limitStock: product.limitStock,
-    stockNumber: product.stockNumber,
-    categoryId: product.categoryId,
-    sectionId: product.sectionId,
-    price:
-      typeof product.price === 'number'
-        ? product.price
-        : product.price.trim().length > 0
-        ? product.price.trim()
-        : '0',
-    discountPercentage:
-      typeof product.discountPercentage === 'number'
-        ? product.discountPercentage
-        : product.discountPercentage.trim().length > 0
-        ? product.discountPercentage.trim()
-        : '0',
-    weight:
-      typeof product.weight === 'number'
-        ? product.weight
-        : product.weight.trim().length > 0
-        ? product.weight.trim()
-        : '0',
-    shortDescription: product.shortDescription.trim(),
-    longDescription: product.longDescription.trim(),
-  };
-  let sets = product.sets.map((set) => ({
-    ...set,
-    sizeSets:
-      set.sizeSets.length > 0
-        ? set.sizeSets.map((size) => ({
-            ...size,
-            name: size.name.trim(),
-          }))
-        : [],
-    extraOptions:
-      set.extraOptions.length > 0
-        ? set.extraOptions.map((opt) => ({
-            name: opt.name.trim(),
-            options: opt.options.map((o) => o.trim()),
-          }))
-        : [],
-  }));
-  newProduct.sets = sets;
-  return newProduct;
-};
-
 const post = async (req, res) => {
   const form = new formidable.IncomingForm({
     multiples: true,
@@ -98,28 +52,16 @@ const post = async (req, res) => {
 
     const product = await JSON.parse(fields.product);
 
-    const preparedProduct = prepareProduct(product);
-    let validatedProduct;
-    
     try {
-      validatedProduct = await validateProduct(preparedProduct);
-      if (typeof validatedProduct === 'string') {
+      const validatedProduct = await validateProduct(product);
+      if (validatedProduct.status === 'error') {
         res.status(400).json({
           statusCode: '400',
-          message: 'INVALID PRODUCT: ' + validatedProduct,
+          message: 'INVALID PRODUCT: ' + validatedProduct.errorMessage,
         });
         return;
       }
-    } catch (err) {
-      res.status(500).json({
-        statusCode: '500',
-        message: 'INVALID PRODUCT: ' + err,
-      });
-      return;
-    }
-
-    try {
-      const newProduct = await postProduct(validatedProduct);
+      const newProduct = await postProduct(validatedProduct.product);
       try {
         // changes from obj to array
         let fileList = [];
@@ -161,7 +103,7 @@ const get = async (req, res) => {
     if (typeof code !== 'undefined' || code.length < 0 || !code) {
       try {
         const product = await getProductByCode(code);
-        if (product.length > 0)
+        if (product)
           res.status(200).json({ statusCode: '200', product: product });
         else res.status(404).json({ statusCode: '404', message: 'NOT FOUND' });
       } catch (err) {
@@ -242,13 +184,13 @@ const del = async (req, res) => {
   });
 };
 
-export default (req, res) => {
-  const session = await getSession({ req: req });
+export default async (req, res) => {
+  // const session = await getSession({ req: req });
 
-  if (!session || session.user.name !== process.env.USERADM) {
-    res.status(404).json({ message: 'Not Found.' });
-    return;
-  }
+  // if (!session || session.user.name !== process.env.USERADM) {
+  //   res.status(404).json({ message: 'Not Found.' });
+  //   return;
+  // }
 
   req.method === 'POST'
     ? post(req, res)

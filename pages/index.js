@@ -1,4 +1,4 @@
-const LojaPage = (props) => {
+const LojaPage = () => {
   return <div>Loading...</div>;
 };
 

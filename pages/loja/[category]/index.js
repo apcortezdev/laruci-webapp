@@ -1,23 +1,26 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import Head from 'next/Head';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import styles from '../../../styles/loja/ListingPage.module.scss';
 import Main from '../../../components/main/Main';
-import Store from '../../../components/store/Store';
 import ProductList from '../../../components/ProductList';
+import Store from '../../../components/store/Store';
 import Button from '../../../components/utilities/Button';
-import Spin from '../../../components/utilities/Spin';
 import {
   SelectColor,
-  SelectText,
+  SelectText
 } from '../../../components/utilities/FormComponents';
+import Spin from '../../../components/utilities/Spin';
+import {
+  getCategories,
+  getSections,
+  getSocialContact,
+  getTopNotice
+} from '../../../data/access/appInfo';
+import { getColors } from '../../../data/access/colors';
+import styles from '../../../styles/loja/ListingPage.module.scss';
+import { removeAccents } from '../../../validation/backValidation';
 
-import { getCategoriesJSON } from '../../../data/categories';
-import { getColorsJSON } from '../../../data/colors';
-import { getCurrentNotice } from '../../../data/notice';
-import { getSectionsJSON } from '../../../data/sections';
-import { getMainSocial } from '../../../data/contact';
 
 const productsFetcher = async (uri) => {
   const products = await fetch(uri);
@@ -66,7 +69,7 @@ const Page = ({ page, query, onSearch }) => {
     (data.statusCode === '404' || data.statusCode === '500')
   ) {
     return (
-      <div>
+      <div className={styles.emptyList}>
         <p>
           Poxa, sua pesquisa não retornou nenhum resultado.
           <br />
@@ -372,34 +375,32 @@ const ListingPage = ({
 };
 
 export async function getStaticPaths() {
-  const categories = await getCategoriesJSON();
-  const catList = await JSON.parse(categories);
-  const categoryMapped = catList.map((c) => ({ params: { category: c.name } }));
+  const categories = await getCategories();
+  const categoryMapped = categories.map((c) => ({
+    params: { category: removeAccents(c.name) },
+  }));
   const categoryList = [{ params: { category: 'busca' } }, ...categoryMapped];
 
   return {
     paths: categoryList,
-    fallback: false
+    fallback: false,
   };
 }
 
 export async function getStaticProps({ params }) {
   const category = params.category;
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  const notice = await getTopNotice();
 
-  const sections = await getSectionsJSON();
-  const sectionList = await JSON.parse(sections);
+  const sections = await getSections();
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+  const categories = await getCategories();
 
   let categorySelected;
   if (category !== 'busca') {
     try {
-      categorySelected = categoryList.find(
-        (c) => c.name.toLowerCase() === category.toLowerCase()
+      categorySelected = categories.find(
+        (c) => removeAccents(c.name.toLowerCase()) === category.toLowerCase()
       );
     } catch (err) {
       return {
@@ -417,32 +418,32 @@ export async function getStaticProps({ params }) {
     }
   }
 
-  const colors = await getColorsJSON();
-  const colorList = await JSON.parse(colors);
+  const colors = await getColors();
+  const colorList = await JSON.parse(JSON.stringify(colors));
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   return {
     props: {
-      notice: noticeText,
+      notice: notice,
       category: categorySelected ? categorySelected._id : 'all',
-      categoryList: categoryList,
+      categoryList: categories,
       facebookLink: facebook,
       instagramLink: instagtam,
       whatsappLink: whatsapp,
       colorList: colorList.map((c) => ({
         id: c._id,
-        text: c.text,
+        text: c.name,
         code: c.code,
       })),
-      sectionList: sectionList.map((s) => ({
+      sectionList: sections.map((s) => ({
         id: s._id,
-        text: s.text.toLowerCase(),
+        text: s.name.toLowerCase(),
       })),
     },
   };

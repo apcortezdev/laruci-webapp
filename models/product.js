@@ -81,18 +81,12 @@ const product = new Schema({
     type: Number,
     required: false,
   },
-  categoryId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true,
-  },
   categoryName: {
     type: String,
     required: true,
   },
-  sectionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Section',
+  sectionName: {
+    type: String,
     required: true,
   },
   price: {

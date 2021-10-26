@@ -2,9 +2,11 @@ import Head from 'next/Head';
 import styles from '../../../styles/loja/Defaults.module.scss';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import { getCategoriesJSON } from '../../../data/categories';
-import { getCurrentNotice } from '../../../data/notice';
-import { getMainSocial } from '../../../data/contact';
+import {
+  getCategories,
+  getSocialContact,
+  getTopNotice,
+} from '../../../data/access/appInfo';
 
 const HelpPage = ({
   title,
@@ -64,7 +66,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const cannonical = 'http://localhost:3000/loja/ajuda/' + params.page;
+  const cannonical = `${process.env.MAIN_DOMAIN}/loja/ajuda/` + params.page;
   let title = params.page;
 
   switch (params.page) {
@@ -82,34 +84,29 @@ export async function getStaticProps({ params }) {
       break;
     default:
       return {
-        notFound: true
-      }
+        notFound: true,
+      };
   }
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
-
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
-
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const notice = await getTopNotice();
+  const categories = await getCategories();
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   return {
     props: {
       title: title,
-      notice: noticeText,
+      notice: notice,
       cannonical: cannonical,
-      categoryList: categoryList,
+      categoryList: categories,
       facebookLink: facebook,
       instagramLink: instagtam,
       whatsappLink: whatsapp,
     },
-    revalidate: 86400,
   };
 }
 

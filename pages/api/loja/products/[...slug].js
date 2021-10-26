@@ -1,4 +1,4 @@
-import { getProductListing } from '../../../../data/products';
+import { getProductListing } from '../../../../data/access/products';
 
 // /api/loja/products/[category]/[color]/[section]/[order]/[term]/[page]/[numperpage]
 export default async function handler(req, res) {

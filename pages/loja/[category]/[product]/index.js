@@ -1,31 +1,32 @@
-import React, { useContext, useEffect, useState } from 'react';
 import Head from 'next/Head';
 import { useRouter } from 'next/router';
-import BagContext from '../../../../store/bag-context';
+import React, { useContext, useState } from 'react';
+import Breadcrumb from '../../../../components/utilities/Breadcrumb';
 import Main from '../../../../components/main/Main';
-import Store from '../../../../components/store/Store';
-import Breadcrumb from '../../../../components/Breadcrumb';
-import ShipmentCalc from '../../../../components/ShipmentCalc';
-import Button from '../../../../components/utilities/Button';
-import ImageShow from '../../../../components/utilities/ImageShow';
-import SizeSelector from '../../../../components/utilities/SizeSelector';
 import ProductList from '../../../../components/ProductList';
+import ShipmentCalc from '../../../../components/ShipmentCalc';
+import Store from '../../../../components/store/Store';
+import Button from '../../../../components/utilities/Button';
 import ConfirmationDialog from '../../../../components/utilities/ConfirmationDialog';
 import {
-  InputRadio,
   InputNumber,
+  InputRadio
 } from '../../../../components/utilities/FormComponents';
+import ImageShow from '../../../../components/utilities/ImageShow';
+import SizeSelector from '../../../../components/utilities/SizeSelector';
 import Spin from '../../../../components/utilities/Spin';
-
-import styles from '../../../../styles/loja/ProductPage.module.scss';
-import { getCategoriesJSON } from '../../../../data/categories';
 import {
-  getProductListingJSON,
-  getProductsForSSR,
-  getProductByIdJSON,
-} from '../../../../data/products';
-import { getCurrentNotice } from '../../../../data/notice';
-import { getMainSocial } from '../../../../data/contact';
+  getCategories,
+  getSocialContact,
+  getTopNotice
+} from '../../../../data/access/appInfo';
+import {
+  getProductById,
+  getProductListing,
+  getProductsForSSR
+} from '../../../../data/access/products';
+import BagContext from '../../../../store/bag-context';
+import styles from '../../../../styles/loja/ProductPage.module.scss';
 
 const ProductPage = ({
   notice,
@@ -690,7 +691,7 @@ export async function getStaticPaths() {
 
   return {
     paths: pathList,
-    fallback: false
+    fallback: false,
   };
 }
 
@@ -700,7 +701,7 @@ export async function getStaticProps({ params }) {
 
   let prod;
   try {
-    prod = await getProductByIdJSON(productId);
+    prod = await getProductById(productId);
   } catch (err) {
     return {
       notFound: true,
@@ -713,33 +714,31 @@ export async function getStaticProps({ params }) {
     };
   }
 
-  const product = await JSON.parse(prod);
-  const related = await getProductListingJSON(
+  const product = await JSON.parse(JSON.stringify(prod));
+  const related = await getProductListing(
     { category: product.categoryId },
     1,
     10
   );
-  const relatedProducts = await JSON.parse(related);
+  const relatedProducts = await JSON.parse(JSON.stringify(related));
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+  const categories = await getCategories();
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  const notice = await getTopNotice();
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   return {
     props: {
-      title: 'Laruci',
-      canonical: `http://localhost:3000/loja/${category}/${productId}`,
-      notice: noticeText,
-      categoryList: categoryList,
+      title: process.env.MAIN_TITLE,
+      canonical: `${process.env.MAIN_DOMAIN}/loja/${category}/${productId}`,
+      notice: notice,
+      categoryList: categories,
       product: product,
       relatedProducts: relatedProducts,
       facebookLink: facebook,

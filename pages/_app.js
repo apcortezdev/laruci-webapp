@@ -13,11 +13,7 @@ function Laruci(props) {
   } = props;
 
   const router = useRouter();
-
-  const title = 'Laruci';
-  const description = 'Lingeries feitas sob medida para você!';
-  const domain = 'localhost:3000';
-
+  
   let page;
   if (router.pathname.startsWith('/loja')) {
     page = (
@@ -36,11 +32,11 @@ function Laruci(props) {
   return (
     <>
       <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
+        <title>{process.env.MAIN_TITLE}</title>
+        <meta name="description" content={process.env.MAIN_DESCRIPTION} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/laruci_lg.ico" />
-        <link href={domain} rel="canonical" />
+        <link href={process.env.MAIN_DOMAIN} rel="canonical" />
       </Head>
       {page}
     </>

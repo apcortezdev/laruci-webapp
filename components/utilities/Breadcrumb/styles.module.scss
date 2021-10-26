@@ -1,0 +1,24 @@
+@import '../../../styles/_colors';
+@import '../../../styles/_mixin.scss';
+
+.breadcrumb {
+  font-size: .7rem;
+  font-family: inherit;
+
+  @include media-min-width(40rem) {
+    font-size: 1rem;
+  }
+}
+
+.breadcrumb_item a {
+  text-decoration: underline;
+  text-transform: lowercase;
+  &:hover {
+    cursor: pointer;
+    color: map-get($map: $colors, $key: accent-dark);
+  }
+}
+
+.breadcrumb_current {
+  text-transform: lowercase;
+}

@@ -1,6 +1,13 @@
 @import '../_colors.scss';
 @import '../_mixin.scss';
 
+.emptyList {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
 .content {
   @include display-flex();
   justify-content: center;
@@ -29,7 +36,7 @@
   position: relative;
   width: 100%;
   font-size: 0.8rem;
-  margin: 1rem 0 2rem 0;
+  margin-top: 1rem;
   padding: 0 1rem 1rem 1rem;
   border-bottom: 1px solid map-get($map: $colors, $key: light-grey);
   @include media-min-width(40rem) {
@@ -89,9 +96,9 @@
   z-index: 2;
 
   & > span {
-    margin-left: .5rem;
+    margin-left: 0.5rem;
   }
-  
+
   &:hover {
     cursor: pointer;
   }
@@ -256,4 +263,3 @@
     visibility: hidden;
   }
 }
-

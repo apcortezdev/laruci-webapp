@@ -1,19 +1,15 @@
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import Head from 'next/Head';
 import Image from 'next/image';
 import Link from 'next/link';
-import Head from 'next/Head';
-import BagContext from '../../../store/bag-context';
-import Button from '../../../components/utilities/Button';
-import ShipmentCalc from '../../../components/ShipmentCalc';
+import { useContext, useEffect, useState } from 'react';
 import Main from '../../../components/main/Main';
+import ShipmentCalc from '../../../components/ShipmentCalc';
+import Button from '../../../components/utilities/Button';
 import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog';
+import { getCategories, getSocialContact, getTopNotice } from '../../../data/access/appInfo';
+import { getBagItems } from '../../../data/access/bag';
+import BagContext from '../../../store/bag-context';
 import styles from '../../../styles/loja/BagPage.module.scss';
-
-import { getCategoriesJSON } from '../../../data/categories';
-import { getCurrentNotice } from '../../../data/notice';
-import { getBagItems } from '../../../data/bag';
-import { getMainSocial } from '../../../data/contact';
 
 const BagPage = ({
   title,
@@ -142,7 +138,7 @@ const BagPage = ({
       }}
     >
       <Head>
-        <title>{title}</title>
+        <title>{`${title} - Minha Sacola`}</title>
         <meta name="description" content={'Finalizar Compra'} />
         <link href={canonical} rel="canonical" />
       </Head>
@@ -339,27 +335,25 @@ export async function getServerSideProps(context) {
   const bagId = context.query.bag;
   let id;
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+  const categories = await getCategories();
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  const notice = await getTopNotice();
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   if (!bagId) {
     if (!cookie || !cookie.bag || !cookie.bag.id || !cookie.bag.qty) {
       return {
         props: {
-          title: 'Laruci - Finalizar Compra',
-          canonical: 'http://localhost:3000/loja/sacola',
-          notice: noticeText,
-          categoryList: categoryList,
+          title: process.env.MAIN_TITLE,
+          canonical: `${process.env.MAIN_DOMAIN}/loja/sacola`,
+          notice: notice,
+          categoryList: categories,
           facebookLink: facebook,
           instagramLink: instagtam,
           whatsappLink: whatsapp,
@@ -389,10 +383,10 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      title: 'Laruci - Finalizar Compra',
-      canonical: 'http://localhost:3000/loja/sacola',
-      notice: noticeText,
-      categoryList: categoryList,
+      title: process.env.MAIN_TITLE,
+      canonical: process.env.MAIN_DOMAIN,
+      notice: notice,
+      categoryList: categories,
       items: bag.length > 0 ? JSON.parse(JSON.stringify(bag)) : [],
     },
   };

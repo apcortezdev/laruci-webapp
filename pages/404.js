@@ -2,16 +2,17 @@ import Head from 'next/Head';
 import React from 'react';
 import Main from '../components/main/Main';
 import Store from '../components/store/Store';
-import { getCategoriesJSON } from '../data/categories';
-import { getCurrentNotice } from '../data/notice';
-import { getMainSocial } from '../data/contact';
+import {
+  getSocialContact,
+  getTopNotice,
+  getCategories,
+} from '../data/access/appInfo';
 import { BagContextProvider } from '../store/bag-context';
 import styles from '../styles/loja/NotFoundPage.module.scss';
 
 const NotFoundPage = ({
   notice,
   title,
-  canonical,
   categoryList,
   facebookLink,
   instagramLink,
@@ -35,7 +36,6 @@ const NotFoundPage = ({
               name="description"
               content={'Ops, esta página não foi encontrada'}
             />
-            <link href={canonical} rel="canonical" />
           </Head>
           <div className={styles.contentbox}>
             <h1>404</h1>
@@ -48,25 +48,22 @@ const NotFoundPage = ({
 };
 
 export async function getStaticProps() {
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+  const categories = await getCategories();
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  const notice = await getTopNotice();
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   return {
     props: {
-      title: 'Laruci',
-      canonical: 'http://localhost:3000/',
-      notice: noticeText,
-      categoryList: categoryList,
+      title: process.env.MAIN_TITLE,
+      notice: notice,
+      categoryList: categories,
       facebookLink: facebook,
       instagramLink: instagtam,
       whatsappLink: whatsapp,

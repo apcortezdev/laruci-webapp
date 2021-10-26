@@ -4,25 +4,23 @@ import { useEffect, useRef, useState } from 'react';
 import Main from '../../components/main/Main';
 import MainMenu from '../../components/MainMenu';
 import styles from '../../styles/loja/Home.module.scss';
-import { getCurrentNotice } from '../../data/notice';
-import { getPageInfo } from '../../data/pageInfo';
-import { getMainSocial } from '../../data/contact';
-import { getCategoriesJSON } from '../../data/categories';
-import { getProductListingJSON } from '../../data/products';
+import {
+  getPageInfo,
+  getSocialContact,
+  getTopNotice,
+  getCategories,
+} from '../../data/access/appInfo';
+import { getProductListing } from '../../data/access/products';
 import ProductList from '../../components/ProductList';
 
 export default function Home({
   notice,
-  categoryList,
+  categories,
   info,
   facebookLink,
   instagramLink,
   whatsappLink,
 }) {
-  if (!info || !categoryList) {
-    return <p>Loading...</p>;
-  }
-
   const [opacityBanner, setOpacityBanner] = useState(0);
   const [isTransparent, setIsTransparent] = useState(true);
   const bannerSection = useRef();
@@ -50,7 +48,7 @@ export default function Home({
   return (
     <Main
       notice={notice}
-      categoryList={categoryList}
+      categoryList={categories}
       isTransparent={isTransparent}
       transparency={opacityBanner}
       footerLinks={{
@@ -99,7 +97,7 @@ export default function Home({
           .join(' ')
           .trim()}
       >
-        <MainMenu categoryList={categoryList} onMobileClick={false} />
+        <MainMenu categoryList={categories} onMobileClick={false} />
       </div>
       <section className={styles.home_listng}>
         {info.promos.map((promo) => (
@@ -146,23 +144,21 @@ export default function Home({
 }
 
 export async function getStaticProps() {
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
 
+  const notice = await getTopNotice();
   const info = await getPageInfo();
 
-  const categories = await getCategoriesJSON();
-  const catList = await JSON.parse(categories);
+  const categories = await getCategories();
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   for (const promo of info.promos) {
-    const products = await getProductListingJSON(
+    const products = await getProductListing(
       {
         category: promo.categoryId,
         section: promo.section || 0,
@@ -171,13 +167,13 @@ export async function getStaticProps() {
       1,
       3
     );
-    promo.products = await JSON.parse(products);
+    promo.products = await JSON.parse(JSON.stringify(products));
   }
 
   return {
     props: {
-      notice: noticeText,
-      categoryList: catList,
+      notice: notice,
+      categories: categories,
       info: info,
       facebookLink: facebook,
       instagramLink: instagtam,

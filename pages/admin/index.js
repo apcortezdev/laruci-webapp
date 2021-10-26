@@ -1,7 +1,7 @@
 import { getSession } from 'next-auth/client';
 
 import Admin from '../../components/admin/Admin';
-import styles from '../../styles/AdInitialPage.module.scss';
+import styles from './styles.module.scss';
 
 const AdminPage = (props) => {
   return (
@@ -28,17 +28,17 @@ const AdminPage = (props) => {
 };
 
 export async function getServerSideProps(context) {
-  const session = await getSession({ req: context.req });
+  // const session = await getSession({ req: context.req });
 
-  if (!session || session.user.name !== process.env.USERADM) {
-    return {
-      notFound: true,
-    };
-  }
+  // if (!session || session.user.name !== process.env.USERADM) {
+  //   return {
+  //     notFound: true,
+  //   };
+  // }
 
   return {
     props: {
-      session: session,
+      // session: session,
     },
   };
 }

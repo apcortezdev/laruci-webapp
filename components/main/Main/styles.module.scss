@@ -1,0 +1,39 @@
+@import '../../../styles/_colors';
+@import '../../../styles/_mixin.scss';
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.visible {
+  @include display-flex();
+}
+
+.transparent {
+  @include display-flex();
+  flex-direction: column;
+  &::after {
+    content: '';
+    width: 100%;
+    height: 1rem;
+  }
+}
+
+.maincontent {
+  position: relative;
+  @include display-flex();
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 100vh;
+  top: 0rem;
+}
+
+.maincontent__notice {
+  @include media-min-width(40rem) {
+    top: 2.5rem;
+  }
+}

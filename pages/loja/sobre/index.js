@@ -1,19 +1,21 @@
 import Head from 'next/Head';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import { getCategoriesJSON } from '../../../data/categories';
-import { getMainSocial } from '../../../data/contact';
-import { getCurrentNotice } from '../../../data/notice';
+import {
+  getCategories,
+  getSocialContact,
+  getTopNotice,
+} from '../../../data/access/appInfo';
 import styles from '../../../styles/loja/Defaults.module.scss';
 
 const AboutPage = ({
   notice,
+  domain,
   categoryList,
   facebookLink,
   instagramLink,
   whatsappLink,
 }) => {
-
   if (!categoryList || !facebookLink || !instagramLink || !whatsappLink) {
     return <p>Carregando ...</p>;
   }
@@ -34,7 +36,7 @@ const AboutPage = ({
           name="description"
           content={'Página da conta do cliente Laruci'}
         />
-        <link href={'http://localhost:3000/loja/sobre'} rel="canonical" />
+        <link href={`${domain}/loja/sobre`} rel="canonical" />
       </Head>
       <Store notice={!!notice} categoryList={categoryList}>
         <div
@@ -53,28 +55,26 @@ const AboutPage = ({
 };
 
 export async function getStaticProps() {
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  const notice = await getTopNotice();
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+  const categories = await getCategories();
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
+  const contato = await getSocialContact();
+  const facebook = 'https://facebook.com/' + contato.facebookName;
+  const instagtam = 'https://instagram.com/' + contato.instagramName;
   const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
+    contato.whatsappNum
+  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
   return {
     props: {
-      notice: noticeText,
-      categoryList: categoryList,
+      notice: notice,
+      domain: process.env.MAIN_DOMAIN,
+      categoryList: categories,
       facebookLink: facebook,
       instagramLink: instagtam,
       whatsappLink: whatsapp,
     },
-    revalidate: 86400,
   };
 }
 
