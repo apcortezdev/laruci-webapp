@@ -1,13 +1,20 @@
 import { getSession } from 'next-auth/client';
 import { postColor, deleteColor, putColor } from '../../../../data/access/colors';
+import { getUserInfoByEmail } from '../../../../data/access/user';
 
 export default async function handler(req, res) {
-  // const session = await getSession({ req: req });
+  const session = await getSession({ req: req });
 
-  // if (!session || session.user.name !== process.env.USERADM) {
-  //   res.status(404).json({ message: 'Not Found.' });
-  //   return;
-  // }
+  if (!session) {
+    res.status(404).json({ message: 'Not Found.' });
+    return;
+  }
+
+  const user = await getUserInfoByEmail(session.user.email);
+  if (!user) {
+    res.status(404).json({ message: 'Not Found.' });
+    return;
+  }
 
   if (req.method === 'POST') {
     try {

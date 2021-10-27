@@ -1,4 +1,4 @@
-import { postClient } from '../../../data/clients';
+import { postClient } from '../../../data/access/clients';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

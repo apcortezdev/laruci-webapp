@@ -1,3 +1,12 @@
+// {
+//   "_id": {"$oid": "61799cca5b5200502cc00abe"},
+//   "email": "cilaruci@hotmail.com",
+//   "createdOn": {"$date": "2021-10-27T18:10:41.969Z"},
+//   "hashPassword": "$2a$12$KyreRX63GB4DGiOZUMkzD.lHh9dVjdNK2KZ6w1RLegLlHNpVXPU0G",
+//   "recoveryLogs": [],
+//   "accessLogs": []
+// }
+
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
@@ -92,30 +101,14 @@ const accessLogSchema = new Schema({
   },
 });
 
-const client = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
+const user = new Schema({
   email: {
-    type: String,
-    required: true,
-  },
-  cpf: {
-    type: String,
-    required: true,
-  },
-  phone: {
     type: String,
     required: true,
   },
   hashPassword: {
     type: String,
     required: true,
-  },
-  active: {
-    type: Boolean,
-    default: true,
   },
   createdOn: {
     type: Date,
@@ -125,8 +118,8 @@ const client = new Schema({
   accessLogs: [accessLogSchema],
 });
 
-client.query.byEmail = function (email) {
-  return this.where({ email: email, active: true });
+user.query.byEmail = function (email) {
+  return this.where({ email: email });
 };
 
-export default mongoose.models.Client || mongoose.model('Client', client);
+export default mongoose.models.User || mongoose.model('User', user);

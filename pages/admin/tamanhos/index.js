@@ -7,6 +7,7 @@ import { Input } from '../../../components/utilities/FormComponents';
 import Button from '../../../components/utilities/Button';
 import styles from './styles.module.scss';
 import { getSizeSets } from '../../../data/access/sizeSets';
+import { getUserInfoByEmail } from '../../../data/access/user';
 
 const METHOD = {
   SAVE: 'SAVE',
@@ -474,18 +475,24 @@ const AdSizesPage = ({ session, sizeSets }) => {
 };
 
 export async function getServerSideProps(context) {
-  // const session = await getSession({ req: context.req });
+  const session = await getSession({ req: context.req });
 
-  // if (!session || session.user.name !== process.env.USERADM) {
-  //   return {
-  //     notFound: true,
-  //   };
-  // }
+  if (!session) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const user = await getUserInfoByEmail(session.user.email);
+  if (!user) {
+    return {
+      notFound: true,
+    };
+  }
   
   const sizeSets = await getSizeSets();
   return {
     props: {
-      // session: session,
       sizeSets: JSON.parse(JSON.stringify(sizeSets)),
     },
   };

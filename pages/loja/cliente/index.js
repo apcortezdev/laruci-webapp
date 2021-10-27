@@ -7,8 +7,10 @@ import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog
 import {
   getCategories,
   getSocialContact,
-  getTopNotice,
+  getTopNotice
 } from '../../../data/access/appInfo';
+import { getClientInfoByEmail } from '../../../data/access/clients';
+import { getUserInfoByEmail } from '../../../data/access/user';
 import defstyles from '../../../styles/loja/Defaults.module.scss';
 
 const UserPage = ({
@@ -17,6 +19,7 @@ const UserPage = ({
   facebookLink,
   instagramLink,
   whatsappLink,
+  client
 }) => {
   // Dialog
   const [showDialog, setShowDialog] = useState(false);
@@ -92,7 +95,7 @@ const UserPage = ({
             defstyles.h_100,
           ].join(' ')}
         >
-          <div>Histórico de Compras!</div>
+          <div>Olá {client.name}</div>
         </div>
       </Store>
       <ConfirmationDialog
@@ -135,8 +138,29 @@ export async function getServerSideProps(context) {
       getTopNotice(),
       getCategories(),
       getSocialContact(),
+      getClientInfoByEmail(session.user.email),
+      getUserInfoByEmail(session.user.email),
     ]);
 
+    if (!promises[3] && !!promises[4]) {
+      return {
+        redirect: {
+          destination: '/admin',
+          permanent: false,
+        }
+      }
+    }
+
+    if (!promises[3] && !promises[4]) {
+      return {
+        redirect: {
+          destination: '/loja/cliente/entrar',
+          permanent: false,
+        },
+      };
+    }
+
+    const client = await JSON.parse(JSON.stringify(promises[3]));
     const notice = promises[0];
     const categories = promises[1];
     const contato = promises[2];
@@ -153,6 +177,7 @@ export async function getServerSideProps(context) {
         facebookLink: facebook,
         instagramLink: instagtam,
         whatsappLink: whatsapp,
+        client: client,
       },
     };
   } catch (err) {

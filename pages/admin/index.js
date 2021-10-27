@@ -1,6 +1,6 @@
 import { getSession } from 'next-auth/client';
-
 import Admin from '../../components/admin/Admin';
+import { getUserInfoByEmail } from '../../data/access/user';
 import styles from './styles.module.scss';
 
 const AdminPage = (props) => {
@@ -28,18 +28,23 @@ const AdminPage = (props) => {
 };
 
 export async function getServerSideProps(context) {
-  // const session = await getSession({ req: context.req });
+  const session = await getSession({ req: context.req });
 
-  // if (!session || session.user.name !== process.env.USERADM) {
-  //   return {
-  //     notFound: true,
-  //   };
-  // }
+  if (!session) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const user = await getUserInfoByEmail(session.user.email);
+  if (!user) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
-    props: {
-      // session: session,
-    },
+    props: {},
   };
 }
 

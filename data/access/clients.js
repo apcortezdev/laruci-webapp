@@ -9,7 +9,7 @@ import {
   validatePhone,
   validatePasswordLength,
   validatePasswordStrength,
-} from '../../utils/validation';
+} from '../../validation/backValidation';
 
 const hashPassword = async (password) => {
   return await hash(password, 12);
@@ -85,17 +85,16 @@ export async function postClient(client) {
       email: validation.client.email,
       cpf: validation.client.cpf,
       phone: validation.client.phone,
-      type: process.env.USERCLI,
       hashPassword: await hashPassword(validation.client.password),
     });
   } else {
-    throw new Error('ERN0C1: Invalid - ' + validation.error);
+    throw new Error('ERNC01: Invalid - ' + validation.error);
   }
 
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0C9: ' + err.message);
+    throw new Error('ERNC02: ' + err.message);
   }
 
   try {
@@ -109,7 +108,52 @@ export async function postClient(client) {
     if (err.message.startsWith('DUPLICATED')) {
       throw new Error('DUPLICATED');
     } else {
-      throw new Error('ERN0C10: ' + err.message);
+      throw new Error('ERNC03: ' + err.message);
     }
+  }
+}
+
+export async function getSigninClientByEmail(email) {
+  return await getClientByEmail(email, 'name email cpf phone hashPassword');
+}
+
+export async function getClientInfoByEmail(email) {
+  return await getClientByEmail(email, 'name email cpf phone');
+}
+
+async function getClientByEmail(email, select) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERNC04: ' + err.message);
+  }
+
+  try {
+    const client = await Client.findOne().byEmail(email).select(select);
+    return client;
+  } catch (err) {
+    throw new Error('ERNC05: ' + err.message);
+  }
+}
+
+export async function logClient(_id, log) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERNC06: ' + err.message);
+  }
+
+  try {
+    const logged = await Client.findByIdAndUpdate(_id, {
+      $push: {
+        accessLogs: {
+          ...log,
+        },
+      },
+    });
+    return !!logged;
+  } catch (err) {
+    console.log(err)
+    throw new Error('ERNC07: ' + err.message);
   }
 }

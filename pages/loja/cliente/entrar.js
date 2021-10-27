@@ -91,15 +91,26 @@ const UserPage = ({
       setNoButtons(true);
       setShowDialog(true);
       setDialogMessage('carregando ...');
+      const local = await fetch('https://geolocation-db.com/json/');
+      if (local.status !== 200) {
+        setNoButtons(false);
+        setDialogMessage(
+          'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
+        );
+        return;
+      }
+      const location = await local.json();
       const response = await signin('credentials', {
         redirect: false,
         email: client.email,
         password: client.password,
+        log: JSON.stringify(location),
       });
 
       switch (response.status) {
         case 200:
           if (response.error) {
+            console.log(response.error)
             setNoButtons(false);
             setDialogMessage(
               'Ops, parece que o usuário ou a senha estão errados! Por favor, tente novamente.'
@@ -255,7 +266,6 @@ export async function getServerSideProps(context) {
         facebookLink: facebook,
         instagramLink: instagtam,
         whatsappLink: whatsapp,
-        // session: session,
       },
     };
   } catch (err) {

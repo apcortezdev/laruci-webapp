@@ -10,6 +10,8 @@ import {
 } from '../../../components/utilities/FormComponents';
 import Button from '../../../components/utilities/Button';
 import { getColors } from '../../../data/access/colors';
+import { getUserInfoByEmail } from '../../../data/access/user';
+import { getSession } from 'next-auth/client';
 
 const METHOD = {
   SAVE: 'SAVE',
@@ -346,19 +348,25 @@ const AdColorsPage = ({ session, colors }) => {
 };
 
 export async function getServerSideProps(context) {
-  // const session = await getSession({ req: context.req });
+  const session = await getSession({ req: context.req });
 
-  // if (!session || session.user.name !== process.env.USERADM) {
-  //   return {
-  //     notFound: true,
-  //   };
-  // }
+  if (!session) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const user = await getUserInfoByEmail(session.user.email);
+  if (!user) {
+    return {
+      notFound: true,
+    };
+  }
 
   const colors = await getColors();
 
   return {
     props: {
-      // session: session,
       colors: JSON.parse(JSON.stringify(colors)),
     },
   };

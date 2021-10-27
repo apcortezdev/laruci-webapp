@@ -21,9 +21,9 @@
   align-items: center;
   width: 100%;
   max-width: 25rem;
-  height: 25rem;
+  height: 20rem;
   text-align: center;
-  margin: 5rem auto;
+  margin: auto;
   line-height: 2rem;
   padding: 0 2rem;
   background-color: map-get($map: $colors, $key: lighter-grey);

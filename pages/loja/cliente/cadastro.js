@@ -254,7 +254,7 @@ const UserPage = ({
               <Button
                 className={[
                   defstyles.marginver_1rem,
-                  defstyles.width_8rem,
+                  defstyles.width_12rem,
                 ].join(' ')}
                 onClick={() =>
                   router.push({ pathname: '/loja/cliente/entrar' })

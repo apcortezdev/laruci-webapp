@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { signout } from 'next-auth/client';
 import styles from './Admin.module.scss';
 
 const Admin = (props) => {
   if (!props.children) {
     return <p>Loading</p>;
   }
+
   return (
     <div className={styles.main}>
       <div className={styles.main_menu}>
@@ -34,6 +36,11 @@ const Admin = (props) => {
                 </Link>
               </div>
             </div>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <span onClick={signout}>Sair</span>
           </li>
         </ul>
       </div>

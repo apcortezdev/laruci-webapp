@@ -7,9 +7,11 @@
   height: 100%;
 
   .main_menu {
-    display: inline-flex;
-    width: 100%;
+    display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
     border-bottom: 2px solid map-get($map: $colors, $key: secondary);
     padding: 0;
 
@@ -23,6 +25,16 @@
       & > li {
         display: inline-block;
         list-style: none;
+
+        & > span {
+          padding: 1rem 2rem;
+          cursor: pointer;
+          &:hover {
+            background-color: map-get($map: $colors, $key: dark-white);
+            cursor: pointer;
+            color: map-get($map: $colors, $key: primary);
+          }
+        }
       }
     }
   }
@@ -49,24 +61,23 @@
       position: relative;
 
       &::before {
-          content: '';
-          position: absolute;
-          top: 80%;
-          margin: auto;
-          width: 0;
-          height: 1px;
-          background-color: map-get($map: $colors, $key: secondary);
-          transition: all .3s ease-out;
+        content: '';
+        position: absolute;
+        top: 80%;
+        margin: auto;
+        width: 0;
+        height: 1px;
+        background-color: map-get($map: $colors, $key: secondary);
+        transition: all 0.3s ease-out;
       }
 
       &:hover {
         color: map-get($map: $colors, $key: primary);
 
         &::before {
-            width: 90%;
-          }
+          width: 90%;
+        }
       }
-
     }
   }
 

@@ -19,6 +19,7 @@ import Button from '../../../components/utilities/Button';
 import { getCategories, getSections } from '../../../data/access/appInfo';
 import { getColors } from '../../../data/access/colors';
 import { getSizeSets } from '../../../data/access/sizeSets';
+import { getUserInfoByEmail } from '../../../data/access/user';
 
 const fields = {
   ID: 'id',
@@ -825,7 +826,7 @@ const AdProductsPage = ({
     const data = await result.json();
 
     window.scrollTo(0, 0);
-   
+
     setShowConfirmation(false);
     setShowResume(false);
     setShowDialog(true);
@@ -835,9 +836,7 @@ const AdProductsPage = ({
     switch (result.status) {
       case 200:
         resetForm();
-        setConfirmationMessage(
-          'Deletado com sucesso.'
-        );
+        setConfirmationMessage('Deletado com sucesso.');
         break;
       case 201:
         resetForm();
@@ -1919,24 +1918,43 @@ const AdProductsPage = ({
 };
 
 export async function getServerSideProps(context) {
-  // const session = await getSession({ req: context.req });
+  const session = await getSession({ req: context.req });
 
-  // if (!session || session.user.name !== process.env.USERADM) {
-  //   return {
-  //     notFound: true,
-  //   };
-  // }
-  
-  const categories = await getCategories();
-  const colors = await getColors();
-  const colorList = await JSON.parse(JSON.stringify(colors));
-  const sections = await getSections();
-  const sizeSets = await getSizeSets();
-  const sizeSetList = await JSON.parse(JSON.stringify(sizeSets));
+  if (!session) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const user = await getUserInfoByEmail(session.user.email);
+  if (!user) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const promises = await Promise.all([
+    getCategories(),
+    getColors(),
+    getSections(),
+    getSizeSets(),
+  ]);
+
+  const categories = promises[0];
+  const colors = promises[1];
+  const sections = promises[2];
+  const sizeSets = promises[3];
+
+  const jsons = await Promise.all([
+    JSON.parse(JSON.stringify(colors)),
+    JSON.parse(JSON.stringify(sizeSets)),
+  ]);
+
+  const colorList = jsons[0];
+  const sizeSetList = jsons[1];
 
   return {
     props: {
-      // session: session,
       categoryList: categories,
       colorList: colorList,
       sectionList: sections,
