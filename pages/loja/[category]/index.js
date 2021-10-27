@@ -21,7 +21,6 @@ import { getColors } from '../../../data/access/colors';
 import styles from '../../../styles/loja/ListingPage.module.scss';
 import { removeAccents } from '../../../validation/backValidation';
 
-
 const productsFetcher = async (uri) => {
   const products = await fetch(uri);
   return await products.json();
@@ -388,65 +387,77 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const category = params.category;
+  try {
+    const category = params.category;
 
-  const notice = await getTopNotice();
+    const promises = await Promise.all([
+      getTopNotice(),
+      getSections(),
+      getCategories(),
+      getColors(),
+      getSocialContact(),
+    ]);
 
-  const sections = await getSections();
+    const notice = promises[0];
+    const sections = promises[1];
+    const categories = promises[2];
+    const colors = promises[3];
+    const contato = promises[4];
 
-  const categories = await getCategories();
-
-  let categorySelected;
-  if (category !== 'busca') {
-    try {
-      categorySelected = categories.find(
-        (c) => removeAccents(c.name.toLowerCase()) === category.toLowerCase()
-      );
-    } catch (err) {
-      return {
-        notFound: true,
-      };
+    let categorySelected;
+    if (category !== 'busca') {
+      try {
+        categorySelected = categories.find(
+          (c) => removeAccents(c.name.toLowerCase()) === category.toLowerCase()
+        );
+      } catch (err) {
+        return {
+          notFound: true,
+        };
+      }
+      if (
+        typeof categorySelected === 'undefined' ||
+        categorySelected === null ||
+        categorySelected === ''
+      ) {
+        return {
+          notFound: true,
+        };
+      }
     }
-    if (
-      typeof categorySelected === 'undefined' ||
-      categorySelected === null ||
-      categorySelected === ''
-    ) {
-      return {
-        notFound: true,
-      };
-    }
+
+    const colorList = await JSON.parse(JSON.stringify(colors));
+
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
+
+    return {
+      props: {
+        notice: notice,
+        category: categorySelected ? categorySelected._id : 'all',
+        categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+        colorList: colorList.map((c) => ({
+          id: c._id,
+          text: c.name,
+          code: c.code,
+        })),
+        sectionList: sections.map((s) => ({
+          id: s._id,
+          text: s.name.toLowerCase(),
+        })),
+      },
+    };
+  } catch (err) {
+    return {
+      notFound: true,
+    };
   }
-
-  const colors = await getColors();
-  const colorList = await JSON.parse(JSON.stringify(colors));
-
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
-
-  return {
-    props: {
-      notice: notice,
-      category: categorySelected ? categorySelected._id : 'all',
-      categoryList: categories,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-      colorList: colorList.map((c) => ({
-        id: c._id,
-        text: c.name,
-        code: c.code,
-      })),
-      sectionList: sections.map((s) => ({
-        id: s._id,
-        text: s.name.toLowerCase(),
-      })),
-    },
-  };
 }
 
 export default ListingPage;

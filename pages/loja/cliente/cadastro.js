@@ -1,27 +1,28 @@
 import { useRef, useState } from 'react';
-import Head from 'next/Head';
 import { useRouter } from 'next/router';
+import Head from 'next/Head';
 import { getSession } from 'next-auth/client';
-
-import defstyles from '../../../styles/loja/Defaults.module.scss';
-import userstyles from '../../../styles/loja/UserPage.module.scss';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import { Input, InputMask } from '../../../components/utilities/FormComponents';
 import Button from '../../../components/utilities/Button';
-import { getCategoriesJSON } from '../../../data/categories';
-import { getCurrentNotice } from '../../../data/notice';
-import { getMainSocial } from '../../../data/contact';
 import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog';
+import { Input, InputMask } from '../../../components/utilities/FormComponents';
 import {
-  validateEmail,
+  getCategories,
+  getSocialContact,
+  getTopNotice,
+} from '../../../data/access/appInfo';
+import defstyles from '../../../styles/loja/Defaults.module.scss';
+import userstyles from '../../../styles/loja/UserPage.module.scss';
+import {
   validateCPF,
+  validateEmail,
   validateIsFullName,
   validateIsValidName,
-  validatePhone,
   validatePasswordLength,
   validatePasswordStrength,
-} from '../../../utils/validationFront';
+  validatePhone,
+} from '../../../validation/frontValidation';
 
 const UserPage = ({
   notice,
@@ -51,8 +52,6 @@ const UserPage = ({
   // Dialog
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  // const [cancelText, setCancelText] = useState('');
-  // const [okText, setOkText] = useState('');
   const [noButtons, setNoButtons] = useState(false);
   const [onFocus, setOnfocus] = useState(() => () => {});
 
@@ -171,7 +170,7 @@ const UserPage = ({
     };
   };
 
-  const signin = async (e) => {
+  const signup = async (e) => {
     e.preventDefault();
     const client = validate();
     if (!client) {
@@ -257,7 +256,9 @@ const UserPage = ({
                   defstyles.marginver_1rem,
                   defstyles.width_8rem,
                 ].join(' ')}
-                onClick={() => router.push({ pathname: '/loja/cliente/entrar' })}
+                onClick={() =>
+                  router.push({ pathname: '/loja/cliente/entrar' })
+                }
               >
                 Ir para o Login
               </Button>
@@ -269,7 +270,7 @@ const UserPage = ({
                 defstyles.flex_column,
                 defstyles.width_25rem,
               ].join(' ')}
-              onSubmit={signin}
+              onSubmit={signup}
             >
               <h2>Cadastro</h2>
               <div
@@ -370,18 +371,12 @@ const UserPage = ({
         show={showDialog}
         onCancel={() => {
           setShowDialog(false);
-          // setCancelText('');
-          // setOkText('ok');
         }}
         onConfirm={() => {
           setShowDialog(false);
           onFocus();
-          // setCancelText('');
-          // setOkText('ok');
         }}
         message={dialogMessage}
-        // cancelText={cancelText}
-        // okText={okText}
         noButtons={noButtons}
         fixed
       />
@@ -401,28 +396,36 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  try {
+    const promises = await Promise.all([
+      getTopNotice(),
+      getCategories(),
+      getSocialContact(),
+    ]);
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+    const notice = promises[0];
+    const categories = promises[1];
+    const contato = promises[2];
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
-  const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
-
-  return {
-    props: {
-      notice: noticeText,
-      categoryList: categoryList,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-    },
-  };
+    return {
+      props: {
+        notice: notice,
+        categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+      },
+    };
+  } catch (err) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 export default UserPage;

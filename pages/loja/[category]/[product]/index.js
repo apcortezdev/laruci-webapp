@@ -1,11 +1,11 @@
 import Head from 'next/Head';
 import { useRouter } from 'next/router';
 import React, { useContext, useState } from 'react';
-import Breadcrumb from '../../../../components/utilities/Breadcrumb';
 import Main from '../../../../components/main/Main';
 import ProductList from '../../../../components/ProductList';
 import ShipmentCalc from '../../../../components/ShipmentCalc';
 import Store from '../../../../components/store/Store';
+import Breadcrumb from '../../../../components/utilities/Breadcrumb';
 import Button from '../../../../components/utilities/Button';
 import ConfirmationDialog from '../../../../components/utilities/ConfirmationDialog';
 import {
@@ -27,6 +27,7 @@ import {
 } from '../../../../data/access/products';
 import BagContext from '../../../../store/bag-context';
 import styles from '../../../../styles/loja/ProductPage.module.scss';
+import { removeAccents } from '../../../../validation/backValidation';
 
 const ProductPage = ({
   notice,
@@ -696,56 +697,57 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const category = params.category;
-  const productId = params.product;
-
-  let prod;
   try {
-    prod = await getProductById(productId);
+    const category = params.category;
+    const productId = params.product;
+
+    const categories = await getCategories();
+    const selectedCategory = categories.findIndex(
+      (cat) => removeAccents(cat.name) === category
+    );
+
+    const promises = await Promise.all([
+      getProductById(productId),
+      getProductListing({ category: categories[selectedCategory]._id }, 1, 10),
+      getTopNotice(),
+      getSocialContact(),
+    ]);
+
+    const notice = promises[2];
+    const contato = promises[3];
+
+    const jsons = await Promise.all([
+      JSON.parse(JSON.stringify(promises[1])),
+      JSON.parse(JSON.stringify(promises[0])),
+    ]);
+
+    const relatedProducts = jsons[0];
+    const product = jsons[1];
+
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
+
+    return {
+      props: {
+        title: process.env.MAIN_TITLE,
+        canonical: `${process.env.MAIN_DOMAIN}/loja/${category}/${productId}`,
+        notice: notice,
+        categoryList: categories,
+        product: product,
+        relatedProducts: relatedProducts,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+      },
+    };
   } catch (err) {
     return {
       notFound: true,
     };
   }
-
-  if (typeof prod === 'undefined' || prod === null || prod === '') {
-    return {
-      notFound: true,
-    };
-  }
-
-  const product = await JSON.parse(JSON.stringify(prod));
-  const related = await getProductListing(
-    { category: product.categoryId },
-    1,
-    10
-  );
-  const relatedProducts = await JSON.parse(JSON.stringify(related));
-
-  const categories = await getCategories();
-
-  const notice = await getTopNotice();
-
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
-
-  return {
-    props: {
-      title: process.env.MAIN_TITLE,
-      canonical: `${process.env.MAIN_DOMAIN}/loja/${category}/${productId}`,
-      notice: notice,
-      categoryList: categories,
-      product: product,
-      relatedProducts: relatedProducts,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-    },
-  };
 }
 
 export default ProductPage;

@@ -93,6 +93,7 @@ export async function getProductListing(
           $or: [
             { name: { $regex: term, $options: 'i' } },
             { categoryName: { $regex: term, $options: 'i' } },
+            { sectionName: { $regex: term, $options: 'i' } },
             { shortDescription: { $regex: term, $options: 'i' } },
             { longDescription: { $regex: term, $options: 'i' } },
           ],
@@ -152,9 +153,7 @@ export async function getProductListing(
     const products = await Product.aggregate(aggregate);
     return products;
   } catch (err) {
-    if (err) {
-      throw new Error('ERNP06: ' + err.message);
-    }
+    throw new Error('ERNP06: ' + err.message);
   }
 }
 
@@ -170,9 +169,7 @@ export async function getProductByCode(code) {
   try {
     product = await Product.findOne().byCode(code).exec();
   } catch (err) {
-    if (err) {
-      throw new Error('ERNP08: ' + err.message);
-    }
+    throw new Error('ERNP08: ' + err.message);
   }
   return product;
 }
@@ -201,7 +198,6 @@ export async function postProduct(product) {
     const created = await newProduct.save();
     return created;
   } catch (err) {
-    console.log(err);
     throw new Error('ERNP11: ' + err.message);
   }
 }
@@ -217,8 +213,6 @@ export async function deleteProduct(_id) {
     const deleted = await Product.findByIdAndDelete(_id);
     return deleted;
   } catch (err) {
-    if (err) {
-      throw new Error('ERNP13: ' + err.message);
-    }
+    throw new Error('ERNP13: ' + err.message);
   }
 }

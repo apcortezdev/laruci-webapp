@@ -55,27 +55,43 @@ const AboutPage = ({
 };
 
 export async function getStaticProps() {
-  const notice = await getTopNotice();
+  try {
+    const primises = await Promise.all([
+      getTopNotice(),
+      getCategories(),
+      getSocialContact(),
+    ]);
+    const notice = primises[0];
+    const categories = primises[1];
+    const contato = primises[2];
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  const categories = await getCategories();
-
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
-
-  return {
-    props: {
-      notice: notice,
-      domain: process.env.MAIN_DOMAIN,
-      categoryList: categories,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-    },
-  };
+    return {
+      props: {
+        notice: notice,
+        domain: process.env.MAIN_DOMAIN,
+        categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        notice: null,
+        domain: '',
+        categoryList: [],
+        facebookLink: '',
+        instagramLink: '',
+        whatsappLink: '',
+      },
+    };
+  }
 }
 
 export default AboutPage;

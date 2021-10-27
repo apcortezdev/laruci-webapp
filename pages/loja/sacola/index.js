@@ -6,7 +6,11 @@ import Main from '../../../components/main/Main';
 import ShipmentCalc from '../../../components/ShipmentCalc';
 import Button from '../../../components/utilities/Button';
 import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog';
-import { getCategories, getSocialContact, getTopNotice } from '../../../data/access/appInfo';
+import {
+  getCategories,
+  getSocialContact,
+  getTopNotice,
+} from '../../../data/access/appInfo';
 import { getBagItems } from '../../../data/access/bag';
 import BagContext from '../../../store/bag-context';
 import styles from '../../../styles/loja/BagPage.module.scss';
@@ -328,68 +332,70 @@ const BagPage = ({
 };
 
 export async function getServerSideProps(context) {
-  let bag = [];
-  let cookie = '';
-  const c = context.req.cookies['@laruci/bag'];
-  if (c) cookie = context.req.cookies ? JSON.parse(c) : '';
-  const bagId = context.query.bag;
-  let id;
+  try {
+    let bag = [];
+    let cookie = '';
+    const c = context.req.cookies['@laruci/bag'];
+    if (c) cookie = context.req.cookies ? JSON.parse(c) : '';
+    const bagId = context.query.bag;
+    let id;
 
-  const categories = await getCategories();
+    const promises = await Promise.all([
+      getCategories(),
+      getTopNotice(),
+      getSocialContact(),
+    ]);
+    const categories = promises[0];
+    const notice = promises[1];
+    const contato = promises[2];
 
-  const notice = await getTopNotice();
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
-
-  if (!bagId) {
-    if (!cookie || !cookie.bag || !cookie.bag.id || !cookie.bag.qty) {
-      return {
-        props: {
-          title: process.env.MAIN_TITLE,
-          canonical: `${process.env.MAIN_DOMAIN}/loja/sacola`,
-          notice: notice,
-          categoryList: categories,
-          facebookLink: facebook,
-          instagramLink: instagtam,
-          whatsappLink: whatsapp,
-          items: [],
-        },
-      };
+    if (!bagId) {
+      if (!cookie || !cookie.bag || !cookie.bag.id || !cookie.bag.qty) {
+        return {
+          props: {
+            title: process.env.MAIN_TITLE,
+            canonical: `${process.env.MAIN_DOMAIN}/loja/sacola`,
+            notice: notice,
+            categoryList: categories,
+            facebookLink: facebook,
+            instagramLink: instagtam,
+            whatsappLink: whatsapp,
+            items: [],
+          },
+        };
+      } else {
+        id = cookie.bag.id;
+      }
     } else {
-      id = cookie.bag.id;
+      id = bagId;
     }
-  } else {
-    id = bagId;
+
+    bag = await getBagItems(id);
+
+    // redirect: {
+    //   destination: `/loja/sacola?bag=${bagCookie.bag.id}`,
+    // },
+
+    return {
+      props: {
+        title: process.env.MAIN_TITLE,
+        canonical: process.env.MAIN_DOMAIN,
+        notice: notice,
+        categoryList: categories,
+        items: bag.length > 0 ? JSON.parse(JSON.stringify(bag)) : [],
+      },
+    };
+  } catch (err) {
+    return {
+      notFound: true,
+    };
   }
-
-  if (id) {
-    try {
-      bag = await getBagItems(id);
-    } catch (err) {
-      return {
-        notFound: true,
-      };
-    }
-  }
-
-  // redirect: {
-  //   destination: `/loja/sacola?bag=${bagCookie.bag.id}`,
-  // },
-
-  return {
-    props: {
-      title: process.env.MAIN_TITLE,
-      canonical: process.env.MAIN_DOMAIN,
-      notice: notice,
-      categoryList: categories,
-      items: bag.length > 0 ? JSON.parse(JSON.stringify(bag)) : [],
-    },
-  };
 }
 
 export default BagPage;

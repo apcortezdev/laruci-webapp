@@ -281,39 +281,52 @@ const ContactPage = ({
 };
 
 export async function getStaticProps() {
+  try {
+    const promises = await Promise.all([
+      getTopNotice(),
+      getCategories(),
+      getContact(),
+      getSocialContact(),
+      getContactMosaic(),
+    ]);
 
-  const notice = await getTopNotice();
-  const categories = await getCategories();
-  const contact = await getContact();
-  const social = await getSocialContact();
-  const mosaic = await getContactMosaic();
-  const facebook = 'https://facebook.com/' + social.facebookName;
-  const instagtam = 'https://instagram.com/' + social.instagramName;
-  const whatsapp = `https://wa.me/${
-    social.whatsappNum
-  }?text=${encodeURIComponent(social.whatsappMessage)}`;
+    const notice = promises[0];
+    const categories = promises[1];
+    const contact = promises[2];
+    const social = promises[3];
+    const mosaic = promises[4];
+    const facebook = 'https://facebook.com/' + social.facebookName;
+    const instagtam = 'https://instagram.com/' + social.instagramName;
+    const whatsapp = `https://wa.me/${
+      social.whatsappNum
+    }?text=${encodeURIComponent(social.whatsappMessage)}`;
 
-  return {
-    props: {
-      notice: notice,
-      domain: process.env.MAIN_DOMAIN,
-      mosaic: mosaic,
-      categoryList: categories,
-      facebookName: social.facebookName,
-      instagramName: social.instagramName,
-      whatsappNum: social.whatsappNum,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-      contactEmail: contact.email,
-      phoneSac: contact.phones,
-      addressOne: contact.addressOne,
-      addressTwo: contact.addressTwo,
-      addressCep: contact.addressCep,
-      city: contact.city,
-      state: contact.state,
-    },
-  };
+    return {
+      props: {
+        notice: notice,
+        domain: process.env.MAIN_DOMAIN,
+        mosaic: mosaic,
+        categoryList: categories,
+        facebookName: social.facebookName,
+        instagramName: social.instagramName,
+        whatsappNum: social.whatsappNum,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+        contactEmail: contact.email,
+        phoneSac: contact.phones,
+        addressOne: contact.addressOne,
+        addressTwo: contact.addressTwo,
+        addressCep: contact.addressCep,
+        city: contact.city,
+        state: contact.state,
+      },
+    };
+  } catch (err) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 export default ContactPage;

@@ -1,21 +1,21 @@
-import { useRef, useState } from 'react';
+import { getSession, signin } from 'next-auth/client';
 import Head from 'next/Head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { signin } from 'next-auth/client';
-import { getSession } from 'next-auth/client';
-
-import defstyles from '../../../styles/loja/Defaults.module.scss';
-import userstyles from '../../../styles/loja/UserPage.module.scss';
+import { useRef, useState } from 'react';
 import Main from '../../../components/main/Main';
 import Store from '../../../components/store/Store';
-import { Input } from '../../../components/utilities/FormComponents';
 import Button from '../../../components/utilities/Button';
-import { getCategoriesJSON } from '../../../data/categories';
-import { getCurrentNotice } from '../../../data/notice';
-import { getMainSocial } from '../../../data/contact';
 import ConfirmationDialog from '../../../components/utilities/ConfirmationDialog';
-import { validateEmail } from '../../../utils/validationFront';
+import { Input } from '../../../components/utilities/FormComponents';
+import {
+  getCategories,
+  getSocialContact,
+  getTopNotice,
+} from '../../../data/access/appInfo';
+import defstyles from '../../../styles/loja/Defaults.module.scss';
+import userstyles from '../../../styles/loja/UserPage.module.scss';
+import { validateEmail } from '../../../validation/frontValidation';
 
 const UserPage = ({
   notice,
@@ -232,29 +232,37 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const notice = await getCurrentNotice();
-  let noticeText = notice ? notice.text : '';
+  try {
+    const promises = await Promise.all([
+      getTopNotice(),
+      getCategories(),
+      getSocialContact(),
+    ]);
 
-  const categories = await getCategoriesJSON();
-  const categoryList = await JSON.parse(categories);
+    const notice = promises[0];
+    const categories = promises[1];
+    const contato = promises[2];
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  const contato = await getMainSocial();
-  const facebook = 'https://facebook.com/' + contato[0].facebookName;
-  const instagtam = 'https://instagram.com/' + contato[0].instagramName;
-  const whatsapp = `https://wa.me/${
-    contato[0].whatsappNum
-  }?text=${encodeURIComponent(contato[0].whatsappMessage)}`;
-
-  return {
-    props: {
-      notice: noticeText,
-      categoryList: categoryList,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-      session: session,
-    },
-  };
+    return {
+      props: {
+        notice: notice,
+        categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+        // session: session,
+      },
+    };
+  } catch (err) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 export default UserPage;

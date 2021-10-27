@@ -88,26 +88,37 @@ export async function getStaticProps({ params }) {
       };
   }
 
-  const notice = await getTopNotice();
-  const categories = await getCategories();
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
+  try {
+    const promises = await Promise.all([
+      getTopNotice(),
+      getCategories(),
+      getSocialContact(),
+    ]);
+    const notice = promises[0];
+    const categories = promises[1];
+    const contato = promises[2];
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  return {
-    props: {
-      title: title,
-      notice: notice,
-      cannonical: cannonical,
-      categoryList: categories,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-    },
-  };
+    return {
+      props: {
+        title: title,
+        notice: notice,
+        cannonical: cannonical,
+        categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+      },
+    };
+  } catch (err) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 export default HelpPage;

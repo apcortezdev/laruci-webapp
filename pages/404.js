@@ -48,27 +48,44 @@ const NotFoundPage = ({
 };
 
 export async function getStaticProps() {
-  const categories = await getCategories();
+  try {
+    const promises = await Promise.all([
+      getCategories(),
+      getTopNotice(),
+      getSocialContact(),
+    ]);
 
-  const notice = await getTopNotice();
+    const categories = promises[0];
+    const notice = promises[1];
+    const contato = promises[2];
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
-
-  return {
-    props: {
-      title: process.env.MAIN_TITLE,
-      notice: notice,
-      categoryList: categories,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-    },
-  };
+    return {
+      props: {
+        title: process.env.MAIN_TITLE,
+        notice: notice,
+        categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        title: 'Error',
+        notice: null,
+        categoryList: [],
+        facebookLink: '',
+        instagramLink: '',
+        whatsappLink: '',
+      },
+    };
+  }
 }
 
 export default NotFoundPage;

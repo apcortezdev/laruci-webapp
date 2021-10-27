@@ -144,41 +144,73 @@ export default function Home({
 }
 
 export async function getStaticProps() {
+  try {
+    const promises = await Promise.all([
+      getTopNotice(),
+      getPageInfo(),
+      getCategories(),
+      getSocialContact(),
+    ]);
 
-  const notice = await getTopNotice();
-  const info = await getPageInfo();
+    const notice = promises[0];
+    const info = promises[1];
+    const categories = promises[2];
+    const contato = promises[3];
 
-  const categories = await getCategories();
+    const facebook = 'https://facebook.com/' + contato.facebookName;
+    const instagtam = 'https://instagram.com/' + contato.instagramName;
+    const whatsapp = `https://wa.me/${
+      contato.whatsappNum
+    }?text=${encodeURIComponent(contato.whatsappMessage)}`;
 
-  const contato = await getSocialContact();
-  const facebook = 'https://facebook.com/' + contato.facebookName;
-  const instagtam = 'https://instagram.com/' + contato.instagramName;
-  const whatsapp = `https://wa.me/${
-    contato.whatsappNum
-  }?text=${encodeURIComponent(contato.whatsappMessage)}`;
+    const promisesPromo = [];
+    for (const promo of info.promos) {
+      promisesPromo.push(
+        getProductListing(
+          {
+            category: promo.categoryId,
+            section: promo.section || 0,
+            order: 'createdOn',
+          },
+          1,
+          3
+        )
+      );
+    }
+    const promos = await Promise.all([...promisesPromo]);
 
-  for (const promo of info.promos) {
-    const products = await getProductListing(
-      {
-        category: promo.categoryId,
-        section: promo.section || 0,
-        order: 'createdOn',
+    const prodsJsons = []
+    promos.forEach((promo) => {
+      prodsJsons.push(JSON.parse(JSON.stringify(promo)));
+    })
+
+    const productLists = await Promise.all([...prodsJsons]);
+
+    for (let index = 0; index < info.promos.length; index++) {
+      info.promos[index].products = productLists[index]
+    }
+
+    return {
+      props: {
+        notice: notice,
+        categories: categories,
+        info: info,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
       },
-      1,
-      3
-    );
-    promo.products = await JSON.parse(JSON.stringify(products));
+      revalidate: 86400,
+    };
+  } catch (err) {
+    return {
+      props: {
+        notice: null,
+        categories: [],
+        info: {},
+        facebookLink: '',
+        instagramLink: '',
+        whatsappLink: '',
+      },
+    };
   }
-
-  return {
-    props: {
-      notice: notice,
-      categories: categories,
-      info: info,
-      facebookLink: facebook,
-      instagramLink: instagtam,
-      whatsappLink: whatsapp,
-    },
-    revalidate: 86400,
-  };
 }
