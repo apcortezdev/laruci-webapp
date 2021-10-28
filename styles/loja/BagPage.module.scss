@@ -5,7 +5,7 @@
   width: 100%;
   max-width: 80rem;
   min-height: 100%;
-  padding: 8rem 1rem;
+  padding: 5rem 1rem;
   margin: auto;
 
   h1 {
@@ -130,6 +130,11 @@
 
 .resume {
   margin-bottom: 5rem;
+  margin: auto;
+
+  b {
+    font-weight: 500;
+  }
 
   p {
     margin: .5rem 0;
@@ -146,13 +151,16 @@
     }
 
     .itemsResume_image {
-      @include display-flex();
-      width: 10rem;
-      height: 10rem;
+      display: none;
+      @include media-min-width(35rem) {
+        width: 10rem;
+        height: 10rem;
+        @include display-flex();
+      }
     }
 
     .itemsResume_details {
-      width: calc(100% - 10rem);
+      width: 100%;
       font-size: 0.8rem;
       padding: 1rem;
 
@@ -171,7 +179,8 @@
       .options {
         justify-content: space-around;
 
-        & > span {
+        & > div {
+          width: calc(100% / 3);
           padding: 0.5rem;
         }
 

@@ -584,24 +584,23 @@ const AdProductsPage = ({
     }
 
     setPriceValidation(true);
-    if (!productState.product.price.toString().length > 0) {
+    if (
+      productState.product.price <= 0 ||
+      (productState.product.price.toString().match(/\./g) &&
+        productState.product.price.toString().match(/\./g).length > 1)
+    ) {
       setPriceValidation(false);
-      setConfirmationMessage('Digite um preço!');
-      return false;
-    }
-
-    setPriceValidation(true);
-    if (productState.product.price.toString().match(/\./g).length > 1) {
-      setPriceValidation(false);
-      setConfirmationMessage('Preço precitar ter somente um ponto!');
+      setConfirmationMessage('Preço inválido!');
       return false;
     }
 
     setDiscountPercentageValidation(true);
     if (
-      productState.product.discountPercentage.length > 0 &&
-      (+productState.product.discountPercentage < 0 ||
-        +productState.product.discountPercentage > 100)
+      productState.product.discountPercentage < 0 ||
+      productState.product.discountPercentage > 100 ||
+      (productState.product.discountPercentage.toString().match(/\./g) &&
+        productState.product.discountPercentage.toString().match(/\./g).length >
+          1)
     ) {
       setDiscountPercentageValidation(false);
       setConfirmationMessage('Valor para desconto inválido!');
@@ -609,7 +608,7 @@ const AdProductsPage = ({
     }
 
     setWeightValidation(true);
-    if (productState.product.weight.toString().length <= 0) {
+    if (productState.product.weight <= 0) {
       setWeightValidation(false);
       setConfirmationMessage(
         'Digite um peso! Isso será importante para calcular fretes!'
@@ -618,7 +617,10 @@ const AdProductsPage = ({
     }
 
     setWeightValidation(true);
-    if (productState.product.weight.toString().match(/\./g).length > 1) {
+    if (
+      productState.product.weight.toString().match(/\./g) &&
+      productState.product.weight.toString().match(/\./g).length > 1
+    ) {
       setWeightValidation(false);
       setConfirmationMessage('Peso precitar ter somente um ponto!');
       return false;
@@ -778,12 +780,14 @@ const AdProductsPage = ({
   const onConfirmForm = (event) => {
     event.preventDefault();
 
-    if (!validate()) {
-      window.scrollTo(0, 0);
-      setCancelText('');
-      setOkText('');
-      setShowDialog(true);
-      return;
+    if (!productState.product.id){
+      if (!validate()) {
+        window.scrollTo(0, 0);
+        setCancelText('');
+        setOkText('');
+        setShowDialog(true);
+        return;
+      }
     }
 
     if (productState.product.id.length > 0) {
@@ -907,14 +911,13 @@ const AdProductsPage = ({
   // Delete Product
   const onDeleteProduct = async () => {
     const id = productState.product.id;
-    const auth = 'AJSKOFDHJDASD';
 
     setConfirmationMessage('Deletando...');
 
     const deletedProduct = await fetch('/api/admin/products', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id, auth: auth }),
+      body: JSON.stringify({ id: id }),
     });
 
     return deletedProduct;

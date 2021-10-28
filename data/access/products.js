@@ -188,8 +188,9 @@ export async function postProduct(product) {
 
   try {
     const prods = await getProductByCode(product.code);
-    if (prods.length > 0) throw new Error('DUPLICATED CODE');
+    if (prods?.length > 0) throw new Error('DUPLICATED CODE');
   } catch (err) {
+    console.log(err)
     if (err.message === 'DUPLICATED CODE') throw new Error('DUPLICATED CODE');
     throw new Error('ERNP10: ' + err.message);
   }
@@ -198,6 +199,7 @@ export async function postProduct(product) {
     const created = await newProduct.save();
     return created;
   } catch (err) {
+    console.log(err)
     throw new Error('ERNP11: ' + err.message);
   }
 }

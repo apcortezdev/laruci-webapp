@@ -8,10 +8,6 @@ import fs from 'fs';
 import path from 'path';
 import { validateProduct } from '../../../../validation/backValidation';
 import { getSession } from 'next-auth/client';
-import {
-  getCategoryById,
-  getSectionById,
-} from '../../../../data/access/appInfo';
 import { getUserInfoByEmail } from '../../../../data/access/user';
 
 export const config = {
@@ -142,26 +138,9 @@ const del = async (req, res) => {
     }
 
     const id = fields.id;
-    const auth = fields.auth;
-
-    if (typeof auth === 'undefined' || auth.length < 0 || !auth) {
-      res.status(401).json({
-        statusCode: '401',
-        message: 'UNAUTHORIZED',
-      });
-      return;
-    }
-
-    if (typeof id === 'undefined' || id.length < 0 || !id) {
-      res.status(400).json({
-        statusCode: '400',
-        message: 'ERROR SEEKING PRODUCT: NO CODE',
-      });
-      return;
-    }
 
     try {
-      // const deletedProduct = await deleteProduct(id);
+      const deletedProduct = await deleteProduct(id);
       const dir = path.join(process.cwd(), 'public', 'images', 'products', id);
       if (fs.existsSync(dir)) {
         // deletes dir if exists

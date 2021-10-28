@@ -1,5 +1,6 @@
 import Head from 'next/Head';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import React, { useContext, useState } from 'react';
 import Main from '../../../../components/main/Main';
 import ProductList from '../../../../components/ProductList';
@@ -10,7 +11,7 @@ import Button from '../../../../components/utilities/Button';
 import ConfirmationDialog from '../../../../components/utilities/ConfirmationDialog';
 import {
   InputNumber,
-  InputRadio
+  InputRadio,
 } from '../../../../components/utilities/FormComponents';
 import ImageShow from '../../../../components/utilities/ImageShow';
 import SizeSelector from '../../../../components/utilities/SizeSelector';
@@ -18,12 +19,12 @@ import Spin from '../../../../components/utilities/Spin';
 import {
   getCategories,
   getSocialContact,
-  getTopNotice
+  getTopNotice,
 } from '../../../../data/access/appInfo';
 import {
   getProductById,
   getProductListing,
-  getProductsForSSR
+  getProductsForSSR,
 } from '../../../../data/access/products';
 import BagContext from '../../../../store/bag-context';
 import styles from '../../../../styles/loja/ProductPage.module.scss';
@@ -76,8 +77,6 @@ const ProductPage = ({
     setQuantityValidator(true);
   };
   // INPUT OPTIONS FOR PURCHASE: -END
-
-  function openSizesGuide() {}
 
   const context = useContext(BagContext);
 
@@ -316,7 +315,11 @@ const ProductPage = ({
               >
                 <p>
                   Medidas:
-                  <span onClick={openSizesGuide}>Guia de medidas aqui!</span>
+                  <Link href={'/loja/medidas'}>
+                    <a rel="noreferrer noopener" target={'_blank'}>
+                      Guia de medidas aqui!
+                    </a>
+                  </Link>
                 </p>
                 {selectedSet.sizeSets.length <= 0 ? (
                   <p>Tamanho único</p>

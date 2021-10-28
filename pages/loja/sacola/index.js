@@ -223,7 +223,7 @@ const BagPage = ({
                   </span>
                 </div>
                 <div className={styles.options}>
-                  <span>
+                  <div>
                     <p>
                       <b>cor: </b>
                       {item.color_name.toLowerCase()}
@@ -232,9 +232,10 @@ const BagPage = ({
                       <b>tamanho: </b>
                       {item.selectedSizes.length > 0
                         ? item.selectedSizes
-                            .map(
-                              (s) =>
-                                `${s.size.name.toLowerCase()}: ${s.selected.toUpperCase()}`
+                            .map((s) =>
+                              s.size.name.toLowerCase() === 'unique'
+                                ? s.selected.toUpperCase()
+                                : `${s.size.name.toLowerCase()}: ${s.selected.toUpperCase()}`
                             )
                             .join(', ')
                         : 'único'}
@@ -250,8 +251,8 @@ const BagPage = ({
                             .join(', ')
                         : '-'}
                     </p>
-                  </span>
-                  <span>
+                  </div>
+                  <div>
                     <p>
                       <b>preço unit.: </b>R$ {item.price.toFixed(2)}
                     </p>
@@ -269,8 +270,8 @@ const BagPage = ({
                         item.quantity
                       ).toFixed(2)}
                     </p>
-                  </span>
-                  <span>
+                  </div>
+                  <div>
                     <span className={styles.qty_selector}>
                       <b>quantidade: </b>
                       <div>
@@ -301,7 +302,7 @@ const BagPage = ({
                         </svg>
                       </div>
                     </span>
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -378,16 +379,15 @@ export async function getServerSideProps(context) {
 
     bag = await getBagItems(id);
 
-    // redirect: {
-    //   destination: `/loja/sacola?bag=${bagCookie.bag.id}`,
-    // },
-
     return {
       props: {
         title: process.env.MAIN_TITLE,
-        canonical: process.env.MAIN_DOMAIN,
+        canonical: `${process.env.MAIN_DOMAIN}/loja/sacola`,
         notice: notice,
         categoryList: categories,
+        facebookLink: facebook,
+        instagramLink: instagtam,
+        whatsappLink: whatsapp,
         items: bag.length > 0 ? JSON.parse(JSON.stringify(bag)) : [],
       },
     };

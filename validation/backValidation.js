@@ -170,6 +170,7 @@ const validateIsFullName = (name) => {
 };
 
 const validateProduct = async (product) => {
+  console.log(product.sets[0].sizeSets);
   let newProduct = {};
 
   // code
@@ -178,7 +179,7 @@ const validateProduct = async (product) => {
   let prods;
   try {
     prods = await getProductByCode(product.code);
-    if (prods.length > 0)
+    if (prods?.length > 0)
       return { status: 'error', errorMessage: 'INVALID CODE: DUPLICATED' };
   } catch (err) {
     return { status: 'error', errorMessage: 'INVALID CODE: DUPLICATED' };
@@ -187,7 +188,7 @@ const validateProduct = async (product) => {
 
   // name
   if (product.name.trim().length < 4 || product.name.trim().length > 25)
-    return { status: 'error', errorMessage: 'INVALID NAME: OUT OF RANGE'};
+    return { status: 'error', errorMessage: 'INVALID NAME: OUT OF RANGE' };
   newProduct.name = product.name.trim();
 
   // limitStock / stockNumber
@@ -195,14 +196,17 @@ const validateProduct = async (product) => {
     typeof product.limitStock !== 'boolean' &&
     typeof product.limitStock !== 'Boolean'
   )
-    return { status: 'error', errorMessage: 'INVALID LIMIT-STOCK: NOT BOOL'};
+    return { status: 'error', errorMessage: 'INVALID LIMIT-STOCK: NOT BOOL' };
   if (
     product.limitStock &&
     product.stockNumber.toString().match(/[^0-9]/gi) != null
   )
-    return { status: 'error', errorMessage: 'INVALID STOCK-NUMBER: NOT A NUMBER'};
+    return {
+      status: 'error',
+      errorMessage: 'INVALID STOCK-NUMBER: NOT A NUMBER',
+    };
   if (product.limitStock && +product.stockNumber < 1)
-    return { status: 'error', errorMessage: 'STOCK-NUMBER LESS THAN 1'};
+    return { status: 'error', errorMessage: 'STOCK-NUMBER LESS THAN 1' };
 
   newProduct.limitStock = product.limitStock;
   newProduct.stockNumber = product.stockNumber;
@@ -214,30 +218,32 @@ const validateProduct = async (product) => {
       product.price.toString().match(/\./g).length > 1) ||
     +product.price <= 0
   )
-    return { status: 'error', errorMessage: 'INVALID PRICE'};
+    return { status: 'error', errorMessage: 'INVALID PRICE' };
   newProduct.price = product.price;
 
   // categoryId
   if (product.categoryId.trim().length <= 0)
-    return { status: 'error', errorMessage: 'INVALID CATEGORY: NO CATEGORY'};
+    return { status: 'error', errorMessage: 'INVALID CATEGORY: NO CATEGORY' };
   let category;
   try {
     category = await getCategoryById(product.categoryId);
-    if (category.length <= 0) return { status: 'error', errorMessage: 'INVALID CATEGORY'};
+    if (category.length <= 0)
+      return { status: 'error', errorMessage: 'INVALID CATEGORY' };
   } catch (err) {
-    return { status: 'error', errorMessage: 'INVALID CATEGORY'};
+    return { status: 'error', errorMessage: 'INVALID CATEGORY' };
   }
   newProduct.categoryName = category.name;
 
   // sectionId
   if (product.sectionId.trim().length <= 0)
-    return { status: 'error', errorMessage: 'INVALID SECTION: NO SECTION'};
+    return { status: 'error', errorMessage: 'INVALID SECTION: NO SECTION' };
   let section;
   try {
     section = await getSectionById(product.sectionId);
-    if (section.length <= 0) return { status: 'error', errorMessage: 'INVALID SECTION'};
+    if (section.length <= 0)
+      return { status: 'error', errorMessage: 'INVALID SECTION' };
   } catch (err) {
-    return { status: 'error', errorMessage: 'INVALID SECTION'};
+    return { status: 'error', errorMessage: 'INVALID SECTION' };
   }
   newProduct.sectionName = section.name;
 
@@ -249,7 +255,7 @@ const validateProduct = async (product) => {
     +product.discountPercentage < 0 ||
     +product.discountPercentage > 100
   )
-    return { status: 'error', errorMessage: 'INVALID DISCOUNT PERCENTAGE'};
+    return { status: 'error', errorMessage: 'INVALID DISCOUNT PERCENTAGE' };
   newProduct.discountPercentage = product.discountPercentage;
 
   // weight
@@ -259,7 +265,7 @@ const validateProduct = async (product) => {
       product.weight.toString().match(/\./g).length > 1) ||
     +product.weight <= 0
   )
-    return { status: 'error', errorMessage: 'INVALID WEIGHT'};
+    return { status: 'error', errorMessage: 'INVALID WEIGHT' };
   newProduct.weight = product.weight;
 
   // shortDescription
@@ -267,7 +273,10 @@ const validateProduct = async (product) => {
     product.shortDescription.trim().length < 5 ||
     product.shortDescription.trim().length > 40
   )
-    return { status: 'error', errorMessage: 'INVALID SHORT-DESCRIPTION: OUT OF RANGE'};
+    return {
+      status: 'error',
+      errorMessage: 'INVALID SHORT-DESCRIPTION: OUT OF RANGE',
+    };
   newProduct.shortDescription = product.shortDescription.trim();
 
   // longDescription
@@ -275,13 +284,17 @@ const validateProduct = async (product) => {
     product.longDescription.trim().length < 50 ||
     product.longDescription.trim().length > 1000
   )
-    return { status: 'error', errorMessage: 'INVALID LONG-DESCRIPTION: OUT OF RANGE'};
+    return {
+      status: 'error',
+      errorMessage: 'INVALID LONG-DESCRIPTION: OUT OF RANGE',
+    };
   newProduct.longDescription = product.longDescription.trim();
 
   // sets
-  if (product.sets.length <= 0) return { status: 'error', errorMessage: 'INVALID SET: NO SETS'};
+  if (product.sets.length <= 0)
+    return { status: 'error', errorMessage: 'INVALID SET: NO SETS' };
 
-  newProduct.sets = []
+  newProduct.sets = [];
 
   let isValid = 'OK';
   for (const set of product.sets) {
@@ -306,12 +319,12 @@ const validateProduct = async (product) => {
     newSet.colorId = set.colorId;
     newSet.colorName = color.name;
     newSet.colorCode = color.code;
-    
+
     // sizeSets
     newSet.sizeSets = [];
     if (set.sizeSets.length > 0) {
-      let newSizeSet = {}
       for (const sizeSet of set.sizeSets) {
+        let newSizeSet = {};
         // name
         if (sizeSet.name.trim().length < 2 || sizeSet.name.trim().length > 15) {
           isValid = 'INVALID SIZE-SET NAME: OUT OF RANGE';
@@ -361,8 +374,8 @@ const validateProduct = async (product) => {
         }
         newSizeSet.availableSizes = sizeSet.availableSizes;
         if (isValid !== 'OK') return;
+        newSet.sizeSets.push(newSizeSet);
       }
-      newSet.sizeSets.push(newSizeSet);
     }
 
     //images
@@ -400,12 +413,13 @@ const validateProduct = async (product) => {
       }
     }
 
-    if (isValid !== 'OK') return { status: 'error', errorMessage: isValid};
+    if (isValid !== 'OK') return { status: 'error', errorMessage: isValid };
 
     newProduct.sets.push(newSet);
   }
 
-  return { status: 'OK', product: newProduct};
+  console.log(newProduct.sets[0].sizeSets);
+  return { status: 'OK', product: newProduct };
 };
 
 const removeAccents = (text) => {

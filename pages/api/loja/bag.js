@@ -1,4 +1,4 @@
-import { postBag, addOrRemoveFromBag } from '../../../data/bag';
+import { postBag, addOrRemoveFromBag } from '../../../data/access/bag';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

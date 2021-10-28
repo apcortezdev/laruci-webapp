@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import styles from './styles.module.scss';
 import PropTypes from 'prop-types';
+import { removeAccents } from '../../validation/frontValidation';
 
 const MainMenu = ({ categoryList, onMobileClick }) => {
   return (
@@ -10,7 +11,7 @@ const MainMenu = ({ categoryList, onMobileClick }) => {
           <li key={category.name}>
             <Link
               href={{
-                pathname: `/loja/${category.link}`,
+                pathname: `/loja/${removeAccents(category.name)}`,
                 query: {
                   page: 1,
                 },
