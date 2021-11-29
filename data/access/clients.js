@@ -153,7 +153,7 @@ export async function logClient(_id, log) {
     });
     return !!logged;
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw new Error('ERNC07: ' + err.message);
   }
 }

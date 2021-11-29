@@ -18,8 +18,6 @@ const ItemsList = ({ items, startIn }) => {
       start++;
     })
   }
-
-
   return <ol className={styles.carousel}>{products}</ol>;
 };
 

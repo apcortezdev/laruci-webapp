@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 
 const SizeSelector = ({
-  id,
+  size,
   className,
   fullSizeList,
   availableSizeList,
@@ -19,7 +19,7 @@ const SizeSelector = ({
         const isAvailable = availableSizeList.some((size) => size === element);
         return (
           <div
-            key={id + element}
+            key={size._id + element}
             className={[
               styles.tag,
               isAvailable ? styles.abled : styles.disabled,
@@ -28,7 +28,7 @@ const SizeSelector = ({
               .join(' ')
               .trim()}
             onClick={() => {
-              if (isAvailable) onChange(id, element);
+              if (isAvailable) onChange(size, element);
             }}
           >
             {element.toUpperCase()}
@@ -42,7 +42,7 @@ const SizeSelector = ({
 SizeSelector.propTypes = {
   fullSizeList: PropTypes.array.isRequired,
   availableSizeList: PropTypes.array.isRequired,
-  id: PropTypes.string.isRequired,
+  size: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 

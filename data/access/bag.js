@@ -2,93 +2,63 @@ import mongoose from 'mongoose';
 import Bag from '../../models/bag';
 import Product from '../../models/product';
 import dbConnect from '../../utils/dbConnect';
-
-// ERRORS TYPE: ERN0B
-
-export async function postBag(bag) {
-  const user = bag.user;
-  const location = bag.location;
-  const items = bag.items;
-
-  const newBag = new Bag({
-    user: user,
-    location: location,
-    items: items,
-  });
-
-  try {
-    await dbConnect();
-  } catch (err) {
-    throw new Error('ERN0B1: ' + err.message);
-  }
-
-  try {
-    const created = await newBag.save();
-    return {
-      status: 201,
-      bag: created,
-    };
-  } catch (err) {
-    throw new Error('ERN0B2: ' + err.message);
-  }
-}
+import { getClientInfoByEmail } from './clients';
 
 export async function getBagById(id) {
-  let bag;
+  if (!id) return null;
 
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0B3: ' + err.message);
+    throw new Error('ERNB03: ' + err.message);
   }
 
   try {
-    bag = await Bag.findById(id).populate({
+    const bag = await Bag.findById(id).populate({
       path: 'items.product',
       model: Product,
     });
+    return bag;
   } catch (err) {
-    if (err) {
-      throw new Error('ERN0B4: ' + err.message);
-    }
+    throw new Error('ERNB04: ' + err.message);
   }
-  return bag;
 }
 
-export async function getBagItems(id) {
-  let bag;
+export async function getBagItems(id, clientEmail = null) {
+  if (!id) return [];
 
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0B5: ' + err.message);
+    throw new Error('ERNB05: ' + err.message);
   }
 
   try {
-    bag = await Bag.aggregate([
+    const bag = await Bag.aggregate([
       // find bag by _id
       { $match: { _id: mongoose.Types.ObjectId(id) } },
+      { $match: { clientEmail: clientEmail } },
       // spread items from bag
       { $unwind: '$items' },
       // left join to products in every item
       {
         $lookup: {
           from: 'products',
-          localField: 'items.product',
+          localField: 'items.productId',
           foreignField: '_id',
-          as: 'items.product',
+          as: 'items.productId',
         },
       },
       // take product out of array (array will have one item only)
-      { $unwind: '$items.product' },
+      { $unwind: '$items.productId' },
       // spreat product.sets duplicating the item
-      { $unwind: '$items.product.sets' },
+      { $unwind: '$items.productId.sets' },
       // exclude items where the set is not equal to selectedSet
       {
         $match: {
           $expr: {
             $eq: [
-              { $toString: '$items.product.sets._id' },
+              { $toString: '$items.productId.sets._id' },
               { $toString: '$items.selectedSet' },
             ],
           },
@@ -98,20 +68,22 @@ export async function getBagItems(id) {
       {
         $project: {
           _id: '$items._id',
-          product_name: '$items.product.name',
-          price: '$items.product.price',
-          discountPercentage: '$items.product.discountPercentage',
-          weight: '$items.product.weight',
+          productName: '$items.productId.name',
+          productId: '$items.productId._id',
+          price: '$items.productId.price',
+          discountPercentage: '$items.productId.discountPercentage',
+          weight: '$items.productId.weight',
           // concat image to pattern [pdoructId]/[imageName]
           image: {
             $concat: [
-              { $toString: '$items.product._id' },
+              { $toString: '$items.productId._id' },
               '/',
-              { $first: '$items.product.sets.images' },
+              { $first: '$items.productId.sets.images' },
             ],
           },
-          color_name: '$items.product.sets.colorName',
+          colorName: '$items.productId.sets.colorName',
           quantity: '$items.quantity',
+          selectedSet: '$items.selectedSet',
           selectedSizes: {
             $map: {
               input: '$items.selectedSizes',
@@ -123,7 +95,7 @@ export async function getBagItems(id) {
                   // input: {
                   $first: {
                     $filter: {
-                      input: '$items.product.sets.sizeSets',
+                      input: '$items.productId.sets.sizeSets',
                       as: 'item',
                       cond: {
                         $eq: [
@@ -136,7 +108,8 @@ export async function getBagItems(id) {
                   // },
                   // }
                 },
-                selected: '$$size.selected',
+                selected: '$$size',
+                // selected: '$$size.sizeId',
               },
             },
           },
@@ -151,7 +124,7 @@ export async function getBagItems(id) {
                   // input: {
                   $first: {
                     $filter: {
-                      input: '$items.product.sets.extraOptions',
+                      input: '$items.productId.sets.extraOptions',
                       as: 'item',
                       cond: {
                         $eq: [
@@ -171,122 +144,48 @@ export async function getBagItems(id) {
         },
       },
     ]);
+    return bag;
   } catch (err) {
-    if (err) {
-      throw new Error('ERN0B6: ' + err.message);
-    }
+    throw new Error('ERNB06: ' + err.message);
   }
-  return bag;
 }
 
-export async function addOrRemoveFromBag(_id, item) {
-  let bag;
+export async function postBag(newBag, clientEmail) {
+  if (!newBag || !newBag.items?.length) return null;
 
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0B7: ' + err.message);
+    throw new Error('ERNB01: ' + err.message);
   }
 
   try {
-    bag = await getBagById(_id);
-  } catch (err) {
-    throw new Error('NOT FOUND');
-  }
+    let savedBag;
+    let client = null;
+    if (clientEmail) client = await getClientInfoByEmail(clientEmail);
 
-  if (!bag) {
-    return {
-      status: '404',
-      bag: [],
-    };
-  }
-
-  try {
-    if (typeof item.id === 'undefined') {
-      // Has no id, detect item by comparing all fields
-      let itemToAdd = {
-        product: item.product,
-        selectedSet: item.selectedSet,
-        selectedSizes: item.selectedSizes.map((size) => ({
-          sizeId: size.sizeId,
-          selected: size.selected,
-        })),
-        selectedExtras: item.selectedExtras,
-      };
-
-      const index = bag.items.findIndex((i) => {
-        let itemFD = {
-          product: i.product._id,
-          selectedSet: i.selectedSet,
-          selectedSizes: i.selectedSizes.map((size) => ({
-            sizeId: size.sizeId,
-            selected: size.selected,
-          })),
-          selectedExtras: i.selectedExtras.map((extra) => ({
-            extraId: extra.extraId,
-            selected: extra.selected,
-          })),
-        };
-        return JSON.stringify(itemToAdd) === JSON.stringify(itemFD);
-      });
-
-      if (index < 0) {
-        // Item not found: new Item
-        itemToAdd.quantity = item.quantity;
-        bag.items.push(itemToAdd);
-      } else {
-        // item found
-        if (item.quantity === -1 * bag.items[index].quantity) {
-          // if item.quantity is equal to negative bag.items.quantity, remove item from bag
-          bag.items.splice(index, 1);
-        } else {
-          // if not, add value
-          itemToAdd.quantity = item.quantity + bag.items[index].quantity;
-          bag.items[index] = itemToAdd;
-        }
-        // Item found: add to qty
-      }
-    } else {
-      // has item id
-      const index = bag.items.findIndex(
-        (itm) => itm._id.toString() === item.id.toString()
-      );
-      if (index >= 0) {
-        // item found
-        if (item.quantity === -1 * bag.items[index].quantity) {
-          // if item.quantity is equal to negative bag.items.quantity, remove item from bag
-          bag.items.splice(index, 1);
-        } else {
-          // if not, add value
-          bag.items[index].quantity = bag.items[index].quantity + item.quantity;
-        }
-      } else {
-        // item not found, throw error
-        throw new Error('NOT FOUND');
-      }
-    }
-
-    let result = {};
-    if (bag.items.length <= 0) {
-      result.status = '204';
-      result.bag = await Bag.findByIdAndDelete(_id);
-    } else {
-      result.status = '201';
-      result.bag = await Bag.findByIdAndUpdate(
-        _id,
-        { items: bag.items },
+    if (newBag.id) {
+      savedBag = await Bag.findByIdAndUpdate(
+        newBag.id,
+        { client, clientEmail: client?.email || null, ...newBag },
         {
           new: true,
           lean: true,
         }
       );
+    } else {
+      const created = new Bag({
+        client,
+        clientEmail: client?.email || null,
+        ...newBag,
+      });
+      savedBag = await created.save();
     }
 
-    return result;
+    return savedBag;
   } catch (err) {
-    if (err) {
-      throw new Error('ERN0B8: ' + err.message);
-    }
+    console.log(err);
+    throw new Error('ERNB02: ' + err.message);
   }
 }
 
@@ -294,15 +193,13 @@ export async function deleteBag(_id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0B9: ' + err.message);
+    throw new Error('ERNB09: ' + err.message);
   }
 
   try {
     const deleted = await Bag.findByIdAndDelete(_id);
     return deleted;
   } catch (err) {
-    if (err) {
-      throw new Error('ERN0B10: ' + err.message);
-    }
+    throw new Error('ERNB10: ' + err.message);
   }
 }

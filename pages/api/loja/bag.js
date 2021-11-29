@@ -1,21 +1,37 @@
-import { postBag, addOrRemoveFromBag } from '../../../data/access/bag';
+import { getSession } from 'next-auth/client';
+import { getBagItems, postBag } from '../../../data/access/bag';
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
+  if (req.method === 'GET') {
     try {
-      const newBag = await postBag(req.body.bag);
-      res.status(201).json({ statusCode: '201', bag: newBag });
+      const bagId = req.query.id;
+      const session = await getSession({ req: req });
+      const items = await getBagItems(bagId, session?.user.email);
+
+      res.status(200).json({ statusCode: '200', items: items });
     } catch (err) {
-      if (err.message.startsWith('DUPLICATED')) {
-        res.status(400).json({
-          statusCode: '400',
-          message: 'BAG ALREADY EXISTS. PLEASE DELETE FIRST',
-        });
-        return;
-      }
       res.status(500).json({
         statusCode: '500',
-        message: 'ERROR SAVING BAG: ' + err.message,
+        message: 'ERROR: ' + err.message,
+      });
+    }
+  }
+
+  if (req.method === 'POST') {
+    try {
+      const bag = req.body;
+      if (!bag.items?.length) {
+        res.status(400).json({ statusCode: '400', message: 'EMPTY LIST' });
+      }
+
+      const session = await getSession({ req: req });
+      const postedBag = await postBag(bag, session?.user.email);
+
+      res.status(201).json({ statusCode: '201', bag: postedBag });
+    } catch (err) {
+      res.status(500).json({
+        statusCode: '500',
+        message: 'ERROR: ' + err.message,
       });
     }
   }
@@ -30,24 +46,5 @@ export default async function handler(req, res) {
     //     message: 'ERROR DELETING CATEGORY: ' + err.message,
     //   });
     // }
-  }
-
-  if (req.method === 'PUT') {
-    try {
-      const bag = await addOrRemoveFromBag(req.body.id, req.body.item);
-      res.status(200).json({ statusCode: '200', bag: bag });
-    } catch (err) {
-      if (err.message.startsWith('ERN005: NOT FOUND')) {
-        res.status(404).json({
-          statusCode: '404',
-          message: 'BAG OR ITEM NOT FOUND',
-        });
-        return;
-      }
-      res.status(500).json({
-        statusCode: '500',
-        message: 'ERROR SAVING BAG: ' + err.message,
-      });
-    }
   }
 }

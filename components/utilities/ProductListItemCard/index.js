@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './styles.module.scss';
+import { removeAccents } from '../../../validation/frontValidation';
 
 const ProductListItemCard = ({ product, type }) => {
   const prod = product;
@@ -18,7 +19,7 @@ const ProductListItemCard = ({ product, type }) => {
     <li className={styles.item} key={prod._id}>
       <Link
         href={{
-          pathname: `/loja/${prod.categoryName}/${prod._id}`,
+          pathname: `/loja/${removeAccents(prod.categoryName)}/${prod._id}`,
         }}
       >
         <a>

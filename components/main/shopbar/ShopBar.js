@@ -14,7 +14,7 @@ const ShopBar = ({ categoryList, isTransparent }) => {
   const inpSearch = useRef();
   const bagContext = useContext(BagContext);
   let qtyInBag;
-  if (!!bagContext) qtyInBag = bagContext.bag.qtyItemsInBag;
+  if (!!bagContext) qtyInBag = bagContext.bag.qtyItems;
 
   const toggleMobileMenu = () => {
     setToggleMenu((toggle) => !toggle);
@@ -101,9 +101,6 @@ const ShopBar = ({ categoryList, isTransparent }) => {
             <Link
               href={{
                 pathname: '/loja/sacola',
-                query: {
-                  bag: bagContext.bag.bagId
-                }
               }}
             >
               <a>

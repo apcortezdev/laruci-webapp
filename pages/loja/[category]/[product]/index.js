@@ -101,7 +101,7 @@ const ProductPage = ({
 
     if (
       selectedSet.sizeSets.filter(
-        (size) => size.isUnique === selectedSizes[0].isUnique
+        (size) => size.isUnique === selectedSizes[0].size.isUnique
       ).length != selectedSizes.length ||
       selectedSizes.some((size) => size.selected.length === 0)
     ) {
@@ -114,7 +114,7 @@ const ProductPage = ({
     }
 
     if (
-      !selectedSizes[0].isUnique &&
+      !selectedSizes[0].size.isUnique &&
       selectedSet.extraOptions.length != Object.keys(selectedExtras).length
     ) {
       setSelectedSizesValidator(false);
@@ -141,11 +141,17 @@ const ProductPage = ({
 
     if (isValid) {
       const prodToBag = {
-        product: product._id,
+        productId: product._id,
+        productName: product.name,
+        price: product.price,
+        discountPercentage: product.discountPercentage,
+        weight: product.weight,
+        image: selectedSet.images[0],
+        colorName: selectedSet.colorName,
         selectedSet: selectedSet._id,
         selectedSizes: selectedSizes,
         selectedExtras: Object.keys(selectedExtras).map((key) => ({
-          extraId: key,
+          option: selectedSet.extraOptions.find((opt) => opt._id === key),
           selected: selectedExtras[key],
         })),
         quantity: quantity,
@@ -162,7 +168,7 @@ const ProductPage = ({
           ' à sua sacola!'
       );
       setShowDialog(true);
-      context.addOrRemoveFromBag(prodToBag).then(() => {
+      context.bag.addOrRemoveItem(prodToBag).then(() => {
         setIsLoading(false);
       });
     }
@@ -177,18 +183,24 @@ const ProductPage = ({
 
     if (isValid) {
       const prodToBag = {
-        product: product._id,
+        productId: product._id,
+        productName: product.name,
+        price: product.price,
+        discountPercentage: product.discountPercentage,
+        weight: product.weight,
+        image: selectedSet.images[0],
+        colorName: selectedSet.colorName,
         selectedSet: selectedSet._id,
         selectedSizes: selectedSizes,
         selectedExtras: Object.keys(selectedExtras).map((key) => ({
-          extraId: key,
+          option: selectedSet.extraOptions.find((opt) => opt._id === key),
           selected: selectedExtras[key],
         })),
         quantity: quantity,
       };
-      context.addOrRemoveFromBag(prodToBag).then((bag) => {
+      context.bag.addOrRemoveItem(prodToBag).then((bag) => {
         setIsLoading(false);
-        router.push({ pathname: '/loja/sacola', query: { bag: bag } });
+        router.push({ pathname: '/loja/sacola' });
       });
     }
   }
@@ -332,7 +344,7 @@ const ProductPage = ({
                             key={size._id}
                             className={
                               !!selectedSizes[0] &&
-                              selectedSizes[0].sizeId === size._id
+                              selectedSizes[0].size._id === size._id
                                 ? styles.selectedSizeSet
                                 : ''
                             }
@@ -345,47 +357,43 @@ const ProductPage = ({
                                 value="uniqueSize"
                                 checked={
                                   !!selectedSizes[0] &&
-                                  selectedSizes[0].sizeId === size._id
+                                  selectedSizes[0].size._id === size._id
                                 }
                                 onChange={() => {
                                   setSelectedSizes([
                                     {
-                                      sizeId: size._id,
-                                      isUnique: true,
+                                      size: size,
                                       selected: '',
                                     },
                                   ]);
                                   setSelectedSizesValidator(true);
                                 }}
                               />
-                              <span className={styles.capitalize}>
-                                {size.name}
-                              </span>
+                              <span className={styles.capitalize}>Único</span>
                             </label>
                             <span>
                               <SizeSelector
                                 availableSizeList={
                                   !!selectedSizes[0] &&
-                                  selectedSizes[0].sizeId === size._id
+                                  selectedSizes[0].size._id === size._id
                                     ? size.availableSizes
                                     : []
                                 }
                                 value={
                                   selectedSizes.find(
-                                    (s) => s.sizeId === size._id
+                                    (s) => s.size._id === size._id
                                   )
                                     ? selectedSizes.find(
-                                        (s) => s.sizeId === size._id
+                                        (s) => s.size._id === size._id
                                       ).selected
                                     : ''
                                 }
                                 fullSizeList={size.sizeSetId.sizes}
-                                id={size._id}
-                                onChange={(id, value) => {
+                                size={size}
+                                onChange={(size, value) => {
                                   setSelectedSizes([
                                     {
-                                      sizeId: id,
-                                      isUnique: true,
+                                      size: size,
                                       selected: value,
                                     },
                                   ]);
@@ -401,7 +409,7 @@ const ProductPage = ({
                       <div
                         className={[
                           styles.sizeSections,
-                          !!selectedSizes[0] && !selectedSizes[0].isUnique
+                          !!selectedSizes[0] && !selectedSizes[0].size.isUnique
                             ? styles.selectedSizeSet
                             : '',
                         ]
@@ -417,7 +425,7 @@ const ProductPage = ({
                               value="customSize"
                               checked={
                                 !!selectedSizes[0] &&
-                                selectedSizes[0].isUnique === false
+                                selectedSizes[0].size.isUnique === false
                               }
                               onChange={() => {
                                 setSelectedSizes(() => {
@@ -425,8 +433,7 @@ const ProductPage = ({
                                   selectedSet.sizeSets.forEach((size) => {
                                     if (!size.isUnique)
                                       newSelectedSizes.push({
-                                        sizeId: size._id,
-                                        isUnique: false,
+                                        size: size,
                                         selected: '',
                                       });
                                   });
@@ -452,32 +459,31 @@ const ProductPage = ({
                                       <SizeSelector
                                         availableSizeList={
                                           selectedSizes.some(
-                                            (s) => s.sizeId === size._id
+                                            (s) => s.size._id === size._id
                                           )
                                             ? size.availableSizes
                                             : []
                                         }
                                         value={
                                           selectedSizes.find(
-                                            (s) => s.sizeId === size._id
+                                            (s) => s.size._id === size._id
                                           )
                                             ? selectedSizes.find(
-                                                (s) => s.sizeId === size._id
+                                                (s) => s.size._id === size._id
                                               ).selected
                                             : ''
                                         }
                                         fullSizeList={size.sizeSetId.sizes}
-                                        id={size._id}
-                                        onChange={(id, value) => {
+                                        size={size}
+                                        onChange={(size, value) => {
                                           let index = selectedSizes.findIndex(
-                                            (s) => s.sizeId === id
+                                            (s) => s.size._id === size._id
                                           );
                                           setSelectedSizes((oldArray) => {
                                             let newArray = [...oldArray];
                                             newArray[index] = {
-                                              sizeId: id,
-                                              ref: i,
-                                              isUnique: false,
+                                              size: size,
+                                              // ref: i,
                                               selected: value,
                                             };
                                             setSelectedSizesValidator(true);
@@ -662,9 +668,6 @@ const ProductPage = ({
                     if (okText === 'Finalizar Compra')
                       router.push({
                         pathname: '/loja/sacola',
-                        query: {
-                          bag: context.bag.bagId,
-                        },
                       });
                   }}
                 >
@@ -687,7 +690,7 @@ export async function getStaticPaths() {
   for (const product of products) {
     pathList.push({
       params: {
-        category: product.categoryName,
+        category: removeAccents(product.categoryName),
         product: product._id.toString(),
       },
     });
